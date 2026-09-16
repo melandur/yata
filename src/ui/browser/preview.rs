@@ -82,6 +82,13 @@ impl BrowserView {
         if self.view_mode() != BrowserMode::Columns {
             return;
         }
+        // The fixed strip never scrolls horizontally, so run-off space beside it
+        // is pure loss: the margin comes straight off the viewport the slots
+        // divide, which starves them below their minimum.
+        if self.state.yazi_columns.get() {
+            self.state.columns_widget.set_margin_end(0);
+            return;
+        }
         let offset = self.state.scroller.hadjustment().value();
         let occupied = self.preview_occupied_width(available);
         let gap = if offset > 0.0 {

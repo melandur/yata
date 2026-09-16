@@ -37,7 +37,8 @@ fn automatic_and_manual_widths_reserve_space_without_losing_the_session_choice()
         ..geometry
     };
     assert!(narrow.can_show_preview());
-    assert_eq!(narrow.preview_width(None), 398);
+    // Its ratio share, not every pixel the columns could give up.
+    assert_eq!(narrow.preview_width(None), narrow.available * 3 / 8);
     assert_eq!(narrow.position(Some(900)), narrow.start_minimum);
     assert!(
         !Geometry {

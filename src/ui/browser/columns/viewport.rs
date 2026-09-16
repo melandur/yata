@@ -105,7 +105,12 @@ impl ViewState {
                     .active_depth()
                     .unwrap_or_else(|| columns.len().saturating_sub(1));
                 let first = active.saturating_sub(1);
-                slot_widths(self.viewport_width(), &SLOT_RATIOS).map(|widths| (first, widths))
+                let ratios: &[u32] = if self.preview_open.get() {
+                    &SLOT_RATIOS_WITH_PREVIEW
+                } else {
+                    &SLOT_RATIOS
+                };
+                slot_widths(self.viewport_width(), ratios).map(|widths| (first, widths))
             })
             .flatten();
 
@@ -122,6 +127,12 @@ impl ViewState {
         self.columns_widget.set_halign(gtk::Align::Fill);
         self.scroller
             .set_hscrollbar_policy(gtk::PolicyType::External);
+        // The slots fill the viewport exactly, so a scroll offset left over from
+        // free-growing columns would clip the parent slot off the left edge.
+        let adjustment = self.scroller.hadjustment();
+        if adjustment.value() != 0.0 {
+            adjustment.set_value(0.0);
+        }
         for (index, column) in columns.iter().enumerate() {
             let Some(width) = index.checked_sub(first).and_then(|slot| widths.get(slot)) else {
                 column.shell.set_visible(false);

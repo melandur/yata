@@ -75,11 +75,19 @@ impl Geometry {
         let minimum = if manual {
             COLUMN_WIDTH
         } else if self.columns {
-            COLUMN_WIDTH * MIN_COLUMN_MULTIPLIER
+            // A floor of whole columns is wider than yazi's three eighths on an
+            // ordinary window, and clamping up to it swallows the strip.
+            self.ratio_width().min(COLUMN_WIDTH * MIN_COLUMN_MULTIPLIER)
         } else {
             MIN_WIDTH
         };
         minimum.min(self.maximum_width())
+    }
+
+    fn ratio_width(self) -> i32 {
+        self.available
+            .saturating_mul(PREVIEW_RATIO)
+            .saturating_div(TOTAL_RATIO)
     }
 
     fn preview_width(self, manual: Option<i32>) -> i32 {
@@ -87,10 +95,7 @@ impl Geometry {
         let desired = manual.unwrap_or_else(|| {
             if self.columns {
                 // Yazi's ratio is [1, 4, 3]; the drawer is that last three.
-                self.available
-                    .saturating_mul(PREVIEW_RATIO)
-                    .saturating_div(TOTAL_RATIO)
-                    .min(free)
+                self.ratio_width().min(free)
             } else {
                 free.saturating_mul(9).saturating_div(10).min(MAX_WIDTH)
             }
