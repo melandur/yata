@@ -4,6 +4,11 @@ use std::cell::{Cell, RefCell};
 
 use gtk::{gdk, gdk::prelude::*, glib, graphene, prelude::*, subclass::prelude::*};
 
+/// Yazi renders its file icons in a Nerd Font; fall back to any monospace face
+/// so a machine without one still shows the glyph box rather than nothing.
+const GLYPH_FONT: &str = "JetBrainsMono Nerd Font, Symbols Nerd Font, monospace";
+const GLYPH_SCALE: f64 = 0.82;
+
 mod imp {
     use super::*;
 
@@ -16,6 +21,7 @@ mod imp {
         pub texture: RefCell<Option<gdk::Texture>>,
         pub fallback: RefCell<Option<gdk::Texture>>,
         pub fallback_icon: RefCell<Option<String>>,
+        pub glyph: RefCell<Option<(String, gdk::RGBA)>>,
         pub cut: Cell<bool>,
         pub hidden: Cell<bool>,
         pub base_opacity: Cell<f64>,
@@ -36,6 +42,32 @@ mod imp {
 
     impl ObjectImpl for ThumbnailSlot {}
 
+    impl ThumbnailSlot {
+        fn snapshot_glyph(
+            &self,
+            snapshot: &gtk::Snapshot,
+            text: &str,
+            color: gdk::RGBA,
+            width: f64,
+            height: f64,
+        ) {
+            let obj = self.obj();
+            let layout = obj.create_pango_layout(Some(text));
+            let mut font = gtk::pango::FontDescription::from_string(GLYPH_FONT);
+            font.set_absolute_size(height * GLYPH_SCALE * f64::from(gtk::pango::SCALE));
+            layout.set_font_description(Some(&font));
+            let (ink, _) = layout.extents();
+            let x = (width - f64::from(ink.width()) / f64::from(gtk::pango::SCALE)) / 2.0
+                - f64::from(ink.x()) / f64::from(gtk::pango::SCALE);
+            let y = (height - f64::from(ink.height()) / f64::from(gtk::pango::SCALE)) / 2.0
+                - f64::from(ink.y()) / f64::from(gtk::pango::SCALE);
+            snapshot.save();
+            snapshot.translate(&graphene::Point::new(x as f32, y as f32));
+            snapshot.append_layout(&layout, &color);
+            snapshot.restore();
+        }
+    }
+
     impl WidgetImpl for ThumbnailSlot {
         fn request_mode(&self) -> gtk::SizeRequestMode {
             gtk::SizeRequestMode::ConstantSize
@@ -54,6 +86,16 @@ mod imp {
                 return;
             }
             let is_cut = self.cut.get();
+
+            // A Nerd Font glyph stands in for the Lucide fallback, but never for
+            // a real thumbnail or the cut marker.
+            if !is_cut && self.texture.borrow().is_none() {
+                let glyph = self.glyph.borrow().clone();
+                if let Some((text, color)) = glyph {
+                    self.snapshot_glyph(snapshot, &text, color, width, height);
+                    return;
+                }
+            }
 
             let texture = if is_cut {
                 crate::assets::primary_icon_paintable(crate::assets::icons::SCISSORS)
@@ -178,6 +220,25 @@ impl ThumbnailSlot {
 
     pub(crate) fn limit_fallback_height_to_folder(&self) {
         self.imp().limit_fallback_height.set(true);
+    }
+
+    pub(crate) fn set_glyph(&self, glyph: &str, color: gdk::RGBA) {
+        let imp = self.imp();
+        let changed = imp
+            .glyph
+            .borrow()
+            .as_ref()
+            .is_none_or(|(text, current)| text != glyph || *current != color);
+        if changed {
+            imp.glyph.replace(Some((glyph.to_owned(), color)));
+            self.queue_draw();
+        }
+    }
+
+    pub(crate) fn clear_glyph(&self) {
+        if self.imp().glyph.replace(None).is_some() {
+            self.queue_draw();
+        }
     }
 
     pub(crate) fn set_texture(&self, texture: &gdk::Texture) {

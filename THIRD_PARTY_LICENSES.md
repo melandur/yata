@@ -106,3 +106,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
+
+## Yazi
+
+`data/yazi-icons.toml` contains the file-type icon table from
+[yazi](https://github.com/sxyazi/yazi) (`yazi-config/preset/theme-dark.toml`),
+and the bundled "Yazi" theme is derived from that preset's palette. Yazi is
+licensed under the MIT License, Copyright (c) 2023-present yazi contributors.
+The glyphs themselves come from Nerd Fonts and render with the reader's own
+Nerd Font.

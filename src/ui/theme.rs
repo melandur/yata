@@ -181,7 +181,7 @@ impl Default for Preferences {
     fn default() -> Self {
         Self {
             mode: "theme".to_owned(),
-            theme: "tokyo-night".to_owned(),
+            theme: "yazi".to_owned(),
             folder_peeking: true,
             single_click_previews: true,
             yazi_columns: true,

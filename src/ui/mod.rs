@@ -7,6 +7,7 @@ mod browser_modes;
 mod chooser;
 mod controls;
 mod entry_list_model;
+mod file_icons;
 mod focus_navigation;
 mod icons_cell;
 mod inline_search;

@@ -334,6 +334,12 @@ pub(super) fn set_thumbnail_or_icon(
     icon_size: i32,
     thumbnail_size: i32,
 ) {
+    // The slot only paints the glyph when no thumbnail resolves, so an image
+    // still shows its own preview.
+    match crate::ui::file_icons::icon_for(entry) {
+        Some(icon) => image.set_glyph(&icon.glyph, icon.color),
+        None => image.clear_glyph(),
+    }
     let Some(path) = entry.local_thumbnail_path() else {
         if entry.location.backend_name() == "gphoto2"
             && !entry.is_directory()
