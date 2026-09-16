@@ -16,7 +16,12 @@ fn automatic_and_manual_widths_reserve_space_without_losing_the_session_choice()
         columns: true,
         icons: false,
     };
-    assert_eq!(geometry.position(None), geometry.occupied);
+    // The drawer takes yazi's three eighths, leaving the strip the other five,
+    // rather than claiming every pixel the columns can give up.
+    assert_eq!(
+        geometry.position(None),
+        geometry.available * 5 / 8 - geometry.separator
+    );
     let overflow = Geometry {
         occupied: 1800,
         ..geometry
