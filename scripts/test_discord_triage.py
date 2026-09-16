@@ -17,7 +17,7 @@ class FakeClient:
         self.messages = messages
         self.discord_calls = []
         self.github_calls = []
-        self.repository = "lgse/strata"
+        self.repository = "melandur/yata"
 
     def discord(self, path, method="GET", payload=None):
         if method == "GET":
@@ -30,7 +30,7 @@ class FakeClient:
         return {
             "number": 42,
             "title": payload["title"],
-            "html_url": "https://github.com/lgse/strata/issues/42",
+            "html_url": "https://github.com/melandur/yata/issues/42",
             "body": payload["body"],
             "state": "open",
         }
@@ -103,7 +103,7 @@ class DiscordTriageTests(unittest.TestCase):
             {
                 "number": 7,
                 "title": "Large PDF crashes the preview pane",
-                "html_url": "https://github.com/lgse/strata/issues/7",
+                "html_url": "https://github.com/melandur/yata/issues/7",
                 "state": "open",
                 "body": "",
             }

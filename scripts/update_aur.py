@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render Strata's AUR packages from `packaging/aur/PKGBUILD.in`."""
+"""Render yata's AUR packages from `packaging/aur/PKGBUILD.in`."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import sys
 import urllib.error
 import urllib.request
 
-REPOSITORY_URL = "https://github.com/lgse/strata"
+REPOSITORY_URL = "https://github.com/melandur/yata"
 TARGETS = ("x86_64", "aarch64")
 
 RELEASE_VERSION_PATTERN = re.compile(

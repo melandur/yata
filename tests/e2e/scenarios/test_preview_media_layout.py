@@ -43,31 +43,31 @@ def fixture_tree(test_environment, request):
 
 
 @pytest.mark.parametrize("fixture_tree", ["heic", "mov", "mp4"], indirect=True)
-def test_camera_formats_render_through_preview_sandbox(strata, request):
+def test_camera_formats_render_through_preview_sandbox(yata, request):
     extension = request.node.callspec.params["fixture_tree"]
-    strata.select_entry_with_keyboard(f"camera.{extension}")
-    strata.keyboard.press("space")
+    yata.select_entry_with_keyboard(f"camera.{extension}")
+    yata.keyboard.press("space")
     if extension == "heic":
         def rendered():
-            preview = strata.preview()
+            preview = yata.preview()
             return preview is not None and any(
                 node.screen_bounds().width >= 80 for node in preview.find_all(role="image")
             )
-        strata.wait(rendered, "the HEIC image decoded by the preview sandbox")
+        yata.wait(rendered, "the HEIC image decoded by the preview sandbox")
     else:
-        strata.wait(lambda: strata.preview_shows("/0:04"), "the sandboxed video duration")
-    assert not strata.preview_shows("Preview unavailable")
-    strata.keyboard.press("space")
-    strata.wait(lambda: strata.preview() is None, "the preview to close")
+        yata.wait(lambda: yata.preview_shows("/0:04"), "the sandboxed video duration")
+    assert not yata.preview_shows("Preview unavailable")
+    yata.keyboard.press("space")
+    yata.wait(lambda: yata.preview() is None, "the preview to close")
 
 
-def test_small_image_preview_never_uses_an_upscaled_thumbnail_as_its_native_size(strata):
-    strata.select_entry_with_keyboard("small.png")
-    strata.keyboard.press("space")
+def test_small_image_preview_never_uses_an_upscaled_thumbnail_as_its_native_size(yata):
+    yata.select_entry_with_keyboard("small.png")
+    yata.keyboard.press("space")
     observed = []
 
     def rendered():
-        preview = strata.preview()
+        preview = yata.preview()
         if preview is None:
             return False
         images = [
@@ -81,5 +81,5 @@ def test_small_image_preview_never_uses_an_upscaled_thumbnail_as_its_native_size
         observed.append((bounds.width, bounds.height))
         return bounds.width == 160 and bounds.height == 80
 
-    strata.wait(rendered, "the native image rendered at no more than twice its original size")
+    yata.wait(rendered, "the native image rendered at no more than twice its original size")
     assert all(width <= 160 and height <= 80 for width, height in observed), observed

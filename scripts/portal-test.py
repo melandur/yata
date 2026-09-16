@@ -3,7 +3,7 @@
 """Exercise FileChooser v4, optionally on a private bus without installing a portal.
 
 Requires PyGObject (Gio), dbus-daemon, and a graphical session. This client calls
-Strata's backend directly; portal routing is tested separately with portal-test.html.
+yata's backend directly; portal routing is tested separately with portal-test.html.
 It only returns destinations: unlike the HTML SaveFile test, it never writes them.
 """
 
@@ -22,7 +22,7 @@ from portal_test_environment import isolated_process_environment
 
 from gi.repository import Gio, GLib
 
-BACKEND = "org.freedesktop.impl.portal.desktop.strata"
+BACKEND = "org.freedesktop.impl.portal.desktop.yata"
 DESKTOP = "/org/freedesktop/portal/desktop"
 INTERFACE = "org.freedesktop.impl.portal.FileChooser"
 
@@ -31,8 +31,8 @@ def fixture(folder):
     folder.mkdir(parents=True, exist_ok=True)
     for name in ("Documents", "Downloads", "Pictures", "Videos"):
         (folder / name).mkdir(exist_ok=True)
-    (folder / "notes.txt").write_text("Strata portal test notes\n", encoding="utf-8")
-    (folder / "readme.md").write_text("# Strata File Chooser\n", encoding="utf-8")
+    (folder / "notes.txt").write_text("yata portal test notes\n", encoding="utf-8")
+    (folder / "readme.md").write_text("# yata File Chooser\n", encoding="utf-8")
     (folder / "strata-portal-demo.txt").write_text("Existing file: test overwrite confirmation.\n", encoding="utf-8")
     def chunk(kind, data):
         return struct.pack("!I", len(data)) + kind + data + struct.pack("!I", zlib.crc32(kind + data))
@@ -80,7 +80,7 @@ def request(connection, args, folder):
     token = "strata_test_" + uuid.uuid4().hex
     handle = f"{DESKTOP}/request/strata_test/{token}"
     parameters = GLib.Variant("(osssa{sv})", (
-        handle, "", "", f"Strata · {method} · {args.case}", options,
+        handle, "", "", f"yata · {method} · {args.case}", options,
     ))
     loop = GLib.MainLoop()
     failed = []
@@ -132,7 +132,7 @@ def main():
         try:
             if args.binary:
                 env = isolated_process_environment(root)
-                settings = root / "config/strata/settings.toml"
+                settings = root / "config/yata/settings.toml"
                 settings.parent.mkdir(parents=True)
                 settings.write_text(
                     f'mode = "theme"\ntheme = {json.dumps(args.theme)}\nbrowser_mode = {json.dumps(args.view)}\n'
@@ -168,7 +168,7 @@ def main():
                     if owned:
                         break
                     if backend.poll() is not None or time.monotonic() > deadline:
-                        raise RuntimeError("The isolated Strata backend did not start")
+                        raise RuntimeError("The isolated yata backend did not start")
                     time.sleep(.05)
             request(connection, args, folder)
         finally:

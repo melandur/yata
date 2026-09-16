@@ -47,30 +47,30 @@ def _visible_entries(container, viewport):
             yield row
 
 
-def _open_scrolling_directory(strata):
-    folder = strata.fixture.path("scrolling")
+def _open_scrolling_directory(yata):
+    folder = yata.fixture.path("scrolling")
     folder.mkdir()
     for index in range(600):
         (folder / f"{index:03}.txt").write_text(f"{index}\n")
-    strata.open_directory("scrolling")
+    yata.open_directory("scrolling")
 
 
 @pytest.mark.preferences(browser_mode="list")
-def test_sidebar_marquee_focus_preserves_a_scrolled_list(strata):
-    _open_scrolling_directory(strata)
-    home = strata.sidebar_button("Home")
-    strata.keyboard.press("Home")
-    strata.keyboard.press("Left")
-    strata.wait(lambda: home.has_state("focused"), "keyboard focus in the sidebar")
-    container = strata.entry_container()
+def test_sidebar_marquee_focus_preserves_a_scrolled_list(yata):
+    _open_scrolling_directory(yata)
+    home = yata.sidebar_button("Home")
+    yata.keyboard.press("Home")
+    yata.keyboard.press("Left")
+    yata.wait(lambda: home.has_state("focused"), "keyboard focus in the sidebar")
+    container = yata.entry_container()
     viewport = _viewport(container)
-    strata.pointer.scroll(at=viewport.screen_bounds().center, clicks=15)
-    strata.wait(
+    yata.pointer.scroll(at=viewport.screen_bounds().center, clicks=15)
+    yata.wait(
         lambda: (rows := list(_visible_entries(container, viewport)))
         and _entry_name(rows[0]) > "010.txt",
         "the list to scroll while focus stays in the sidebar",
     )
-    strata.settle(next(_visible_entries(container, viewport)))
+    yata.settle(next(_visible_entries(container, viewport)))
     assert home.has_state("focused")
     rows = list(_visible_entries(container, viewport))
     first_visible = _entry_name(rows[0])
@@ -79,9 +79,9 @@ def test_sidebar_marquee_focus_preserves_a_scrolled_list(strata):
     expected = {_entry_name(row) for row in band}
     end = _entry_bounds(band[0])
     start = (home.screen_bounds().center[0], _entry_bounds(band[-1]).center[1])
-    strata.pointer.drag_points(start, (end.x + end.width * 2 // 3, end.center[1]))
-    strata.wait(
-        lambda: set(strata.selected_names()) == expected,
+    yata.pointer.drag_points(start, (end.x + end.width * 2 // 3, end.center[1]))
+    yata.wait(
+        lambda: set(yata.selected_names()) == expected,
         "the sidebar marquee to select only the visible band",
     )
     assert _entry_name(next(_visible_entries(container, viewport))) == first_visible
@@ -90,9 +90,9 @@ def test_sidebar_marquee_focus_preserves_a_scrolled_list(strata):
 
 @pytest.mark.parametrize("mode", ALL_MODES)
 @pytest.mark.parametrize("scrolling", ["edge", "wheel"])
-def test_scrolling_extends_marquee_without_losing_earlier_files(strata, mode, scrolling):
-    _open_scrolling_directory(strata)
-    anchor = strata.entry("010.txt")
+def test_scrolling_extends_marquee_without_losing_earlier_files(yata, mode, scrolling):
+    _open_scrolling_directory(yata)
+    anchor = yata.entry("010.txt")
     if mode == "Icons":
         icon = anchor.find(role="image")
         assert icon is not None
@@ -108,7 +108,7 @@ def test_scrolling_extends_marquee_without_losing_earlier_files(strata, mode, sc
             # Columns retain whole-row dragging, so use the gap before the row.
             row_bounds = anchor.screen_bounds()
             start = (bounds.center[0], row_bounds.y - 2)
-    container = strata.entry_container()
+    container = yata.entry_container()
     assert container is not None
     viewport = _viewport(container)
     viewport_bounds = viewport.screen_bounds()
@@ -121,11 +121,11 @@ def test_scrolling_extends_marquee_without_losing_earlier_files(strata, mode, sc
             else viewport_bounds.height * 4 // 5
         ),
     )
-    strata.pointer.drag_points(start, end, release=False)
+    yata.pointer.drag_points(start, end, release=False)
     try:
         if scrolling == "wheel":
-            strata.pointer.scroll(at=end, clicks=32)
-        strata.wait(
+            yata.pointer.scroll(at=end, clicks=32)
+        yata.wait(
             lambda: any(
                 _entry_name(row) >= "060.txt"
                 for row in _visible_entries(container, viewport)
@@ -135,8 +135,8 @@ def test_scrolling_extends_marquee_without_losing_earlier_files(strata, mode, sc
 
         if scrolling == "edge":
             end = (end[0], viewport_bounds.y + viewport_bounds.height - 40)
-            strata.pointer.move_to(*end)
-        strata.settle(next(_visible_entries(container, viewport)))
+            yata.pointer.move_to(*end)
+        yata.settle(next(_visible_entries(container, viewport)))
 
         def visible_band_is_selected():
             rows = []
@@ -150,12 +150,12 @@ def test_scrolling_extends_marquee_without_losing_earlier_files(strata, mode, sc
                     rows.append(row)
             return rows and all(row.has_state("selected") for row in rows)
 
-        strata.wait(
+        yata.wait(
             visible_band_is_selected,
             "every visible row inside the scrolled marquee to be selected",
         )
     finally:
-        strata.pointer.connection.button(1, False)
+        yata.pointer.connection.button(1, False)
 
     for _ in range(40):
         if any(
@@ -163,18 +163,18 @@ def test_scrolling_extends_marquee_without_losing_earlier_files(strata, mode, sc
             for row in _visible_entries(container, viewport)
         ):
             break
-        strata.pointer.scroll(at=viewport_bounds.center, clicks=20, down=False)
-    strata.wait(
+        yata.pointer.scroll(at=viewport_bounds.center, clicks=20, down=False)
+    yata.wait(
         lambda: any(
             _entry_name(row) == "000.txt"
             for row in _visible_entries(container, viewport)
         ),
         "the beginning of the directory to scroll back into view",
     )
-    assert strata.entry("010.txt").has_state("selected"), (
+    assert yata.entry("010.txt").has_state("selected"), (
         "scrolling must retain the original selection"
     )
-    assert not strata.entry("000.txt").has_state("selected"), (
+    assert not yata.entry("000.txt").has_state("selected"), (
         "files above the anchor must stay unselected"
     )
-    assert strata.preview() is None
+    assert yata.preview() is None

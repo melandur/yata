@@ -146,7 +146,7 @@ pub(super) fn present_target(
 
     let window = gtk::ApplicationWindow::builder()
         .application(application)
-        .title("Strata")
+        .title("yata")
         .default_width(1200)
         .default_height(760)
         .build();
@@ -2400,7 +2400,7 @@ fn request_encrypted_lock(
         show_error_dialog(
             parent,
             "Unable to lock device",
-            "This volume has no supported lock operation while unmounted. Mount it in Strata, then try Lock again.",
+            "This volume has no supported lock operation while unmounted. Mount it in yata, then try Lock again.",
         );
         return;
     }

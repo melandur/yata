@@ -74,7 +74,7 @@ fn about_copies_the_running_build_details_to_the_clipboard() {
                 .expect("clipboard read")
                 .expect("version text");
             assert!(text.starts_with(&format!(
-                "Strata {}\n",
+                "yata {}\n",
                 crate::build_info::installed_version()
             )));
             assert!(text.contains(&format!("Commit: {}", crate::build_info::COMMIT)));

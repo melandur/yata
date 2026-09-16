@@ -18,7 +18,7 @@ fn navigation_reference_matches_each_mode() {
 #[test]
 #[ignore = "requires a mapped GTK window; run this test alone"]
 fn footer_tracks_modes_and_shields_files_while_open() {
-    const CHILD: &str = "STRATA_SHORTCUT_FOOTER_GTK_CHILD";
+    const CHILD: &str = "YATA_SHORTCUT_FOOTER_GTK_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let sandbox = tempfile::tempdir().expect("isolated preferences");
         let status = std::process::Command::new(std::env::current_exe().expect("test executable"))
@@ -39,7 +39,7 @@ fn footer_tracks_modes_and_shields_files_while_open() {
     }
     if gtk::init().is_err() {
         assert!(
-            std::env::var_os("STRATA_REQUIRE_GTK_TESTS").is_none(),
+            std::env::var_os("YATA_REQUIRE_GTK_TESTS").is_none(),
             "GTK required"
         );
         return;
@@ -230,7 +230,7 @@ fn footer_tracks_modes_and_shields_files_while_open() {
     }
     let settings =
         std::path::PathBuf::from(std::env::var_os("XDG_CONFIG_HOME").expect("isolated config"))
-            .join("strata/settings.toml");
+            .join("yata/settings.toml");
     let saved: toml::Value =
         toml::from_str(&std::fs::read_to_string(settings).expect("saved preferences"))
             .expect("valid preferences");

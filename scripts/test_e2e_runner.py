@@ -30,30 +30,30 @@ class ContainerRunnerTests(unittest.TestCase):
                 "if sys.argv[1:3] == ['image', 'inspect']:\n"
                 "    if '--format' in sys.argv: print(os.environ.get('MOCK_IMAGE_KEY', ''))\n"
                 "    else: print(json.dumps([{'Id':'sha256:'+'a'*64, 'Os':'linux', 'Architecture':'amd64',\n"
-                "         'Config':{'Labels':{'org.strata.e2e.inputs':os.environ['MOCK_IMAGE_KEY']},\n"
+                "         'Config':{'Labels':{'org.yata.e2e.inputs':os.environ['MOCK_IMAGE_KEY']},\n"
                 "                   'Env':['RUSTUP_HOME=/opt/rustup']}}]))\n"
             )
             engine.chmod(0o755)
             environment = {
                 **os.environ,
-                "STRATA_CONTAINER_ENGINE": str(engine),
+                "YATA_CONTAINER_ENGINE": str(engine),
                 "ENGINE_LOG": str(log),
                 "MOCK_IMAGE_KEY": image_key(),
                 "DISPLAY": ":0",
                 "WAYLAND_DISPLAY": "wayland-0",
                 "NOTIFY_SOCKET": "/run/user/1000/systemd/notify",
-                "STRATA_E2E_UPDATE_BASELINES": "1",
-                "STRATA_E2E_WORKERS": workers,
+                "YATA_E2E_UPDATE_BASELINES": "1",
+                "YATA_E2E_WORKERS": workers,
             }
             if uid is not None:
                 identity = root / "id"
                 identity.write_text(f"#!/bin/sh\necho {uid}\n")
                 identity.chmod(0o755)
                 environment["PATH"] = f"{root}:{os.environ.get('PATH', os.defpath)}"
-            for name in ("STRATA_BINARY", "STRATA_E2E_IMAGE", "STRATA_E2E_BUNDLE"):
+            for name in ("YATA_BINARY", "YATA_E2E_IMAGE", "YATA_E2E_BUNDLE"):
                 environment.pop(name, None)
             if binary:
-                environment["STRATA_BINARY"] = binary
+                environment["YATA_BINARY"] = binary
             environment.update(extra_env or {})
             result = subprocess.run(
                 [str(REPOSITORY / "scripts/e2e.sh"), "-k", "columns and baseline"],
@@ -74,9 +74,9 @@ class ContainerRunnerTests(unittest.TestCase):
         self.assertFalse(any(call["args"][0] in ("build", "pull") for call in calls))
         self.assertEqual(run[-2:], ["-k", "columns and baseline"])
         self.assertIn(f"type=bind,source={REPOSITORY},target=/workspace", run)
-        self.assertIn("STRATA_E2E_UPDATE_BASELINES=1", run)
+        self.assertIn("YATA_E2E_UPDATE_BASELINES=1", run)
         self.assertIn("CARGO_TARGET_DIR=/workspace/target/e2e-container/build", run)
-        self.assertIn("cargo build --locked --bin strata", " ".join(run))
+        self.assertIn("cargo build --locked --bin yata", " ".join(run))
         self.assertNotIn("--userns=keep-id", run)
         for call in calls:
             self.assertIsNone(call["display"])
@@ -88,7 +88,7 @@ class ContainerRunnerTests(unittest.TestCase):
         loader = re.search(r"zstd -dc target/e2e-runtime/runtime.tar.zst \| (\w+) load", workflow)
         step = workflow.split("- name: Run the assigned scenarios without rebuilding or installing", 1)[1]
         step = step.split("- name:", 1)[0]
-        runner = re.search(r"STRATA_CONTAINER_ENGINE: (\w+)", step)
+        runner = re.search(r"YATA_CONTAINER_ENGINE: (\w+)", step)
         self.assertIsNotNone(loader)
         self.assertIsNotNone(runner)
         self.assertEqual(loader.group(1), runner.group(1))
@@ -98,7 +98,7 @@ class ContainerRunnerTests(unittest.TestCase):
             with self.subTest(workers=workers):
                 result, calls = self.run_runner(workers=workers)
                 self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertIn(f"STRATA_E2E_WORKERS={workers}", calls[1]["args"])
+                self.assertIn(f"YATA_E2E_WORKERS={workers}", calls[1]["args"])
 
     def test_rootless_podman_preserves_checkout_ownership(self):
         result, calls = self.run_runner("podman")
@@ -149,7 +149,7 @@ class ContainerRunnerTests(unittest.TestCase):
             self.assertFalse((root / "stale-binary-ran").exists())
 
     def test_preloaded_image_skips_the_container_build(self):
-        result, calls = self.run_runner(extra_env={"STRATA_E2E_IMAGE": "pinned-runtime"})
+        result, calls = self.run_runner(extra_env={"YATA_E2E_IMAGE": "pinned-runtime"})
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(len(calls), 2)
         self.assertEqual(calls[0]["args"][:2], ["image", "inspect"])
@@ -161,7 +161,7 @@ class ContainerRunnerTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory(dir=REPOSITORY) as directory:
             bundle = Path(directory)
-            (bundle / "strata").write_bytes(b"container binary")
+            (bundle / "yata").write_bytes(b"container binary")
             (bundle / "plan.json").write_text("{}")
             # Bundle verification only needs a stable identity; this harness test
             # must also work from CI's archive checkout, which has no .git tree.
@@ -173,27 +173,27 @@ class ContainerRunnerTests(unittest.TestCase):
                 "printf '%s\\n' synthetic-test-commit\n"
             )
             git.chmod(0o755)
-            env = {"STRATA_E2E_BUNDLE": str(bundle), "STRATA_E2E_IMAGE": "runtime",
+            env = {"YATA_E2E_BUNDLE": str(bundle), "YATA_E2E_IMAGE": "runtime",
                    "PATH": f"{bundle}:{os.environ.get('PATH', os.defpath)}",
                    "MOCK_IMAGE_KEY": image_key()}
             result, calls = self.run_runner(extra_env=env)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(len(calls), 2)
             self.assertEqual(calls[0]["args"][:2], ["image", "inspect"])
-            self.assertIn(f"STRATA_E2E_BUNDLE=/workspace/{bundle.name}", calls[1]["args"])
+            self.assertIn(f"YATA_E2E_BUNDLE=/workspace/{bundle.name}", calls[1]["args"])
             result, calls = self.run_runner(extra_env={**env, "MOCK_IMAGE_KEY": "wrong-toolkit"})
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("pinned E2E inputs", result.stderr)
             self.assertEqual(len(calls), 1)
-            (bundle / "strata").write_bytes(b"stale binary")
+            (bundle / "yata").write_bytes(b"stale binary")
             result, calls = self.run_runner(extra_env=env)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("checksum mismatch", result.stderr)
             self.assertEqual(calls, [])
 
     def test_bundle_requires_an_image_and_cannot_escape_the_checkout(self):
-        for env, message in [({"STRATA_E2E_BUNDLE": "/tmp"}, "runtime image"),
-                             ({"STRATA_E2E_BUNDLE": "/tmp", "STRATA_E2E_IMAGE": "runtime"},
+        for env, message in [({"YATA_E2E_BUNDLE": "/tmp"}, "runtime image"),
+                             ({"YATA_E2E_BUNDLE": "/tmp", "YATA_E2E_IMAGE": "runtime"},
                               "inside the checkout")]:
             result, calls = self.run_runner(extra_env=env)
             self.assertNotEqual(result.returncode, 0)
@@ -201,7 +201,7 @@ class ContainerRunnerTests(unittest.TestCase):
             self.assertEqual(calls, [])
 
     def test_host_binary_is_rejected_before_build(self):
-        result, calls = self.run_runner(binary="/tmp/host-strata")
+        result, calls = self.run_runner(binary="/tmp/host-yata")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("e2e-native.sh", result.stderr)
         self.assertEqual(calls, [])
@@ -235,16 +235,16 @@ class NativeRunnerTests(unittest.TestCase):
                     f"#!{sys.executable}\nimport json, os, sys\n"
                     f"with open({str(log)!r}, 'a') as stream:\n"
                     "    stream.write(json.dumps({'tool': os.path.basename(sys.argv[0]), "
-                    "'args': sys.argv[1:], 'binary': os.environ.get('STRATA_BINARY'), "
+                    "'args': sys.argv[1:], 'binary': os.environ.get('YATA_BINARY'), "
                     "'display': os.environ.get('DISPLAY'), 'wayland': os.environ.get('WAYLAND_DISPLAY')}) + '\\n')\n"
                 )
                 tool.chmod(0o755)
             environment = {**os.environ, "PATH": f"{tools}:{os.defpath}",
-                           "STRATA_E2E_VENV": str(venv), "DISPLAY": ":0", "WAYLAND_DISPLAY": "wayland-0"}
-            environment.pop("STRATA_BINARY", None)
+                           "YATA_E2E_VENV": str(venv), "DISPLAY": ":0", "WAYLAND_DISPLAY": "wayland-0"}
+            environment.pop("YATA_BINARY", None)
             environment.pop("CARGO_TARGET_DIR", None)
             if binary:
-                environment["STRATA_BINARY"] = binary
+                environment["YATA_BINARY"] = binary
             result = subprocess.run(["bash", str(runner), *arguments], cwd=root,
                                     env=environment, capture_output=True, text=True)
             calls = [json.loads(line) for line in log.read_text().splitlines()]
@@ -255,17 +255,17 @@ class NativeRunnerTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual([call["tool"] for call in calls], ["cargo", "python"])
         invocation = calls[-1]
-        self.assertEqual(invocation["binary"], str(root / "target/debug/strata"))
+        self.assertEqual(invocation["binary"], str(root / "target/debug/yata"))
         self.assertEqual(invocation["args"][-4:], ["-n", "auto", "--dist=loadgroup", "--max-worker-restart=0"])
         self.assertIsNone(invocation["display"])
         self.assertIsNone(invocation["wayland"])
 
     def test_explicit_pytest_options_follow_defaults_and_binary_skips_build(self):
-        result, calls, _ = self.run_runner(binary="/provided/strata", arguments=("-n", "0", "-k", "baseline"))
+        result, calls, _ = self.run_runner(binary="/provided/yata", arguments=("-n", "0", "-k", "baseline"))
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual([call["tool"] for call in calls], ["python"])
         self.assertEqual(calls[0]["args"][-4:], ["-n", "0", "-k", "baseline"])
-        self.assertEqual(calls[0]["binary"], "/provided/strata")
+        self.assertEqual(calls[0]["binary"], "/provided/yata")
 
     def test_existing_venv_is_updated_when_requirements_change(self):
         result, calls, _ = self.run_runner(current_requirements=False)

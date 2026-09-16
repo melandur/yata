@@ -20,40 +20,40 @@ def _switch(window, name):
     )
 
 
-def _open_settings(strata, window):
+def _open_settings(yata, window):
     button = window.find(role="button", name="Settings")
     assert button is not None and button.activate()
-    strata.wait(lambda: _switch(window, "Folder peeking"), "General settings to exist")
+    yata.wait(lambda: _switch(window, "Folder peeking"), "General settings to exist")
 
 
 @pytest.mark.preferences(
     folder_peeking=False, type_to_search=False, single_click_previews=False,
     filter_include_subfolders=False, open_folder_after_drop=False,
 )
-def test_preferences_sync_across_windows_and_restart(strata):
+def test_preferences_sync_across_windows_and_restart(yata):
     variables = process_environment()
-    variables.update(strata.environment.variables())
-    variables.update(strata.display.environment)
+    variables.update(yata.environment.variables())
+    variables.update(yata.display.environment)
     subprocess.run(
-        [str(binary_path()), str(strata.fixture.root)],
+        [str(binary_path()), str(yata.fixture.root)],
         env=variables,
-        cwd=strata.fixture.root,
+        cwd=yata.fixture.root,
         check=True,
         timeout=30,
         capture_output=True,
     )
-    windows = strata.wait(
+    windows = yata.wait(
         lambda: (
             frames
-            if len(frames := strata.application.application_node.find_all(
-                role="frame", name="Strata"
+            if len(frames := yata.application.application_node.find_all(
+                role="frame", name="yata"
             )) == 2
             else None
         ),
-        "two windows in the same Strata application",
+        "two windows in the same yata application",
     )
     for window in windows:
-        _open_settings(strata, window)
+        _open_settings(yata, window)
     for label, key in [
         ("Folder peeking", "folder_peeking"),
         ("Type to search", "type_to_search"),
@@ -64,24 +64,24 @@ def test_preferences_sync_across_windows_and_restart(strata):
         switches = [_switch(window, label) for window in windows]
         assert all(not toggle.has_state("checked") for toggle in switches)
         assert switches[0].activate()
-        strata.wait(
+        yata.wait(
             lambda: all(toggle.has_state("checked") for toggle in switches),
             f"{label} to enable in both windows",
         )
         assert switches[1].activate()
-        strata.wait(
+        yata.wait(
             lambda: all(not toggle.has_state("checked") for toggle in switches),
             f"{label} to disable in both windows",
         )
-        strata.wait(
-            lambda: strata.environment.read_preferences().get(key) == "false",
+        yata.wait(
+            lambda: yata.environment.read_preferences().get(key) == "false",
             f"{label} to be saved",
         )
-    strata.application.stop()
-    strata.application.start()
-    _open_settings(strata, strata.window)
+    yata.application.stop()
+    yata.application.start()
+    _open_settings(yata, yata.window)
     for label in [
         "Folder peeking", "Type to search", "Single-click file previews",
         "Include subfolders", "Open folder after dropping files",
     ]:
-        assert not _switch(strata.window, label).has_state("checked")
+        assert not _switch(yata.window, label).has_state("checked")

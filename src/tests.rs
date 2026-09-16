@@ -9,7 +9,7 @@ use super::{
 
 #[test]
 fn launch_mode_treats_non_utf8_arguments_as_an_ordinary_launch() {
-    let program = OsString::from("strata");
+    let program = OsString::from("yata");
     let non_utf8 = OsString::from_vec(b"/tmp/\xff".to_vec());
 
     assert_eq!(
@@ -34,9 +34,9 @@ fn launch_mode_recognizes_only_the_first_argument_as_a_mode() {
         ("--uninstall-portal", LaunchMode::UninstallPortal),
         ("--version", LaunchMode::Version),
     ] {
-        assert_eq!(launch_mode(&["strata".into(), flag.into()]), mode);
+        assert_eq!(launch_mode(&["yata".into(), flag.into()]), mode);
         assert_eq!(
-            launch_mode(&["strata".into(), "/tmp".into(), flag.into()]),
+            launch_mode(&["yata".into(), "/tmp".into(), flag.into()]),
             LaunchMode::Application
         );
     }
@@ -46,7 +46,7 @@ fn launch_mode_recognizes_only_the_first_argument_as_a_mode() {
 fn version_line_is_the_package_name_and_installed_version() {
     let line = version_line();
     assert!(
-        line.starts_with("strata "),
+        line.starts_with("yata "),
         "the --version line should start with the package name"
     );
     assert!(

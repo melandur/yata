@@ -79,14 +79,14 @@ def baseline_path(name: str) -> Path:
 
 
 def updating_baselines() -> bool:
-    return os.environ.get("STRATA_E2E_UPDATE_BASELINES") == "1"
+    return os.environ.get("YATA_E2E_UPDATE_BASELINES") == "1"
 
 
 def compare_to_baseline(name: str, actual: Path, artifacts: Path) -> Comparison:
     """Compare a capture with its committed baseline.
 
     A missing or mismatched baseline is never accepted automatically; the
-    developer regenerates it with `STRATA_E2E_UPDATE_BASELINES=1` and commits
+    developer regenerates it with `YATA_E2E_UPDATE_BASELINES=1` and commits
     the new image so the change is reviewable in the pull request.
     """
 

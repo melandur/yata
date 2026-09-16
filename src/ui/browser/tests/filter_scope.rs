@@ -157,7 +157,7 @@ fn saved_filter_scope_updates_two_windows_and_rebuilt_views_without_settings() {
                 }
             }
             let saved =
-                std::fs::read_to_string(glib::user_config_dir().join("strata/settings.toml"))
+                std::fs::read_to_string(glib::user_config_dir().join("yata/settings.toml"))
                     .expect("saved preference");
             assert!(saved.contains("filter_include_subfolders = false"));
             for window in windows {

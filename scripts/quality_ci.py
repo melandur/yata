@@ -94,7 +94,7 @@ def build():
         ignored = inventory(destination, ignored=True)
         binaries.append(dict(file=destination.name, target=target, sha256=digest(destination),
                              tests=tests, ignored=ignored, shards=partition(tests, durations)))
-    plan = dict(version=1, commit=os.environ["STRATA_QUALITY_COMMIT"],
+    plan = dict(version=1, commit=os.environ["YATA_QUALITY_COMMIT"],
                 source_key=test_source_key(ROOT), image_key=image_key(ROOT), binaries=binaries)
     validate_plan(plan)
     (BUNDLE / "plan.json").write_text(json.dumps(plan, indent=2) + "\n")
@@ -135,7 +135,7 @@ def run(shard):
     plan_path = BUNDLE / "plan.json"
     plan = json.loads(plan_path.read_text())
     validate_plan(plan)
-    if (plan["commit"] != os.environ["STRATA_QUALITY_COMMIT"]
+    if (plan["commit"] != os.environ["YATA_QUALITY_COMMIT"]
             or plan["source_key"] != test_source_key(ROOT) or plan["image_key"] != image_key(ROOT)):
         raise ValueError("Bundle checkout or environment mismatch")
     started = time.monotonic()
@@ -207,7 +207,7 @@ def verify(plan_path, reports):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("build", "run", "verify"))
-    parser.add_argument("--shard", type=int, default=os.environ.get("STRATA_QUALITY_SHARD"))
+    parser.add_argument("--shard", type=int, default=os.environ.get("YATA_QUALITY_SHARD"))
     parser.add_argument("--plan", type=Path, default=BUNDLE / "plan.json")
     parser.add_argument("--reports", type=Path, default=REPORTS)
     args = parser.parse_args()

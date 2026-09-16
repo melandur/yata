@@ -41,7 +41,7 @@ def create(bundle, commit, repository=REPOSITORY):
         raise ValueError("a bundle must identify the tested commit")
     metadata = {"schema": 1, "commit": commit, "image_key": image_key(repository),
                 "source_key": source_key(repository),
-                "files": {name: digest(bundle / name) for name in ("strata", "plan.json")}}
+                "files": {name: digest(bundle / name) for name in ("yata", "plan.json")}}
     (bundle / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
 
 
@@ -53,7 +53,7 @@ def verify(bundle, commit, repository=REPOSITORY):
         raise ValueError("bundle rendering/toolchain inputs differ from the checkout")
     if metadata.get("source_key") != source_key(repository):
         raise ValueError("bundle application source differs from the checkout (including local edits)")
-    for name in ("strata", "plan.json"):
+    for name in ("yata", "plan.json"):
         if digest(bundle / name) != metadata["files"][name]:
             raise ValueError(f"bundle checksum mismatch: {name}")
 

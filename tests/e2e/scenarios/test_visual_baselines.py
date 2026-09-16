@@ -69,23 +69,23 @@ def fixture_tree(request):
 
 
 @pytest.mark.preferences(browser_mode="columns")
-def test_columns_view_baseline(strata, baseline):
-    _settle(strata)
-    baseline(strata, "columns-view")
+def test_columns_view_baseline(yata, baseline):
+    _settle(yata)
+    baseline(yata, "columns-view")
 
 
 @pytest.mark.preferences(browser_mode="columns")
-def test_columns_overflow_baseline(strata, baseline, tmp_path):
-    strata.open_directory("documents")
-    strata.open_directory("projects", "documents")
-    strata.open_directory("release", "projects")
-    _settle(strata, ["summary.md"])
+def test_columns_overflow_baseline(yata, baseline, tmp_path):
+    yata.open_directory("documents")
+    yata.open_directory("projects", "documents")
+    yata.open_directory("release", "projects")
+    _settle(yata, ["summary.md"])
 
-    capture = strata.screenshot(tmp_path / "columns-overflow.png")
-    sidebar = strata.sidebar_button("Home").parent
+    capture = yata.screenshot(tmp_path / "columns-overflow.png")
+    sidebar = yata.sidebar_button("Home").parent
     assert sidebar is not None
     sidebar_bounds = sidebar.screen_bounds()
-    pane_bounds = strata.pane("release").screen_bounds()
+    pane_bounds = yata.pane("release").screen_bounds()
     leading_edge = sidebar_bounds.x + sidebar_bounds.width
     scrollbar_y = pane_bounds.y + pane_bounds.height + 7
     with Image.open(capture) as image:
@@ -94,77 +94,77 @@ def test_columns_overflow_baseline(strata, baseline, tmp_path):
             (leading_edge + 20, scrollbar_y)
         ), "the horizontal scrollbar background should be continuous at its leading edge"
 
-    baseline(strata, "columns-overflow")
+    baseline(yata, "columns-overflow")
 
 
 @pytest.mark.preferences(browser_mode="icons")
-def test_icons_view_baseline(strata, baseline, tmp_path):
-    _settle_icons(strata, tmp_path)
-    strata.select_entry_with_keyboard("DataGripProjects")
-    baseline(strata, "icons-view")
+def test_icons_view_baseline(yata, baseline, tmp_path):
+    _settle_icons(yata, tmp_path)
+    yata.select_entry_with_keyboard("DataGripProjects")
+    baseline(yata, "icons-view")
 
 
 @pytest.mark.preferences(browser_mode="icons", browser_density="airy")
-def test_icons_airy_view_baseline(strata, baseline, tmp_path):
-    _settle_icons(strata, tmp_path)
-    strata.select_entry_with_keyboard("Applications")
-    baseline(strata, "icons-airy-view")
+def test_icons_airy_view_baseline(yata, baseline, tmp_path):
+    _settle_icons(yata, tmp_path)
+    yata.select_entry_with_keyboard("Applications")
+    baseline(yata, "icons-airy-view")
 
 
 @pytest.mark.preferences(browser_mode="icons")
-def test_icons_hover_baseline(strata, baseline, tmp_path):
-    _settle_icons(strata, tmp_path)
-    strata.pointer.move_to(*strata.entry("todo.txt").screen_bounds().center)
-    strata.settle(strata.pane())
-    baseline(strata, "icons-hover")
+def test_icons_hover_baseline(yata, baseline, tmp_path):
+    _settle_icons(yata, tmp_path)
+    yata.pointer.move_to(*yata.entry("todo.txt").screen_bounds().center)
+    yata.settle(yata.pane())
+    baseline(yata, "icons-hover")
 
 
 @pytest.mark.preferences(browser_mode="list")
-def test_list_view_baseline(strata, baseline):
-    _settle(strata)
-    baseline(strata, "list-view")
+def test_list_view_baseline(yata, baseline):
+    _settle(yata)
+    baseline(yata, "list-view")
 
 
 @pytest.mark.preferences(browser_mode="list")
-def test_selection_and_focus_baseline(strata, baseline):
-    strata.select_entry_with_keyboard("readme.md")
-    strata.keyboard.press("shift+Down")
-    strata.wait(
-        lambda: strata.selected_names() == ["readme.md", "todo.txt"],
+def test_selection_and_focus_baseline(yata, baseline):
+    yata.select_entry_with_keyboard("readme.md")
+    yata.keyboard.press("shift+Down")
+    yata.wait(
+        lambda: yata.selected_names() == ["readme.md", "todo.txt"],
         "both files to be selected",
     )
-    _settle(strata)
-    baseline(strata, "selection-and-focus")
+    _settle(yata)
+    baseline(yata, "selection-and-focus")
 
 
 @pytest.mark.preferences(browser_mode="list")
-def test_context_menu_baseline(strata, baseline):
-    strata.open_context_menu("readme.md")
-    strata.wait(
-        lambda: "Copy" in strata.menu_items(), "the context menu to be populated"
+def test_context_menu_baseline(yata, baseline):
+    yata.open_context_menu("readme.md")
+    yata.wait(
+        lambda: "Copy" in yata.menu_items(), "the context menu to be populated"
     )
-    baseline(strata, "context-menu")
+    baseline(yata, "context-menu")
 
 
 @pytest.mark.preferences(browser_mode="list")
-def test_delete_confirmation_baseline(strata, baseline):
-    strata.select_entry_with_keyboard("todo.txt")
-    strata.keyboard.press("shift+Delete")
-    strata.wait_for_dialog()
-    _settle(strata)
-    baseline(strata, "delete-confirmation")
+def test_delete_confirmation_baseline(yata, baseline):
+    yata.select_entry_with_keyboard("todo.txt")
+    yata.keyboard.press("shift+Delete")
+    yata.wait_for_dialog()
+    _settle(yata)
+    baseline(yata, "delete-confirmation")
 
 
-def _settle_icons(strata, tmp_path) -> None:
-    _settle(strata, ICONS_BASELINE_ENTRIES)
+def _settle_icons(yata, tmp_path) -> None:
+    _settle(yata, ICONS_BASELINE_ENTRIES)
     icons = {
-        name: strata.entry(name).find(role="image")
+        name: yata.entry(name).find(role="image")
         for name in ICONS_BASELINE_THUMBNAILS
     }
     assert all(icon is not None for icon in icons.values())
 
     def thumbnails_ready():
-        capture = strata.screenshot(tmp_path / "thumbnail-readiness.png")
+        capture = yata.screenshot(tmp_path / "thumbnail-readiness.png")
         with Image.open(capture) as image:
             pixels = image.convert("RGB")
             return all(
@@ -172,16 +172,16 @@ def _settle_icons(strata, tmp_path) -> None:
                 for name, (_, color) in ICONS_BASELINE_THUMBNAILS.items()
             )
 
-    strata.wait(thumbnails_ready, "both image shapes to finish rendering")
+    yata.wait(thumbnails_ready, "both image shapes to finish rendering")
 
 
-def _settle(strata, entries=BASELINE_ENTRIES) -> None:
+def _settle(yata, entries=BASELINE_ENTRIES) -> None:
     """Park the pointer and wait for the listing before capturing."""
 
-    strata.park_pointer()
-    strata.wait(
-        lambda: strata.entry_names()
+    yata.park_pointer()
+    yata.wait(
+        lambda: yata.entry_names()
         == entries,
         "the fixture listing to be complete",
     )
-    strata.settle(strata.pane())
+    yata.settle(yata.pane())

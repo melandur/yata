@@ -5,18 +5,18 @@ import pytest
 
 @pytest.mark.preferences(browser_mode="columns")
 @pytest.mark.parametrize("name", ["short", "portable-device-with-a-very-long-directory-name-" * 4])
-def test_column_header_titles_stay_bounded_and_centered(strata, name):
-    strata.fixture.path(name).mkdir()
-    strata.entry(name)
-    strata.open_directory(name)
-    pane = strata.pane(name)
-    strata.pointer.move_to(*pane.screen_bounds().center)
-    title = strata.wait(lambda: pane.find(role="label", name=name), "the column title")
-    refresh = strata.wait(
+def test_column_header_titles_stay_bounded_and_centered(yata, name):
+    yata.fixture.path(name).mkdir()
+    yata.entry(name)
+    yata.open_directory(name)
+    pane = yata.pane(name)
+    yata.pointer.move_to(*pane.screen_bounds().center)
+    title = yata.wait(lambda: pane.find(role="label", name=name), "the column title")
+    refresh = yata.wait(
         lambda: pane.find(role="button", name="Refresh (F5)"),
         "the column actions",
     )
-    strata.wait(lambda: refresh.screen_bounds().height > 0, "allocated actions")
+    yata.wait(lambda: refresh.screen_bounds().height > 0, "allocated actions")
     bounds = pane.screen_bounds()
     heading = title.screen_bounds()
     button = refresh.screen_bounds()

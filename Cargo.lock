@@ -2230,50 +2230,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
-name = "strata"
-version = "0.18.0"
-dependencies = [
- "ashpd",
- "async-io",
- "cairo-rs",
- "flate2",
- "futures-channel",
- "futures-lite",
- "gdk-pixbuf",
- "gdk4-wayland",
- "gio",
- "gio-unix",
- "glib",
- "glib-build-tools",
- "gstreamer",
- "gstreamer-app",
- "gtk4",
- "ignore",
- "pangocairo",
- "poppler-rs",
- "pulldown-cmark",
- "resvg",
- "rustix",
- "serde",
- "serde_json",
- "sevenz-rust2",
- "sourceview5",
- "tar",
- "tempfile",
- "toml",
- "tracing",
- "tracing-subscriber",
- "unicode-normalization",
- "unrar",
- "unrar_sys",
- "ureq",
- "yeslogic-fontconfig-sys",
- "zbus",
- "zip",
- "zstd",
-]
-
-[[package]]
 name = "strict-num"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3001,6 +2957,50 @@ checksum = "32e45ad4206f6d2479085147f02bc2ef834ac85886624a23575ae137c8aa8156"
 dependencies = [
  "libc",
  "rustix",
+]
+
+[[package]]
+name = "yata"
+version = "0.1.0"
+dependencies = [
+ "ashpd",
+ "async-io",
+ "cairo-rs",
+ "flate2",
+ "futures-channel",
+ "futures-lite",
+ "gdk-pixbuf",
+ "gdk4-wayland",
+ "gio",
+ "gio-unix",
+ "glib",
+ "glib-build-tools",
+ "gstreamer",
+ "gstreamer-app",
+ "gtk4",
+ "ignore",
+ "pangocairo",
+ "poppler-rs",
+ "pulldown-cmark",
+ "resvg",
+ "rustix",
+ "serde",
+ "serde_json",
+ "sevenz-rust2",
+ "sourceview5",
+ "tar",
+ "tempfile",
+ "toml",
+ "tracing",
+ "tracing-subscriber",
+ "unicode-normalization",
+ "unrar",
+ "unrar_sys",
+ "ureq",
+ "yeslogic-fontconfig-sys",
+ "zbus",
+ "zip",
+ "zstd",
 ]
 
 [[package]]

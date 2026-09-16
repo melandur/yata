@@ -168,7 +168,7 @@ fn switching_view_modes_keeps_the_active_pane_filter() {
                 assert_listing_focus(&view);
             }
 
-            let settings = glib::user_config_dir().join("strata/settings.toml");
+            let settings = glib::user_config_dir().join("yata/settings.toml");
             if let Ok(saved) = std::fs::read_to_string(settings) {
                 assert!(
                     !saved.contains("needle"),

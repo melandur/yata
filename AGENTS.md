@@ -83,7 +83,7 @@ pass before merge.
   only and cannot replace it. `scripts/quality.sh` accepts only `all`, `fmt`,
   `clippy`, or `test` and does not forward test filters.
 - Use full pinned `./scripts/quality.sh` phases and canonical
-  `STRATA_CONTAINER_ENGINE=podman ./scripts/e2e.sh` when impact is broad or
+  `YATA_CONTAINER_ENGINE=podman ./scripts/e2e.sh` when impact is broad or
   uncertain. Escalate to both for shared infrastructure, dependencies,
   build/CI/harness code, cross-cutting behavior, or uncertain coverage.
   Even after escalation, isolate individual failures with scoped tests rather
@@ -117,7 +117,7 @@ pass before merge.
   every invocation, prune other sessions' images, or bypass image-input checks.
 - Only when intentionally changing environment inputs, or when an unpublished
   environment must be bootstrapped, run explicitly:
-  `STRATA_CONTAINER_ENGINE=podman python3 scripts/e2e_base.py build`.
+  `YATA_CONTAINER_ENGINE=podman python3 scripts/e2e_base.py build`.
   Run this once, then return to `./scripts/e2e.sh`. Do not habitually rebuild bases
   as a pre-test step. Preserve `target/e2e-container` so Cargo can reuse its cache.
 - Published bases are updated by the trusted-main publisher when environment
@@ -152,7 +152,7 @@ pass before merge.
 
 - Automated agents must follow the same issue-first workflow and pull request template as human contributors; do not remove or bypass template sections.
 - Use the bug report form for defects, the feature request form for enhancements, and a blank issue only when neither form fits.
-- Bug reports must include the Strata version, installation method, environment, reproduction steps, expected behavior, and any available sanitized logs. Never ask reporters to upload a core dump because it may contain secrets or private document contents.
+- Bug reports must include the yata version, installation method, environment, reproduction steps, expected behavior, and any available sanitized logs. Never ask reporters to upload a core dump because it may contain secrets or private document contents.
 - Keep pull request descriptions concise: explain what changed and why, provide manual steps to exercise the feature or reproduce the fixed bug, state the expected result, and link the issue. Do not list automated checks that CI already runs.
 - Include before/after screenshots or a short video on every PR with user-visible changes. Upload sanitized captures through GitHub's PR description/comment editor and embed the resulting GitHub-hosted attachment URLs in the PR's Visual evidence section. Write `N/A` with a brief reason only for non-visual changes.
 - Never commit PR evidence, screenshots, recordings, one-off capture scripts, logs, review reports, or PR-specific test plans to the source tree. Keep captures in session-owned scratch or ignored `target/` paths. Maintained README media and executable visual-regression baselines are exceptions, not places to stash review captures.

@@ -6,7 +6,7 @@ unset DISPLAY WAYLAND_DISPLAY
 
 repository="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 suite="$repository/tests/e2e"
-venv="${STRATA_E2E_VENV:-$repository/target/e2e-venv}"
+venv="${YATA_E2E_VENV:-$repository/target/e2e-venv}"
 
 missing=()
 for tool in Xvfb dbus-daemon dbus-send import; do
@@ -31,10 +31,10 @@ if ! cmp -s "$suite/requirements.txt" "$venv/strata-requirements.txt"; then
   cp "$suite/requirements.txt" "$venv/strata-requirements.txt"
 fi
 
-if [[ -z "${STRATA_BINARY:-}" ]]; then
-  cargo build --manifest-path "$repository/Cargo.toml" --bin strata
-  STRATA_BINARY="$(realpath "${CARGO_TARGET_DIR:-$repository/target}/debug/strata")"
-  export STRATA_BINARY
+if [[ -z "${YATA_BINARY:-}" ]]; then
+  cargo build --manifest-path "$repository/Cargo.toml" --bin yata
+  YATA_BINARY="$(realpath "${CARGO_TARGET_DIR:-$repository/target}/debug/yata")"
+  export YATA_BINARY
 fi
 
 python3 -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk; print(f"GTK: {Gtk.get_major_version()}.{Gtk.get_minor_version()}.{Gtk.get_micro_version()}")'

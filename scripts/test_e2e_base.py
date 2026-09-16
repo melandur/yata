@@ -9,7 +9,7 @@ from e2e_bundle import image_key
 
 def valid_image():
     return {"Id": "sha256:" + "a" * 64, "Os": "linux", "Architecture": "amd64",
-            "Config": {"Labels": {"org.strata.e2e.inputs": image_key()},
+            "Config": {"Labels": {"org.yata.e2e.inputs": image_key()},
                        "Env": ["RUSTUP_HOME=/opt/rustup"]}}
 
 
@@ -53,7 +53,7 @@ class LocalBaseTests(unittest.TestCase):
 
     def test_wrong_local_provenance_is_rejected_without_replacing_the_image(self):
         image = valid_image()
-        image["Config"]["Labels"]["org.strata.e2e.inputs"] = "wrong"
+        image["Config"]["Labels"]["org.yata.e2e.inputs"] = "wrong"
         with patch("e2e_base.inspect", return_value=image), patch("e2e_base.subprocess.run") as run, \
              self.assertRaisesRegex(ValueError, "input labels"):
             ensure_base("podman")
@@ -74,7 +74,7 @@ class LocalBaseTests(unittest.TestCase):
         self.assertEqual(command[:2], ["podman", "build"])
         self.assertIn("E2E_UID=1234", command)
         self.assertIn("E2E_GID=5678", command)
-        self.assertIn("org.strata.e2e.inputs=" + image_key(), command)
+        self.assertIn("org.yata.e2e.inputs=" + image_key(), command)
         self.assertIn("toolchain", command)
 
 

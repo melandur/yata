@@ -38,33 +38,33 @@ def text_position(image, bounds):
 
 @pytest.mark.preferences(reduce_motion=False)
 @pytest.mark.parametrize("mode", ALL_MODES)
-def test_delete_animation_preserves_survivors_and_restores_interaction(strata, mode):
-    assert strata.view_mode() == mode
-    fixture = strata.fixture
+def test_delete_animation_preserves_survivors_and_restores_interaction(yata, mode):
+    assert yata.view_mode() == mode
+    fixture = yata.fixture
     fixture.path("zz-survivor.txt").write_text("survivor")
     original_names = set(fixture.names())
-    strata.entry("zz-survivor.txt")
-    strata.select_entry("todo.txt")
+    yata.entry("zz-survivor.txt")
+    yata.select_entry("todo.txt")
 
-    strata.keyboard.press("shift+Delete")
-    strata.wait_for_dialog()
-    strata.pointer.click(strata.dialog_button("Permanently delete 1 item"))
-    strata.wait(
+    yata.keyboard.press("shift+Delete")
+    yata.wait_for_dialog()
+    yata.pointer.click(yata.dialog_button("Permanently delete 1 item"))
+    yata.wait(
         lambda: not fixture.path("todo.txt").exists(),
         "the file to be deleted",
     )
-    strata.wait(lambda: strata.dialog() is None, "the delete dialog to disappear")
-    strata.wait_for_entry_gone("todo.txt")
+    yata.wait(lambda: yata.dialog() is None, "the delete dialog to disappear")
+    yata.wait_for_entry_gone("todo.txt")
     assert set(fixture.names()) == original_names - {"todo.txt"}
 
-    strata.select_entry("zz-survivor.txt")
-    strata.keyboard.press("F2")
-    field = strata.editable_field()
-    strata.keyboard.press("ctrl+a")
-    strata.keyboard.type_text("renamed-survivor.txt")
-    strata.wait(lambda: field.text == "renamed-survivor.txt", "the survivor name to be typed")
-    strata.keyboard.press("Return")
-    strata.wait(lambda: fixture.path("renamed-survivor.txt").exists(), "the survivor to be renamed")
+    yata.select_entry("zz-survivor.txt")
+    yata.keyboard.press("F2")
+    field = yata.editable_field()
+    yata.keyboard.press("ctrl+a")
+    yata.keyboard.type_text("renamed-survivor.txt")
+    yata.wait(lambda: field.text == "renamed-survivor.txt", "the survivor name to be typed")
+    yata.keyboard.press("Return")
+    yata.wait(lambda: fixture.path("renamed-survivor.txt").exists(), "the survivor to be renamed")
     assert fixture.path("renamed-survivor.txt").read_text() == "survivor"
     assert set(fixture.names()) == (
         original_names - {"todo.txt", "zz-survivor.txt"} | {"renamed-survivor.txt"}
@@ -78,33 +78,33 @@ def test_delete_animation_preserves_survivors_and_restores_interaction(strata, m
     pytest.param("move", marks=pytest.mark.preferences(open_folder_after_drop=True), id="move-open"),
     pytest.param("escape", marks=pytest.mark.preferences(reduce_motion=True), id="reduced-motion"),
 ])
-def test_drag_completion_keeps_the_source_label_in_place(strata, outcome):
-    fixture = strata.fixture
+def test_drag_completion_keeps_the_source_label_in_place(yata, outcome):
+    fixture = yata.fixture
     original = fixture.path("todo.txt").read_bytes()
-    source = strata.select_entry("todo.txt")
+    source = yata.select_entry("todo.txt")
     label = source.find(role="label", name="todo.txt")
     assert label is not None
     bounds = label.screen_bounds()
-    target = strata.entry("archive").screen_bounds().center
+    target = yata.entry("archive").screen_bounds().center
     if outcome in ("escape", "outside"):
-        window = strata.window.screen_bounds()
+        window = yata.window.screen_bounds()
         target = (window.x + window.width + 30, window.y + window.height + 20)
     elif outcome == "noop":
-        pane = strata.pane().screen_bounds()
+        pane = yata.pane().screen_bounds()
         target = (pane.x + pane.width // 2, pane.y + pane.height - 20)
     elif outcome == "failed":
         fixture.path("archive").chmod(0o555)
 
-    connection = strata.pointer.connection
-    grab = lambda: ImageGrab.grab(xdisplay=strata.display.display)
+    connection = yata.pointer.connection
+    grab = lambda: ImageGrab.grab(xdisplay=yata.display.display)
     try:
-        strata.pointer.move_to(*target)
-        strata.settle(source)
+        yata.pointer.move_to(*target)
+        yata.settle(source)
         resting_y, resting_contrast = text_position(grab(), bounds)
-        strata.pointer.drag_points(strata.pointer.drag_origin(source), target, release=False)
+        yata.pointer.drag_points(yata.pointer.drag_origin(source), target, release=False)
         if outcome == "copy":
             connection.key(MODIFIER_KEYSYMS["ctrl"], True)
-            strata.pointer.move_to(*target)
+            yata.pointer.move_to(*target)
         _, dragging_contrast = text_position(grab(), bounds)
         assert dragging_contrast < resting_contrast * 0.8, "a real source drag must start"
 
@@ -126,25 +126,25 @@ def test_drag_completion_keeps_the_source_label_in_place(strata, outcome):
         assert samples[-1][1][1] > dragging_contrast * 1.25, "dragging opacity must recover"
 
         if outcome in ("copy", "move"):
-            strata.wait(lambda: fixture.path("archive/todo.txt").exists(), "the transferred file")
+            yata.wait(lambda: fixture.path("archive/todo.txt").exists(), "the transferred file")
             assert fixture.path("archive/todo.txt").read_bytes() == original
-            open_after_drop = strata.environment.read_preferences().get("open_folder_after_drop") == "true"
+            open_after_drop = yata.environment.read_preferences().get("open_folder_after_drop") == "true"
             if open_after_drop:
-                strata.entry("todo.txt", directory="archive")
+                yata.entry("todo.txt", directory="archive")
             else:
-                assert strata.pane_names() == [fixture.root.name]
+                assert yata.pane_names() == [fixture.root.name]
             if outcome == "move":
-                strata.wait(lambda: not fixture.path("todo.txt").exists(), "source removal")
-                strata.wait_for_entry_gone("todo.txt", directory=fixture.root.name)
+                yata.wait(lambda: not fixture.path("todo.txt").exists(), "source removal")
+                yata.wait_for_entry_gone("todo.txt", directory=fixture.root.name)
             else:
                 assert fixture.path("todo.txt").read_bytes() == original
         else:
             if outcome == "failed":
-                strata.wait(lambda: "could not" in strata.diagnostics().lower()
-                            or "permission denied" in strata.diagnostics().lower(), "transfer failure")
-            strata.wait(lambda: time.monotonic() - released >= 0.6,
+                yata.wait(lambda: "could not" in yata.diagnostics().lower()
+                            or "permission denied" in yata.diagnostics().lower(), "transfer failure")
+            yata.wait(lambda: time.monotonic() - released >= 0.6,
                         "the deferred drop handler to finish")
-            strata.entry("todo.txt")
+            yata.entry("todo.txt")
             assert fixture.path("todo.txt").read_bytes() == original
             assert fixture.names("archive") == []
     finally:

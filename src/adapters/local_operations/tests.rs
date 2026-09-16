@@ -3148,11 +3148,11 @@ fn benchmark_delete_large_directory() -> Result<(), Box<dyn Error>> {
     let unique = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)?
         .as_nanos();
-    let count = std::env::var("STRATA_DELETE_BENCH_FILES")
+    let count = std::env::var("YATA_DELETE_BENCH_FILES")
         .ok()
         .and_then(|value| value.parse::<usize>().ok())
         .unwrap_or(100_000);
-    let benchmark_root = std::env::var_os("STRATA_DELETE_BENCH_ROOT")
+    let benchmark_root = std::env::var_os("YATA_DELETE_BENCH_ROOT")
         .map(PathBuf::from)
         .unwrap_or(std::env::current_dir()?.join("target/delete-benchmark"));
     fs::create_dir_all(&benchmark_root)?;
@@ -3260,7 +3260,7 @@ fn benchmark_delete_large_directory() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-#[ignore = "manual scale benchmark; run STRATA_DELETE_BENCH_SCALE=1 scripts/benchmark-delete.sh"]
+#[ignore = "manual scale benchmark; run YATA_DELETE_BENCH_SCALE=1 scripts/benchmark-delete.sh"]
 fn benchmark_parallel_delete_scale() -> Result<(), Box<dyn Error>> {
     let _serial = ASYNC_MAIN_CONTEXT_DEFAULT
         .lock()
@@ -3268,11 +3268,11 @@ fn benchmark_parallel_delete_scale() -> Result<(), Box<dyn Error>> {
     let unique = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)?
         .as_nanos();
-    let count = std::env::var("STRATA_DELETE_BENCH_FILES")
+    let count = std::env::var("YATA_DELETE_BENCH_FILES")
         .ok()
         .and_then(|value| value.parse::<usize>().ok())
         .unwrap_or(1_000_000);
-    let benchmark_root = std::env::var_os("STRATA_DELETE_BENCH_ROOT")
+    let benchmark_root = std::env::var_os("YATA_DELETE_BENCH_ROOT")
         .map(PathBuf::from)
         .unwrap_or(std::env::current_dir()?.join("target/delete-benchmark"));
     fs::create_dir_all(&benchmark_root)?;

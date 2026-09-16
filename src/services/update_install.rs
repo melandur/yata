@@ -17,14 +17,14 @@ use crate::services::{InstallSource, ensure_self_managed};
 use super::release_channel::Version;
 
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(120);
-const DESKTOP_ENTRY: &str = "io.github.lgse.Strata.desktop";
-const APPLICATION_ICON: &str = "io.github.lgse.Strata.svg";
+const DESKTOP_ENTRY: &str = "io.github.melandur.yata.desktop";
+const APPLICATION_ICON: &str = "io.github.melandur.yata.svg";
 const AUR_RPC: &str = "https://aur.archlinux.org/rpc/v5/info";
 const AUR_RESPONSE_LIMIT: u64 = 1024 * 1024;
 const PACMAN: &str = "/usr/bin/pacman";
 const PACMAN_CONF: &str = "/usr/bin/pacman-conf";
 const OS_RELEASE: &str = "/etc/os-release";
-const PACKAGE_NAME: &str = "strata";
+const PACKAGE_NAME: &str = "yata";
 const REPOSITORY_DATABASE_LIMIT: u64 = 4 * 1024 * 1024;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -111,7 +111,7 @@ fn os_release_has_id(contents: &str, expected: &str) -> bool {
     })
 }
 
-/// Returns the Strata version currently offered by pacman's configured sync
+/// Returns the yata version currently offered by pacman's configured sync
 /// databases. This is deliberately a local query: package-managed installs
 /// must not advertise a GitHub release until their package manager can
 /// actually install it.
@@ -200,7 +200,7 @@ fn parse_aur_package_version(value: &str) -> Option<Version> {
 
 /// Reads the live Omarchy repository database selected by this installation,
 /// rather than pacman's cached copy. The cache is normally refreshed by the
-/// same `omarchy update` that installs Strata, so consulting it would make the
+/// same `omarchy update` that installs yata, so consulting it would make the
 /// notification arrive only after the update had already been installed.
 pub(super) fn omarchy_repository_version() -> Result<Version, String> {
     let server = omarchy_repository_server(Path::new(PACMAN_CONF))?;
@@ -270,7 +270,7 @@ fn repository_database_version(database: &[u8], package: &str) -> Result<Version
                 .ok_or_else(|| "Omarchy repository returned an invalid version".to_owned());
         }
     }
-    Err("Strata is not available in the Omarchy repository".to_owned())
+    Err("yata is not available in the Omarchy repository".to_owned())
 }
 
 fn repository_description_field<'a>(description: &'a str, field: &str) -> Option<&'a str> {
@@ -413,7 +413,7 @@ fn try_install(
     current_exe: &Path,
     progress: &Sender<UpdateInstall>,
 ) -> Result<(), String> {
-    let archive_path = workdir.join("strata.tar.gz");
+    let archive_path = workdir.join("yata.tar.gz");
     download_to_file(download_url, &archive_path, progress)?;
     let _sent = progress.send(UpdateInstall::Verifying);
     verify_checksum(download_url, &archive_path)?;
@@ -427,10 +427,10 @@ fn try_install(
         .arg("-C")
         .arg(&extract_dir))?;
 
-    let binary_paths = find_binaries(&extract_dir, &["strata"])?;
+    let binary_paths = find_binaries(&extract_dir, &["yata"])?;
     let binary_path = binary_paths
         .first()
-        .ok_or_else(|| "Could not find the strata binary in the downloaded archive".to_owned())?;
+        .ok_or_else(|| "Could not find the yata binary in the downloaded archive".to_owned())?;
     let staged = stage_binary_path(exe_dir)?;
     fs::copy(binary_path, staged.path())
         .map_err(|error| format!("Could not stage the new binary: {error}"))?;
@@ -443,7 +443,7 @@ fn try_install(
         refresh_desktop_metadata(package_dir, current_exe, &glib::user_data_dir());
     }
     if let Err(error) = crate::portal_setup::refresh_after_in_place_update() {
-        tracing::warn!(%error, "could not refresh the configured Strata portal after updating");
+        tracing::warn!(%error, "could not refresh the configured yata portal after updating");
     }
 
     Ok(())

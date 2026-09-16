@@ -20,115 +20,115 @@ def fixture_tree():
         fixture.cleanup()
 
 
-def _compress(strata, entry_name, archive_name, directory, folder=""):
+def _compress(yata, entry_name, archive_name, directory, folder=""):
     for _ in range(3):
-        strata.open_context_menu(entry_name, directory=directory)
+        yata.open_context_menu(entry_name, directory=directory)
         # Coordinate-free activation: the popover can still be settling when
         # the item is found, and a synthetic click then lands outside it.
-        strata.menu_item("Compress…").activate()
-        strata.wait_for_menu_closed()
+        yata.menu_item("Compress…").activate()
+        yata.wait_for_menu_closed()
         field = None
         try:
-            field = strata.wait(
-                lambda: strata.window.find(role="text", states={"editable", "focused"}),
+            field = yata.wait(
+                lambda: yata.window.find(role="text", states={"editable", "focused"}),
                 "the compress name field to take focus",
                 timeout=5,
             )
         except tree.TreeTimeout:
             pass
         if field is not None:
-            strata.keyboard.press("ctrl+a")
-            strata.keyboard.type_text(archive_name)
-            strata.wait(
+            yata.keyboard.press("ctrl+a")
+            yata.keyboard.type_text(archive_name)
+            yata.wait(
                 lambda: field.text == archive_name,
                 f"{archive_name!r} to reach the name field",
             )
-            strata.keyboard.press("Return")
-            strata.wait(lambda: strata.dialog() is None, "the dialog to close")
-            path = strata.fixture.path(folder).joinpath(f"{archive_name}.zip")
-            strata.wait(lambda: path.exists(), "the archive to be created")
+            yata.keyboard.press("Return")
+            yata.wait(lambda: yata.dialog() is None, "the dialog to close")
+            path = yata.fixture.path(folder).joinpath(f"{archive_name}.zip")
+            yata.wait(lambda: path.exists(), "the archive to be created")
             return
     raise AssertionError("the compress dialog never accepted the archive name")
 
 
 @pytest.mark.parametrize("mode", ALL_MODES)
-def test_archive_far_from_viewport_is_scrolled_into_view(strata, mode):
+def test_archive_far_from_viewport_is_scrolled_into_view(yata, mode):
     """A custom archive name that sorts far from the viewport still gets revealed."""
-    strata.wait_for_view(mode)
+    yata.wait_for_view(mode)
 
-    _compress(strata, "005.txt", "zzz", None)
+    _compress(yata, "005.txt", "zzz", None)
 
-    strata.wait_for_selection(["zzz.zip"])
-    entry = strata.entry("zzz.zip")
-    strata.wait(lambda: strata.on_screen(entry), "the distant archive to be on screen")
+    yata.wait_for_selection(["zzz.zip"])
+    entry = yata.entry("zzz.zip")
+    yata.wait(lambda: yata.on_screen(entry), "the distant archive to be on screen")
 
 
 @pytest.mark.parametrize("mode", ALL_MODES)
-def test_compressed_archive_is_revealed(strata, mode):
+def test_compressed_archive_is_revealed(yata, mode):
     """The archive lands at the end of the listing and must be scrolled into view."""
-    strata.wait_for_view(mode)
-    strata.keyboard.press("End")
-    strata.wait_for_focused_entry("199.txt")
+    yata.wait_for_view(mode)
+    yata.keyboard.press("End")
+    yata.wait_for_focused_entry("199.txt")
 
-    _compress(strata, "199.txt", "199", None)
+    _compress(yata, "199.txt", "199", None)
 
-    strata.wait_for_selection(["199.zip"])
-    entry = strata.entry("199.zip")
-    strata.wait(lambda: strata.on_screen(entry), "the new archive to be on screen")
+    yata.wait_for_selection(["199.zip"])
+    entry = yata.entry("199.zip")
+    yata.wait(lambda: yata.on_screen(entry), "the new archive to be on screen")
 
 
-def test_columns_reveals_archive_in_active_child_column(strata):
+def test_columns_reveals_archive_in_active_child_column(yata):
     """Columns mode scrolls the archive into view inside the open child column."""
-    strata.wait_for_view("Columns")
-    strata.open_directory("nested")
-    strata.keyboard.press("End")
-    strata.wait_for_focused_entry("199.txt")
+    yata.wait_for_view("Columns")
+    yata.open_directory("nested")
+    yata.keyboard.press("End")
+    yata.wait_for_focused_entry("199.txt")
 
-    _compress(strata, "199.txt", "199", "nested", folder="nested")
+    _compress(yata, "199.txt", "199", "nested", folder="nested")
 
-    strata.wait_for_selection(["199.zip"], directory="nested")
-    entry = strata.entry("199.zip", directory="nested")
-    strata.wait(
-        lambda: strata.on_screen(entry),
+    yata.wait_for_selection(["199.zip"], directory="nested")
+    entry = yata.entry("199.zip", directory="nested")
+    yata.wait(
+        lambda: yata.on_screen(entry),
         "the archive to be on screen in the child column",
     )
 
 
-def test_columns_reveals_archive_in_deeply_nested_column(strata):
+def test_columns_reveals_archive_in_deeply_nested_column(yata):
     """Columns mode scrolls horizontally and vertically to the archive in a deep column."""
-    strata.wait_for_view("Columns")
-    strata.open_directory("a")
-    strata.open_directory("b", directory="a")
-    strata.open_directory("c", directory="b")
-    strata.open_directory("d", directory="c")
-    strata.keyboard.press("End")
-    strata.wait_for_focused_entry("199.txt")
+    yata.wait_for_view("Columns")
+    yata.open_directory("a")
+    yata.open_directory("b", directory="a")
+    yata.open_directory("c", directory="b")
+    yata.open_directory("d", directory="c")
+    yata.keyboard.press("End")
+    yata.wait_for_focused_entry("199.txt")
 
-    _compress(strata, "199.txt", "199", "d", folder="a/b/c/d")
+    _compress(yata, "199.txt", "199", "d", folder="a/b/c/d")
 
-    strata.wait_for_selection(["199.zip"], directory="d")
-    entry = strata.entry("199.zip", directory="d")
-    strata.wait(
-        lambda: strata.on_screen(entry),
+    yata.wait_for_selection(["199.zip"], directory="d")
+    entry = yata.entry("199.zip", directory="d")
+    yata.wait(
+        lambda: yata.on_screen(entry),
         "the archive to be on screen in the deep column",
     )
 
 
-def test_columns_reveals_archive_in_parent_column(strata):
+def test_columns_reveals_archive_in_parent_column(yata):
     """Columns mode scrolls an archive created in a non-active parent column."""
-    root = strata.fixture.root.name
-    strata.wait_for_view("Columns")
-    strata.open_directory("nested")
-    strata.keyboard.press("Left")
-    strata.wait_for_focused_entry("nested")
-    strata.keyboard.press("End")
-    strata.wait_for_focused_entry("199.txt")
+    root = yata.fixture.root.name
+    yata.wait_for_view("Columns")
+    yata.open_directory("nested")
+    yata.keyboard.press("Left")
+    yata.wait_for_focused_entry("nested")
+    yata.keyboard.press("End")
+    yata.wait_for_focused_entry("199.txt")
 
-    _compress(strata, "199.txt", "199", root)
+    _compress(yata, "199.txt", "199", root)
 
-    strata.wait_for_selection(["199.zip"], directory=root)
-    entry = strata.entry("199.zip", directory=root)
-    strata.wait(
-        lambda: strata.on_screen(entry),
+    yata.wait_for_selection(["199.zip"], directory=root)
+    entry = yata.entry("199.zip", directory=root)
+    yata.wait(
+        lambda: yata.on_screen(entry),
         "the archive to be on screen in the parent column",
     )

@@ -167,7 +167,7 @@ fn filter_change_for_classifies_tightening_and_loosening() {
     assert_eq!(filter_change_for("ab", "ac"), gtk::FilterChange::Different);
 }
 
-const FILTER_QUERY_GTK_CHILD: &str = "STRATA_FILTER_QUERY_GTK_CHILD";
+const FILTER_QUERY_GTK_CHILD: &str = "YATA_FILTER_QUERY_GTK_CHILD";
 
 const FILTER_QUERY_TEST: &str =
     "ui::browser::collection::tests::notify_filter_query_skips_unchanged_folded_text";
@@ -215,7 +215,7 @@ fn notify_filter_query_skips_unchanged_folded_text() {
 #[test]
 #[ignore = "requires a mapped GTK window; run this test alone"]
 fn seeded_filter_keeps_first_character_when_typing_continues() {
-    const CHILD: &str = "STRATA_SEEDED_FILTER_GTK_CHILD";
+    const CHILD: &str = "YATA_SEEDED_FILTER_GTK_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let status = std::process::Command::new(
             std::env::current_exe().expect("test executable should exist"),
@@ -302,7 +302,7 @@ fn an_allocated_scroll_supersedes_the_pending_first_row_scroll() {
     );
 }
 
-const SCROLL_PIN_GTK_CHILD: &str = "STRATA_SCROLL_PIN_GTK_CHILD";
+const SCROLL_PIN_GTK_CHILD: &str = "YATA_SCROLL_PIN_GTK_CHILD";
 
 const SCROLL_PIN_TEST: &str =
     "ui::browser::collection::tests::waiting_to_scroll_does_not_pin_an_unallocated_view";

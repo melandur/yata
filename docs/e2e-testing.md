@@ -84,13 +84,13 @@ it. Preserve the verified image provenance and `target/e2e-container` and
 Every GUI or delegated check must clear inherited display variables and use a
 private Xvfb and private D-Bus session. `scripts/test-headless.py` and the E2E
 runners enforce this isolation. Rust tests set `GTK_A11Y=none`, `NO_AT_BRIDGE=1`,
-and `STRATA_REQUIRE_GTK_TESTS=1`; E2E enables accessibility on its private AT-SPI
+and `YATA_REQUIRE_GTK_TESTS=1`; E2E enables accessibility on its private AT-SPI
 bus to drive the application. Other commands must arrange equivalent isolation. A
 missing isolated display or bus is a hard failure. Never run against the desktop
 or an inherited session bus, silently skip GTK tests, or fall back to the desktop.
 
 The runner prefers Podman when available; select an engine explicitly with
-`STRATA_CONTAINER_ENGINE=podman` or `docker`. CI explicitly selects Docker to match
+`YATA_CONTAINER_ENGINE=podman` or `docker`. CI explicitly selects Docker to match
 its runtime archive loader; an image in one engine's store is not visible to the
 other. Normal runs verify and reuse the
 local base image. If missing, they pull the published environment once, verify
@@ -102,7 +102,7 @@ When intentionally updating the environment, or before its first publication,
 explicitly build the local base once:
 
 ```bash
-STRATA_CONTAINER_ENGINE=podman python3 scripts/e2e_base.py build
+YATA_CONTAINER_ENGINE=podman python3 scripts/e2e_base.py build
 ./scripts/e2e.sh
 ```
 
@@ -133,13 +133,13 @@ runs unmask `/proc/*` inside the test container so bubblewrap can mount its own
 private `/proc`; the decoder's sandbox and the container's seccomp policy remain
 enabled. Docker's outer seccomp/AppArmor profiles and system-path masks must be
 disabled for the nested namespace and mount operations. This applies only to the
-disposable E2E container; Strata still launches its normal bubblewrap decoder
+disposable E2E container; yata still launches its normal bubblewrap decoder
 sandbox. Neither engine uses privileged mode or mounts desktop sockets.
 Updating the image inputs is an intentional rendering
 environment change and requires reviewing the visual baselines.
 
 For explicit host-toolkit debugging only, `./scripts/e2e-native.sh` accepts
-`STRATA_BINARY` and `STRATA_E2E_VENV`. A native pass does not replace canonical
+`YATA_BINARY` and `YATA_E2E_VENV`. A native pass does not replace canonical
 `./scripts/e2e.sh` evidence when targeted or full E2E validation is required.
 
 ### Shared environment for formatting, lint, and Rust tests
@@ -171,7 +171,7 @@ compilation includes test-only and all-feature dependencies, so the E2E applicat
 dependency cache is not advertised as a full quality hit.
 
 The Rust suite runs with `--all-targets --all-features --locked` inside private
-Xvfb, with `GTK_A11Y=none`, `NO_AT_BRIDGE=1`, and `STRATA_REQUIRE_GTK_TESTS=1`.
+Xvfb, with `GTK_A11Y=none`, `NO_AT_BRIDGE=1`, and `YATA_REQUIRE_GTK_TESTS=1`.
 GTK initialization failures cannot silently skip tests. Formatting, compiler,
 lint, and test failures remain blocking. Lightweight policy/helper jobs retain
 their existing runners rather than downloading a large GUI image unnecessarily.
@@ -184,11 +184,11 @@ test executables and a plan, not Cargo caches. `scripts/quality_ci.py` collects
 each libtest inventory, including the explicitly ignored tests, and assigns every
 entry to one of two shards. Timing hints in `scripts/quality-durations.json`
 come from successful GTK child runs in
-[run 34560353003](https://github.com/lgse/strata/actions/runs/34560353003).
+[run 34560353003](https://github.com/melandur/yata/actions/runs/34560353003).
 Tests are balanced longest-first across both shards; unknown tests receive a
 one-second weight and always participate. Timing hints are not an allowlist.
 The deferred-scroll timing was refreshed to 1.32 seconds from
-[run 34811363582](https://github.com/lgse/strata/actions/runs/34811363582).
+[run 34811363582](https://github.com/melandur/yata/actions/runs/34811363582).
 `ui::search::tests::deferred_scroll_restoration_yields_to_updates_wheel_scrollbar_and_query_reset`
 runs in its own libtest process before the other tests assigned to its shard,
 not on a dedicated runner. Each process must pass its complete selection before
@@ -217,9 +217,9 @@ preserves the other shards' results. Reports and logs are attempt-scoped artifac
 To reproduce the handoff locally using the same pinned container:
 
 ```bash
-STRATA_QUALITY_TASK=build ./scripts/quality.sh test
+YATA_QUALITY_TASK=build ./scripts/quality.sh test
 for shard in 0 1; do
-  STRATA_QUALITY_TASK=shard STRATA_QUALITY_SHARD="$shard" ./scripts/quality.sh test
+  YATA_QUALITY_TASK=shard YATA_QUALITY_SHARD="$shard" ./scripts/quality.sh test
 done
 python3 scripts/quality_ci.py verify
 ```
@@ -251,9 +251,9 @@ budget is detected **inside the container, after compilation**, and printed at
 startup. It is a conservative resource budget, not a promise of linear speedup.
 
 ```bash
-STRATA_E2E_WORKERS=auto ./scripts/e2e.sh  # default, locally and in CI
-STRATA_E2E_WORKERS=8 ./scripts/e2e.sh     # explicit budget
-STRATA_E2E_WORKERS=1 ./scripts/e2e.sh     # serial scenarios
+YATA_E2E_WORKERS=auto ./scripts/e2e.sh  # default, locally and in CI
+YATA_E2E_WORKERS=8 ./scripts/e2e.sh     # explicit budget
+YATA_E2E_WORKERS=1 ./scripts/e2e.sh     # serial scenarios
 ./scripts/e2e.sh -n 0                   # no worker subprocess, for debugging
 ```
 
@@ -329,21 +329,21 @@ are not inherited.
 
 ## Writing a scenario
 
-Scenarios talk to `harness.browser.Strata`, which locates controls by
+Scenarios talk to `harness.browser.yata`, which locates controls by
 accessible role, name, and state:
 
 ```python
-def test_cut_moves_only_after_paste(strata):
-    fixture = strata.fixture
+def test_cut_moves_only_after_paste(yata):
+    fixture = yata.fixture
 
-    strata.select_entry("todo.txt")
-    strata.keyboard.press("ctrl+x")
+    yata.select_entry("todo.txt")
+    yata.keyboard.press("ctrl+x")
     assert fixture.path("todo.txt").exists()
 
-    strata.open_directory("archive")
-    strata.paste_into("archive")
+    yata.open_directory("archive")
+    yata.paste_into("archive")
 
-    strata.wait(
+    yata.wait(
         lambda: fixture.path("archive/todo.txt").exists(),
         "the cut file to arrive in archive",
     )
@@ -354,7 +354,7 @@ Rules the suite holds itself to:
 - **Locate by accessibility, never by pixels.** Pointer targets are derived
   from a located node's accessible bounds. A literal screen coordinate in a
   scenario is a defect.
-- **Synchronize on conditions, never on sleeps.** `strata.wait(...)` polls a
+- **Synchronize on conditions, never on sleeps.** `yata.wait(...)` polls a
   predicate and, on timeout, prints the accessibility tree. There are no
   `time.sleep` calls in the scenarios; the small gaps inside
   `harness/interaction.py` are transport settling between synthetic X events,
@@ -368,7 +368,7 @@ To exercise a preference, mark the scenario:
 
 ```python
 @pytest.mark.preferences(browser_mode="icons", type_to_search=False)
-def test_something(strata):
+def test_something(yata):
     ...
 ```
 
@@ -409,7 +409,7 @@ to new entries beyond the initial viewport in large directories.
 
 ### Accessible names are product surface
 
-The harness finds an entry because Strata names it. Those names live in
+The harness finds an entry because yata names it. Those names live in
 `src/ui/accessibility.rs` and exist for screen readers first: an entry row is
 labeled with its name and described as `Folder` or `File`, a pane is labeled
 with its directory and described with its presentation, menu items carry the
@@ -459,7 +459,7 @@ varies between runs.
 Baselines are never accepted automatically. When a change is intended:
 
 ```bash
-STRATA_E2E_UPDATE_BASELINES=1 ./scripts/e2e.sh -k baseline
+YATA_E2E_UPDATE_BASELINES=1 ./scripts/e2e.sh -k baseline
 ```
 
 Then review the new images and commit them with the change, so the difference
@@ -576,7 +576,7 @@ fetch. Source builds attach the public input digest as an output image label, no
 an environment variable or secret-looking build argument.
 
 A stub application
-warms dependencies only; its executable and all Strata fingerprints are removed
+warms dependencies only; its executable and all yata fingerprints are removed
 before the real source is copied and compiled. The bundle is tied to the checked-out
 commit, source/resource contents (including local edits), rendering inputs, binary
 checksum, and plan checksum. The runtime image's input label must match too; it cannot be replaced
@@ -622,8 +622,8 @@ below; upstream outages can still block the first publication of new inputs.
 
 `Publish pinned E2E environments` publishes two GHCR packages from trusted main:
 
-- `ghcr.io/lgse/strata-e2e-runtime`: the pinned GUI/Python/font environment.
-- `ghcr.io/lgse/strata-e2e-build`: Rust plus the runtime and compiled locked Cargo
+- `ghcr.io/melandur/yata-e2e-runtime`: the pinned GUI/Python/font environment.
+- `ghcr.io/melandur/yata-e2e-build`: Rust plus the runtime and compiled locked Cargo
   dependencies. The stub application and its fingerprints are removed; no tested
   application binary is published here.
 
@@ -682,8 +682,8 @@ critical-path summary rather than raising the time limit.
 
 ### Measured fresh-revision run
 
-[CI run 34235908938](https://github.com/lgse/strata/actions/runs/34235908938)
-(`84d8e82`, 2026-09-08) compiled Strata again and passed all 581 cases exactly once
+[CI run 34235908938](https://github.com/melandur/yata/actions/runs/34235908938)
+(`84d8e82`, 2026-09-08) compiled yata again and passed all 581 cases exactly once
 on 30 runners in **172 seconds**, measured from the initial E2E queue/attempt start
 through the aggregate job's completed timestamp. The internal measurement was
 168.7 seconds before teardown. The runtime archive was cached; the new segmented
@@ -691,7 +691,7 @@ dependency cache missed, so this run exercised the GHA dependency-cache fallback
 while the separate warmer published the new format. This was not an identical
 binary-cache rerun or a completely cold package bootstrap.
 
-Attempt 2 of the same run restored both segmented caches and **recompiled Strata
+Attempt 2 of the same run restored both segmented caches and **recompiled yata
 in 7.51 seconds**. All 581 cases passed exactly once: **139 seconds** from initial
 E2E queue to completion, **141 seconds** from attempt start, and 137.4 seconds at
 the internal measurement. This is same-revision recompilation, not a second new
@@ -716,11 +716,11 @@ For the exact CI binary, use a disposable checkout at the commit in its metadata
 ```bash
 podman build --target runtime --tag strata-e2e:ci-runtime \
   --build-arg E2E_UID="$(id -u)" --build-arg E2E_GID="$(id -g)" \
-  --label org.strata.e2e.inputs="$(python3 scripts/e2e_bundle.py image-key)" \
+  --label org.yata.e2e.inputs="$(python3 scripts/e2e_bundle.py image-key)" \
   --file tests/e2e/Dockerfile .
-chmod +x target/e2e-bundle/strata
-STRATA_CONTAINER_ENGINE=podman STRATA_E2E_IMAGE=strata-e2e:ci-runtime \
-  STRATA_E2E_BUNDLE=target/e2e-bundle ./scripts/e2e.sh --e2e-plan=target/e2e-bundle/plan.json --e2e-shard=0
+chmod +x target/e2e-bundle/yata
+YATA_CONTAINER_ENGINE=podman YATA_E2E_IMAGE=strata-e2e:ci-runtime \
+  YATA_E2E_BUNDLE=target/e2e-bundle ./scripts/e2e.sh --e2e-plan=target/e2e-bundle/plan.json --e2e-shard=0
 ```
 
 The bundle must be inside the checkout. Without these explicit bundle/image

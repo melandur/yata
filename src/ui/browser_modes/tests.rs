@@ -384,7 +384,7 @@ fn type_group_sorter_clusters_mime_types_and_keeps_source_order_inside_a_group()
     );
 }
 
-const GTK_CHILD: &str = "STRATA_SOURCE_INDEX_MAP_GTK_CHILD";
+const GTK_CHILD: &str = "YATA_SOURCE_INDEX_MAP_GTK_CHILD";
 const SOURCE_INDEX_TEST: &str =
     "ui::browser_modes::tests::source_index_map_tracks_filter_sort_and_non_source_items";
 

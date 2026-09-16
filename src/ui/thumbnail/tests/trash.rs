@@ -60,7 +60,7 @@ fn entry(name: &str, kind: EntryKind, path: &Path) -> FileEntry {
 
 #[test]
 fn trash_thumbnails_and_fallback_icons_work_in_every_view() {
-    const CHILD: &str = "STRATA_TRASH_THUMBNAIL_TEST_CHILD";
+    const CHILD: &str = "YATA_TRASH_THUMBNAIL_TEST_CHILD";
     if env::var_os(CHILD).is_none() {
         let sandbox = tempfile::tempdir().expect("isolated preferences and thumbnail cache");
         let status = std::process::Command::new(env::current_exe().expect("test executable"))

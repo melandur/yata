@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Page objects for the Strata window.
+"""Page objects for the yata window.
 
 Scenarios talk to this class rather than to raw accessible nodes, so a change
 in widget nesting is absorbed here instead of in twelve test files.
@@ -45,7 +45,7 @@ VIEW_MENU_LABELS = {"Columns": "Columns", "Icons": "Icons", "List": "List"}
 
 
 @dataclass
-class Strata:
+class yata:
     """One running window, driven the way a person would drive it."""
 
     application: Application
@@ -392,7 +392,7 @@ class Strata:
         return pane
 
     def paste_target(self) -> str | None:
-        """The pane Strata says Ctrl+V would paste into."""
+        """The pane yata says Ctrl+V would paste into."""
 
         for pane in self.containers():
             if pane.find(role="label", name_matches="Paste here"):

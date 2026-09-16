@@ -37,7 +37,7 @@ class PinnedPackageTests(unittest.TestCase):
             f"#!{sys.executable}\n"
             "import json, os, sys\n"
             "from pathlib import Path\n"
-            "root = Path(os.environ['STRATA_E2E_APT_ROOT'])\n"
+            "root = Path(os.environ['YATA_E2E_APT_ROOT'])\n"
             "call = {'args': sys.argv[1:], 'sources': (root/'etc/apt/sources.list').read_text(),\n"
             "        'indexes': {p.name: p.read_text() for p in (root/'var/lib/apt/lists').iterdir()}}\n"
             "with (root/'calls.jsonl').open('a') as f: f.write(json.dumps(call)+'\\n')\n"
@@ -55,7 +55,7 @@ class PinnedPackageTests(unittest.TestCase):
             f"#!{sys.executable}\n"
             "import hashlib, json, os, sys\n"
             "from pathlib import Path\n"
-            "root = Path(os.environ['STRATA_E2E_APT_ROOT'])\n"
+            "root = Path(os.environ['YATA_E2E_APT_ROOT'])\n"
             "with (root/'helper.jsonl').open('a') as f: f.write(json.dumps(sys.argv[1:])+'\\n')\n"
             "data = os.environ['ARCHIVE_PAYLOAD'].encode()\n"
             "if sys.argv[-1] != 'SHA256:'+hashlib.sha256(data).hexdigest(): raise SystemExit(100)\n"
@@ -67,7 +67,7 @@ class PinnedPackageTests(unittest.TestCase):
         result = subprocess.run(
             ["sh", str(SCRIPT), "libgtk-4-dev", "fonts-cantarell"],
             env={**os.environ, "PATH": f"{self.bin}:{os.environ.get('PATH', os.defpath)}",
-                 "STRATA_E2E_APT_ROOT": str(self.root), "STRATA_E2E_SNAPSHOT_URL": SNAPSHOT,
+                 "YATA_E2E_APT_ROOT": str(self.root), "YATA_E2E_SNAPSHOT_URL": SNAPSHOT,
                  "DOWNLOAD_STATUS": str(download), "INSTALL_STATUS": str(install), "ARCHIVE_PAYLOAD": payload},
             text=True, capture_output=True, check=False,
         )

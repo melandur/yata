@@ -1,6 +1,6 @@
 # Trash restore safety and testing
 
-Trash metadata is untrusted. Strata resolves the physical GVfs item, validates
+Trash metadata is untrusted. yata resolves the physical GVfs item, validates
 its destination against the mount hosting the item, and asks for confirmation
 of the full destination before restoring. Undo uses the same validator without
 an additional confirmation. Relative volume paths resolve against the volume
@@ -27,7 +27,7 @@ cross-device coverage:
 ```
 
 `/dev/shm` must be writable and on a different filesystem from the temporary
-directory. `STRATA_REQUIRE_DEVICE_TESTS=1` is also set by CI; lack of a genuine
+directory. `YATA_REQUIRE_DEVICE_TESTS=1` is also set by CI; lack of a genuine
 cross-device boundary fails instead of producing a vacuous pass.
 
 Focused selections can be run on the same infrastructure:

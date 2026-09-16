@@ -11,7 +11,7 @@ from e2e_diagnostics import (LogRedirectHandler, MAX_LOG_BYTES, classify_log,
 
 def failed_job(index=1, name="E2E build and plan", conclusion="failure"):
     return {"id": index, "name": name, "conclusion": conclusion,
-            "html_url": f"https://github.com/example/strata/actions/runs/10/job/{index}",
+            "html_url": f"https://github.com/example/yata/actions/runs/10/job/{index}",
             "steps": [{"name": "Build the tested revision", "conclusion": conclusion}]}
 
 
@@ -100,7 +100,7 @@ class SummaryTests(unittest.TestCase):
 
 class LogTransportTests(unittest.TestCase):
     def test_redirect_strips_github_credentials_before_contacting_blob_storage(self):
-        request = Request("https://api.github.com/repos/example/strata/actions/jobs/1/logs",
+        request = Request("https://api.github.com/repos/example/yata/actions/jobs/1/logs",
                           headers={"Authorization": "Bearer test-only"})
         redirected = LogRedirectHandler().redirect_request(
             request, None, 302, "Found", {}, "https://example.blob.core.windows.net/log?sig=test-only")
@@ -113,7 +113,7 @@ class LogTransportTests(unittest.TestCase):
         response = io.BytesIO(b"x" * (MAX_LOG_BYTES + 1))
         opener = Mock()
         opener.open.return_value = response
-        with patch.dict("os.environ", {"GITHUB_REPOSITORY": "example/strata", "GH_TOKEN": "test-only",
+        with patch.dict("os.environ", {"GITHUB_REPOSITORY": "example/yata", "GH_TOKEN": "test-only",
                                        "GITHUB_API_URL": "https://api.github.com"}), \
              patch("e2e_diagnostics.build_opener", return_value=opener):
             self.assertEqual(len(job_log(123)), MAX_LOG_BYTES)

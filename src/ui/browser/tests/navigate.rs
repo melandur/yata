@@ -85,7 +85,7 @@ fn assert_navigate_lands_on_first_item(view: &BrowserView, browser: &crate::app:
 #[test]
 #[ignore = "requires a mapped GTK window; run this test alone"]
 fn navigate_focuses_first_item_in_single_pane_modes() {
-    const CHILD: &str = "STRATA_NAVIGATE_FOCUS_GTK_CHILD";
+    const CHILD: &str = "YATA_NAVIGATE_FOCUS_GTK_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let sandbox = tempfile::tempdir().expect("isolated settings");
         let status = std::process::Command::new(std::env::current_exe().expect("test executable"))

@@ -115,7 +115,7 @@ fn file_size_limit_holds_a_full_resolution_decoded_frame() {
     const RGBA_CHANNELS: u64 = 4;
 
     let command = sandbox_command(
-        Path::new("/tmp/strata"),
+        Path::new("/tmp/yata"),
         Path::new("/home/alice/Pictures/photo.jpg"),
         Path::new("/tmp/private-output"),
         ParseOperation::ThumbnailImage,
@@ -147,7 +147,7 @@ fn png(width: u32, height: u32) -> Vec<u8> {
 #[test]
 fn sandbox_exposes_only_runtime_input_and_private_output() {
     let command = sandbox_command(
-        Path::new("/tmp/strata"),
+        Path::new("/tmp/yata"),
         Path::new("/home/alice/Downloads/untrusted.pdf"),
         Path::new("/tmp/private-output"),
         PDF_PREVIEW,
@@ -181,7 +181,7 @@ fn sandbox_exposes_only_runtime_input_and_private_output() {
 #[test]
 fn metadata_probe_retains_software_sandbox_limits_and_narrow_runtime_access() {
     let command = sandbox_command(
-        Path::new("/tmp/strata"),
+        Path::new("/tmp/yata"),
         Path::new("/home/alice/Videos/untrusted.mkv"),
         Path::new("/tmp/private-output"),
         ParseOperation::MediaMetadata,
@@ -219,7 +219,7 @@ fn metadata_probe_retains_software_sandbox_limits_and_narrow_runtime_access() {
 fn media_previews_use_bounded_streaming_instead_of_driver_wide_resource_limits() {
     let operation = MEDIA_PREVIEW;
     let command = sandbox_command(
-        Path::new("/tmp/strata"),
+        Path::new("/tmp/yata"),
         Path::new("/home/alice/Videos/untrusted.mkv"),
         Path::new("/tmp/private-output"),
         operation,
@@ -321,7 +321,7 @@ fn every_polaris_range_uses_the_safe_default_but_remains_available_for_opt_in() 
     assert_eq!(devices.len(), blocked.len());
     assert!(polaris_gpu_available_at(&dev, &drm));
     let command = sandbox_command(
-        Path::new("/tmp/strata"),
+        Path::new("/tmp/yata"),
         Path::new("/home/alice/Videos/untrusted.mkv"),
         Path::new("/tmp/private-output"),
         MEDIA_PREVIEW,
@@ -400,7 +400,7 @@ fn media_sandbox_exposes_only_supplied_gpu_devices_and_sysfs() {
         "/dev/nvidiactl".into(),
     ];
     let command = sandbox_command(
-        Path::new("/tmp/strata"),
+        Path::new("/tmp/yata"),
         Path::new("/home/alice/Videos/untrusted.mkv"),
         Path::new("/tmp/private-output"),
         MEDIA_PREVIEW,
@@ -427,7 +427,7 @@ fn media_sandbox_exposes_only_supplied_gpu_devices_and_sysfs() {
 #[test]
 fn software_media_sandbox_exposes_no_gpu_devices_or_sysfs() {
     let command = sandbox_command(
-        Path::new("/tmp/strata"),
+        Path::new("/tmp/yata"),
         Path::new("/home/alice/Videos/untrusted.mkv"),
         Path::new("/tmp/private-output"),
         MEDIA_PREVIEW,
@@ -449,7 +449,7 @@ fn software_media_sandbox_exposes_no_gpu_devices_or_sysfs() {
 #[test]
 fn non_media_sandboxes_never_expose_gpu_devices_or_sysfs() {
     let command = sandbox_command(
-        Path::new("/tmp/strata"),
+        Path::new("/tmp/yata"),
         Path::new("/home/alice/Videos/untrusted.mkv"),
         Path::new("/tmp/private-output"),
         ParseOperation::ThumbnailVideo,
@@ -471,7 +471,7 @@ fn non_media_sandboxes_never_expose_gpu_devices_or_sysfs() {
 #[test]
 fn video_thumbnails_execute_directly_inside_the_bounded_sandbox() {
     let command = sandbox_command(
-        Path::new("/tmp/strata"),
+        Path::new("/tmp/yata"),
         Path::new("/home/alice/Videos/untrusted.mkv"),
         Path::new("/tmp/private-output"),
         ParseOperation::ThumbnailVideo,
@@ -495,7 +495,7 @@ fn video_thumbnails_execute_directly_inside_the_bounded_sandbox() {
         joined
             .contains("/usr/bin/ffmpegthumbnailer -i /input.mkv -o /output/result.png -s 128 -q 8")
     );
-    assert!(!joined.contains("/app/strata"));
+    assert!(!joined.contains("/app/yata"));
     assert!(!joined.contains("--preview-helper"));
     assert!(!joined.contains("--share-net"));
 }
@@ -523,9 +523,9 @@ fn accepts_only_bounded_png_outputs_and_never_compressed_media() {
 #[test]
 fn renderer_uses_a_private_snapshot_after_the_original_executable_is_replaced() {
     let directory = PrivateOutput::create().expect("create private output");
-    let running = directory.path().join("running-strata");
+    let running = directory.path().join("running-yata");
     fs::write(&running, b"running executable").expect("write running executable");
-    let replaced = directory.path().join("replaced-strata");
+    let replaced = directory.path().join("replaced-yata");
 
     let executable = resolve_renderer_executable(&replaced, &running, directory.path())
         .expect("snapshot running executable");
@@ -540,12 +540,12 @@ fn renderer_uses_a_private_snapshot_after_the_original_executable_is_replaced() 
 #[test]
 fn renderer_uses_the_original_executable_while_it_is_available() {
     let directory = PrivateOutput::create().expect("create private output");
-    let current = directory.path().join("strata");
+    let current = directory.path().join("yata");
     fs::write(&current, b"current executable").expect("write current executable");
 
     let executable = resolve_renderer_executable(
         &current,
-        &directory.path().join("unused-running-strata"),
+        &directory.path().join("unused-running-yata"),
         directory.path(),
     )
     .expect("resolve current executable");

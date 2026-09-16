@@ -32,12 +32,12 @@ fn a_missing_marker_means_a_user_owned_install() {
         InstallSource::SelfManaged
     );
     assert!(
-        !Path::new("/nonexistent/bin/strata").is_file(),
+        !Path::new("/nonexistent/bin/yata").is_file(),
         "the prefix used below must not exist"
     );
     assert_eq!(
         InstallSource::from_marker_path(
-            marker_path_for_executable(Path::new("/nonexistent/bin/strata"))
+            marker_path_for_executable(Path::new("/nonexistent/bin/yata"))
                 .filter(|path| path.is_file())
         ),
         InstallSource::SelfManaged
@@ -72,7 +72,7 @@ fn the_update_command_names_an_installed_aur_helper() {
 
     assert_eq!(
         managed.update_instruction_with(|helper| helper == "paru"),
-        "Update Strata with: paru -Syu strata-bin",
+        "Update yata with: paru -Syu strata-bin",
         "the first listed helper that is present wins, not the first listed"
     );
 }
@@ -100,7 +100,7 @@ fn the_update_command_falls_back_when_no_helper_is_installed() {
 
     assert_eq!(
         managed.update_instruction_with(|_| false),
-        "Update Strata with an AUR helper, for example: yay -Syu strata-bin"
+        "Update yata with an AUR helper, for example: yay -Syu strata-bin"
     );
 }
 
@@ -109,8 +109,8 @@ fn an_explicit_update_command_wins_over_helper_detection() {
     let managed = load(
         r#"
         manager = "apt"
-        package = "strata"
-        update_command = "sudo apt install --only-upgrade strata"
+        package = "yata"
+        update_command = "sudo apt install --only-upgrade yata"
         aur_helpers = ["yay"]
         "#,
     )
@@ -120,7 +120,7 @@ fn an_explicit_update_command_wins_over_helper_detection() {
 
     assert_eq!(
         managed.update_instruction_with(|_| true),
-        "Update Strata with: sudo apt install --only-upgrade strata"
+        "Update yata with: sudo apt install --only-upgrade yata"
     );
 }
 
@@ -196,7 +196,7 @@ fn an_empty_marker_falls_back_to_generic_guidance() {
     );
     assert_eq!(
         managed.update_instruction(),
-        "Update Strata through your package manager."
+        "Update yata through your package manager."
     );
     assert_eq!(managed.alternate_instruction(), None);
 }
@@ -218,7 +218,7 @@ fn blank_values_are_treated_as_absent() {
     assert_eq!(managed.alternate_instruction(), None);
     assert_eq!(
         managed.update_instruction_with(|_| true),
-        "Update Strata through your package manager.",
+        "Update yata through your package manager.",
         "a blank helper must not render an update command"
     );
 }
@@ -226,16 +226,16 @@ fn blank_values_are_treated_as_absent() {
 #[test]
 fn the_marker_is_resolved_relative_to_the_install_prefix() {
     assert_eq!(
-        marker_path_for_executable(Path::new("/usr/bin/strata")),
-        Some(PathBuf::from("/usr/share/strata/install-source.toml"))
+        marker_path_for_executable(Path::new("/usr/bin/yata")),
+        Some(PathBuf::from("/usr/share/yata/install-source.toml"))
     );
     assert_eq!(
-        marker_path_for_executable(Path::new("/opt/strata/bin/strata")),
+        marker_path_for_executable(Path::new("/opt/yata/bin/yata")),
         Some(PathBuf::from(
-            "/opt/strata/share/strata/install-source.toml"
+            "/opt/yata/share/yata/install-source.toml"
         ))
     );
-    assert_eq!(marker_path_for_executable(Path::new("strata")), None);
+    assert_eq!(marker_path_for_executable(Path::new("yata")), None);
 }
 
 #[test]
@@ -256,7 +256,7 @@ fn a_packaged_install_refuses_to_replace_its_own_binary() {
     assert_eq!(
         ensure_self_managed(&source),
         Err(
-            "Installed by pacman as strata-bin. Update Strata with: yay -Syu strata-bin".to_owned()
+            "Installed by pacman as strata-bin. Update yata with: yay -Syu strata-bin".to_owned()
         )
     );
 }

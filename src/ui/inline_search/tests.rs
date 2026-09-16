@@ -84,8 +84,8 @@ fn alternate_view_search_finds_descendants_and_restores_the_original_view() {
                 .as_nanos();
             let fixture = std::env::temp_dir().join(format!("strata-alternate-search-{id}"));
             let root = fixture.join("Documents");
-            fs::create_dir_all(root.join("github/strata")).expect("create nested directory");
-            fs::create_dir_all(fixture.join("outside-strata")).expect("create sibling directory");
+            fs::create_dir_all(root.join("github/yata")).expect("create nested directory");
+            fs::create_dir_all(fixture.join("outside-yata")).expect("create sibling directory");
             fs::write(root.join("github/readme.txt"), "fixture").expect("create second match");
             let browser = Browser::new(Rc::new(crate::adapters::LocalFileSource));
             let entry = gtk::Entry::new();
@@ -96,11 +96,11 @@ fn alternate_view_search_finds_descendants_and_restores_the_original_view() {
                 .downcast::<gtk::Stack>()
                 .expect("local search stack");
             entry.set_text("stra");
-            wait_until(|| labels(&widget).contains(&"github/strata".to_owned()));
+            wait_until(|| labels(&widget).contains(&"github/yata".to_owned()));
             assert!(
                 !labels(&widget)
                     .iter()
-                    .any(|text| text.contains("outside-strata"))
+                    .any(|text| text.contains("outside-yata"))
             );
             entry.set_text("readme");
             wait_until(|| labels(&widget).contains(&"github/readme.txt".to_owned()));
@@ -108,7 +108,7 @@ fn alternate_view_search_finds_descendants_and_restores_the_original_view() {
             wait_until(|| stack.visible_child_name().as_deref() == Some("files"));
             assert_eq!(stack.visible_child(), Some(original.upcast()));
             entry.set_text("stra");
-            wait_until(|| labels(&widget).contains(&"github/strata".to_owned()));
+            wait_until(|| labels(&widget).contains(&"github/yata".to_owned()));
             let controllers = entry.observe_controllers();
             let keys = (0..controllers.n_items())
                 .filter_map(|index| controllers.item(index))
@@ -125,7 +125,7 @@ fn alternate_view_search_finds_descendants_and_restores_the_original_view() {
             ));
             assert_eq!(
                 browser.active_location(),
-                Some(Location::local(root.join("github/strata")))
+                Some(Location::local(root.join("github/yata")))
             );
             entry.set_text("");
             wait_until(|| stack.visible_child_name().as_deref() == Some("files"));

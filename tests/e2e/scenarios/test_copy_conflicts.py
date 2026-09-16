@@ -4,41 +4,41 @@ import pytest
 
 
 @pytest.mark.parametrize("activation", ["pointer", "Return"])
-def test_keep_both_selects_the_numbered_copy_and_undo_preserves_originals(strata, activation):
-    fixture = strata.fixture
+def test_keep_both_selects_the_numbered_copy_and_undo_preserves_originals(yata, activation):
+    fixture = yata.fixture
     fixture.path("archive/todo.txt").write_text("existing\n")
     fixture.path("archive/todo (1).txt").write_text("previous copy\n")
-    strata.select_entry("todo.txt")
-    strata.keyboard.press("ctrl+c")
-    strata.open_directory("archive")
-    strata.paste_into("archive")
-    strata.wait_for_dialog()
+    yata.select_entry("todo.txt")
+    yata.keyboard.press("ctrl+c")
+    yata.open_directory("archive")
+    yata.paste_into("archive")
+    yata.wait_for_dialog()
 
     if activation == "pointer":
-        strata.pointer.click(strata.dialog_button("Keep Both"))
+        yata.pointer.click(yata.dialog_button("Keep Both"))
     else:
-        strata.wait(
-            lambda: strata.dialog_button("Replace").has_state("focused"),
+        yata.wait(
+            lambda: yata.dialog_button("Replace").has_state("focused"),
             "Replace to receive initial focus",
         )
-        strata.keyboard.press("shift+Tab")
-        strata.wait(
-            lambda: strata.dialog_button("Keep Both").has_state("focused"),
+        yata.keyboard.press("shift+Tab")
+        yata.wait(
+            lambda: yata.dialog_button("Keep Both").has_state("focused"),
             "Keep Both to receive keyboard focus",
         )
-        strata.keyboard.press("Return")
+        yata.keyboard.press("Return")
 
-    strata.wait(lambda: fixture.path("archive/todo (2).txt").exists(), "the numbered copy")
-    strata.wait(
-        lambda: strata.selected_names("archive") == ["todo (2).txt"],
+    yata.wait(lambda: fixture.path("archive/todo (2).txt").exists(), "the numbered copy")
+    yata.wait(
+        lambda: yata.selected_names("archive") == ["todo (2).txt"],
         "the numbered copy to be selected",
     )
     assert fixture.path("archive/todo (2).txt").read_text() == "todo\n"
     # The copy can finish while the dismissing modal still owns keyboard input.
-    strata.wait(lambda: strata.dialog() is None, "the conflict dialog to finish dismissing")
-    strata.wait_for_focused_entry("todo (2).txt")
-    strata.keyboard.press("ctrl+z")
-    strata.wait(lambda: not fixture.path("archive/todo (2).txt").exists(), "copy undo")
+    yata.wait(lambda: yata.dialog() is None, "the conflict dialog to finish dismissing")
+    yata.wait_for_focused_entry("todo (2).txt")
+    yata.keyboard.press("ctrl+z")
+    yata.wait(lambda: not fixture.path("archive/todo (2).txt").exists(), "copy undo")
     assert fixture.path("todo.txt").read_text() == "todo\n"
     assert fixture.path("archive/todo.txt").read_text() == "existing\n"
     assert fixture.path("archive/todo (1).txt").read_text() == "previous copy\n"
@@ -54,44 +54,44 @@ def test_keep_both_selects_the_numbered_copy_and_undo_preserves_originals(strata
     ],
     ids=["copy-Cancel", "copy-Escape", "copy-Close", "move-Cancel"],
 )
-def test_dismissing_a_copy_or_move_conflict_preserves_both_files(strata, moving, action):
-    fixture = strata.fixture
+def test_dismissing_a_copy_or_move_conflict_preserves_both_files(yata, moving, action):
+    fixture = yata.fixture
     fixture.path("archive/todo.txt").write_text("existing\n")
-    strata.select_entry("todo.txt")
-    strata.keyboard.press("ctrl+x" if moving else "ctrl+c")
-    strata.open_directory("archive")
-    strata.paste_into("archive")
-    dialog = strata.wait_for_dialog()
+    yata.select_entry("todo.txt")
+    yata.keyboard.press("ctrl+x" if moving else "ctrl+c")
+    yata.open_directory("archive")
+    yata.paste_into("archive")
+    dialog = yata.wait_for_dialog()
     assert (dialog.find(role="button", name="Keep Both") is not None) == (not moving)
 
     if action == "Escape":
-        strata.keyboard.press("Escape")
+        yata.keyboard.press("Escape")
     else:
-        strata.pointer.click(strata.dialog_button(action))
-    strata.wait(lambda: strata.dialog() is None, "the conflict dialog to close")
+        yata.pointer.click(yata.dialog_button(action))
+    yata.wait(lambda: yata.dialog() is None, "the conflict dialog to close")
     assert fixture.path("todo.txt").read_text() == "todo\n"
     assert fixture.path("archive/todo.txt").read_text() == "existing\n"
     assert not fixture.path("archive/todo (1).txt").exists()
 
 
-def test_keep_both_applies_to_all_collisions_in_a_mixed_paste(strata):
-    fixture = strata.fixture
+def test_keep_both_applies_to_all_collisions_in_a_mixed_paste(yata):
+    fixture = yata.fixture
     for name in ["notes.txt", "report.md"]:
         fixture.path(f"archive/{name}").write_text(f"existing {name}\n")
-    strata.open_directory("documents")
-    strata.select_entry_with_keyboard("notes.txt")
-    strata.keyboard.press("ctrl+a")
-    strata.keyboard.press("ctrl+c")
-    strata.keyboard.press("alt+Up")
-    strata.wait_for_directory(fixture.root.name)
-    strata.open_directory("archive")
-    strata.paste_into("archive")
-    dialog = strata.wait_for_dialog()
+    yata.open_directory("documents")
+    yata.select_entry_with_keyboard("notes.txt")
+    yata.keyboard.press("ctrl+a")
+    yata.keyboard.press("ctrl+c")
+    yata.keyboard.press("alt+Up")
+    yata.wait_for_directory(fixture.root.name)
+    yata.open_directory("archive")
+    yata.paste_into("archive")
+    dialog = yata.wait_for_dialog()
     apply_all = dialog.find(name="Apply to All")
     assert apply_all is not None, dialog.dump()
-    strata.pointer.click(apply_all)
-    strata.pointer.click(strata.dialog_button("Keep Both"))
-    strata.wait(
+    yata.pointer.click(apply_all)
+    yata.pointer.click(yata.dialog_button("Keep Both"))
+    yata.wait(
         lambda: all(
             fixture.path(f"archive/{name}").exists()
             for name in ["notes (1).txt", "report (1).md", "spreadsheet.csv"]

@@ -1,4 +1,4 @@
-# Maintainer: Strata maintainers <https://github.com/lgse/strata/issues>
+# Maintainer: yata maintainers <https://github.com/melandur/yata/issues>
 # Generated from PKGBUILD.in; do not edit directly.
 
 pkgname=strata-rc-bin
@@ -7,7 +7,7 @@ pkgrel=1
 _releasever=0.9.0
 pkgdesc="A fast, keyboard-first file manager for Linux (preview channel)"
 arch=('x86_64' 'aarch64')
-url="https://github.com/lgse/strata"
+url="https://github.com/melandur/yata"
 license=('MIT' 'LicenseRef-UnRAR')
 depends=(
   'bubblewrap'
@@ -30,8 +30,8 @@ optdepends=(
   'libraw: RAW image previews when ImageMagick is unavailable'
   'xdg-terminal-exec: preferred Open in Terminal launcher (AUR)'
 )
-provides=("strata=${pkgver}")
-conflicts=('strata' 'strata-bin')
+provides=("yata=${pkgver}")
+conflicts=('yata' 'strata-bin')
 # Preserve byte identity with the attested release artifact.
 options=('!strip' '!debug')
 source_x86_64=("${url}/releases/download/v${_releasever}/strata-${_releasever}-x86_64-unknown-linux-gnu.tar.gz")
@@ -42,7 +42,7 @@ sha256sums_aarch64=('361be021c83bdf8af503ac8c487f3e1e6b2900211dcaef237fd8c9b6992
 package() {
   local dist="${srcdir}/strata-${_releasever}-${CARCH}-unknown-linux-gnu"
 
-  install -Dm755 "${dist}/strata" "${pkgdir}/usr/bin/strata"
+  install -Dm755 "${dist}/yata" "${pkgdir}/usr/bin/yata"
   install -Dm644 "${dist}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
   # Older release archives predate bundled UnRAR.
   if [[ -f "${dist}/UnRAR.txt" ]]; then
@@ -51,21 +51,21 @@ package() {
   install -Dm644 "${dist}/THIRD_PARTY_LICENSES.md" \
     "${pkgdir}/usr/share/licenses/${pkgname}/THIRD_PARTY_LICENSES.md"
 
-  if [[ -f "${dist}/io.github.lgse.Strata.desktop" ]]; then
-    install -Dm644 "${dist}/io.github.lgse.Strata.desktop" \
-      "${pkgdir}/usr/share/applications/io.github.lgse.Strata.desktop"
-    install -Dm644 "${dist}/io.github.lgse.Strata.svg" \
-      "${pkgdir}/usr/share/icons/hicolor/scalable/apps/io.github.lgse.Strata.svg"
+  if [[ -f "${dist}/io.github.melandur.yata.desktop" ]]; then
+    install -Dm644 "${dist}/io.github.melandur.yata.desktop" \
+      "${pkgdir}/usr/share/applications/io.github.melandur.yata.desktop"
+    install -Dm644 "${dist}/io.github.melandur.yata.svg" \
+      "${pkgdir}/usr/share/icons/hicolor/scalable/apps/io.github.melandur.yata.svg"
   else
-    warning "Strata ${_releasever} ships no desktop entry or application icon; installing without a launcher."
+    warning "yata ${_releasever} ships no desktop entry or application icon; installing without a launcher."
   fi
 
-  if [[ -f "${dist}/io.github.lgse.Strata.FileManager1.service" ]]; then
-    install -Dm644 "${dist}/io.github.lgse.Strata.FileManager1.service" \
-      "${pkgdir}/usr/share/strata/io.github.lgse.Strata.FileManager1.service"
+  if [[ -f "${dist}/io.github.melandur.yata.FileManager1.service" ]]; then
+    install -Dm644 "${dist}/io.github.melandur.yata.FileManager1.service" \
+      "${pkgdir}/usr/share/yata/io.github.melandur.yata.FileManager1.service"
   fi
 
-  install -Dm644 /dev/stdin "${pkgdir}/usr/share/strata/install-source.toml" <<'MARKER'
+  install -Dm644 /dev/stdin "${pkgdir}/usr/share/yata/install-source.toml" <<'MARKER'
 manager = "pacman"
 package = "strata-rc-bin"
 channel = "rc"

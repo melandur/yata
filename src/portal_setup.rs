@@ -21,26 +21,26 @@ use serde::{Deserialize, Serialize};
 use glib::{KeyFile, KeyFileFlags};
 
 const FILE_CHOOSER_KEY: &str = "org.freedesktop.impl.portal.FileChooser";
-const PORTAL_FILE: &str = "strata.portal";
-const SERVICE_FILE: &str = "org.freedesktop.impl.portal.desktop.strata.service";
-const STATE_DIRECTORY: &str = "strata/portal-install";
+const PORTAL_FILE: &str = "yata.portal";
+const SERVICE_FILE: &str = "org.freedesktop.impl.portal.desktop.yata.service";
+const STATE_DIRECTORY: &str = "yata/portal-install";
 const STATE_FILE: &str = "state.toml";
-const PORTAL_BACKEND_UNIT: &str = "dbus-:*-org.freedesktop.impl.portal.desktop.strata@*.service";
-const DESKTOP_ID: &str = "io.github.lgse.Strata.desktop";
-const FILE_MANAGER_SERVICE: &str = "io.github.lgse.Strata.FileManager1.service";
-const FILE_MANAGER_STATE_DIRECTORY: &str = "strata/file-manager-install";
+const PORTAL_BACKEND_UNIT: &str = "dbus-:*-org.freedesktop.impl.portal.desktop.yata@*.service";
+const DESKTOP_ID: &str = "io.github.melandur.yata.desktop";
+const FILE_MANAGER_SERVICE: &str = "io.github.melandur.yata.FileManager1.service";
+const FILE_MANAGER_STATE_DIRECTORY: &str = "yata/file-manager-install";
 const FILE_MANAGER_STATE_FILE: &str = "state.toml";
 const INODE_DIRECTORY: &str = "inode/directory";
 
 pub(crate) fn install() -> Result<String, String> {
     let executable = env::current_exe()
-        .map_err(|error| format!("Could not locate the Strata executable: {error}"))?;
+        .map_err(|error| format!("Could not locate the yata executable: {error}"))?;
     let context = SetupContext::from_environment()?;
     let config = install_at(&context, &executable)?;
     dismiss_prompt_at(&context)?;
     let restart_warning = refresh_portals();
     Ok(format!(
-        "Installed Strata as the per-user file chooser.\nConfiguration: {}{}",
+        "Installed yata as the per-user file chooser.\nConfiguration: {}{}",
         config.display(),
         restart_warning
     ))
@@ -52,25 +52,25 @@ pub(crate) fn uninstall() -> Result<String, String> {
     dismiss_prompt_at(&context)?;
     let restart_warning = refresh_portals();
     let edit_note = if preserved_edits {
-        "\nKept the remaining portal configuration and removed only Strata."
+        "\nKept the remaining portal configuration and removed only yata."
     } else {
         ""
     };
     Ok(format!(
-        "Removed the per-user Strata file chooser integration.{edit_note}{restart_warning}"
+        "Removed the per-user yata file chooser integration.{edit_note}{restart_warning}"
     ))
 }
 
 pub(crate) fn install_file_manager() -> Result<String, String> {
     let executable = env::current_exe()
-        .map_err(|error| format!("Could not locate the Strata executable: {error}"))?;
+        .map_err(|error| format!("Could not locate the yata executable: {error}"))?;
     let context = SetupContext::from_environment()?;
     let previous = query_default_file_manager().filter(|id| id != DESKTOP_ID);
     install_file_manager_at(&context, &executable, previous.as_deref())?;
     set_default_file_manager()?;
     omarchy::install(&context, &executable)?;
     reload_dbus();
-    Ok("Installed Strata as the default file manager. Reveal and Open Containing Folder from other apps will now use Strata.".into())
+    Ok("Installed yata as the default file manager. Reveal and Open Containing Folder from other apps will now use yata.".into())
 }
 
 pub(crate) fn uninstall_file_manager() -> Result<String, String> {
@@ -88,10 +88,10 @@ pub(crate) fn uninstall_file_manager() -> Result<String, String> {
     reload_dbus();
     Ok(if let Some(restored) = restored {
         format!(
-            "Removed the Strata file manager integration. Restored the folder handler: {restored}."
+            "Removed the yata file manager integration. Restored the folder handler: {restored}."
         )
     } else {
-        "Removed the Strata file manager integration. Your system default file manager will handle folders again.".into()
+        "Removed the yata file manager integration. Your system default file manager will handle folders again.".into()
     })
 }
 
@@ -116,13 +116,13 @@ fn install_file_manager_at(
     let executable = secure_executable(executable)?;
     let executable = executable
         .to_str()
-        .ok_or_else(|| "Strata must be installed at a UTF-8 path".to_owned())?;
+        .ok_or_else(|| "yata must be installed at a UTF-8 path".to_owned())?;
     if executable
         .chars()
         .any(|character| character.is_whitespace() || matches!(character, '\\' | '\'' | '"'))
     {
         return Err(
-            "The Strata executable path contains characters unsupported by D-Bus activation"
+            "The yata executable path contains characters unsupported by D-Bus activation"
                 .to_owned(),
         );
     }
@@ -139,8 +139,8 @@ fn install_file_manager_at(
         ));
     }
 
-    let service = include_str!("../data/io.github.lgse.Strata.FileManager1.service")
-        .replace("/usr/bin/strata", executable);
+    let service = include_str!("../data/io.github.melandur.yata.FileManager1.service")
+        .replace("/usr/bin/yata", executable);
     let state_directory = context.data_home.join(FILE_MANAGER_STATE_DIRECTORY);
     if read_file_manager_state(&state_directory)?.is_none() {
         let state = FileManagerInstallState {
@@ -393,7 +393,7 @@ pub(crate) fn refresh_after_in_place_update() -> Result<(), String> {
 pub(crate) fn refresh_stale_portal() -> Result<(), String> {
     let context = SetupContext::from_environment()?;
     let executable = env::current_exe()
-        .map_err(|error| format!("Could not locate the Strata executable: {error}"))?;
+        .map_err(|error| format!("Could not locate the yata executable: {error}"))?;
     refresh_stale_portal_at(&context, &executable, Path::new("/proc"), || {
         refresh_portals()
     })
@@ -434,7 +434,7 @@ fn portal_backend_is_stale_at(
     }
     let service = context.data_home.join("dbus-1/services").join(SERVICE_FILE);
     let expected_exec = format!("Exec={} --portal", executable.display());
-    // Do not interfere with a portal explicitly installed from another Strata build.
+    // Do not interfere with a portal explicitly installed from another yata build.
     if !read_utf8(&service)?
         .lines()
         .any(|line| line == expected_exec)
@@ -442,7 +442,7 @@ fn portal_backend_is_stale_at(
         return Ok(false);
     }
     let installed = fs::metadata(executable).map_err(|error| {
-        path_error("inspect the installed Strata executable", executable, error)
+        path_error("inspect the installed yata executable", executable, error)
     })?;
     let entries = fs::read_dir(proc_root)
         .map_err(|error| path_error("inspect running processes", proc_root, error))?;
@@ -494,7 +494,7 @@ fn status_at(context: &SetupContext) -> Result<PortalStatus, String> {
             .is_ok_and(|value| {
                 backend_values(&value)
                     .first()
-                    .is_some_and(|name| name == "strata")
+                    .is_some_and(|name| name == "yata")
             })
     } else {
         false
@@ -523,7 +523,7 @@ fn take_prompt_offer_at(context: &SetupContext) -> Result<bool, String> {
 }
 
 fn prompt_path(context: &SetupContext) -> PathBuf {
-    context.config_home.join("strata/portal-opt-in-v1")
+    context.config_home.join("yata/portal-opt-in-v1")
 }
 
 fn dismiss_prompt_at(context: &SetupContext) -> Result<bool, String> {
@@ -632,13 +632,13 @@ fn install_at(context: &SetupContext, executable: &Path) -> Result<PathBuf, Stri
     let executable = secure_executable(executable)?;
     let executable = executable
         .to_str()
-        .ok_or_else(|| "Strata must be installed at a UTF-8 path".to_owned())?;
+        .ok_or_else(|| "yata must be installed at a UTF-8 path".to_owned())?;
     if executable
         .chars()
         .any(|character| character.is_whitespace() || matches!(character, '\\' | '\'' | '"'))
     {
         return Err(
-            "The Strata executable path contains characters unsupported by D-Bus activation"
+            "The yata executable path contains characters unsupported by D-Bus activation"
                 .to_owned(),
         );
     }
@@ -697,11 +697,11 @@ fn install_at(context: &SetupContext, executable: &Path) -> Result<PathBuf, Stri
     }
     write_public(
         &portal_directory.join(PORTAL_FILE),
-        include_bytes!("../data/portal/strata.portal"),
+        include_bytes!("../data/portal/yata.portal"),
     )?;
     let service =
-        include_str!("../data/portal/org.freedesktop.impl.portal.desktop.strata.service.in")
-            .replace("@STRATA_EXECUTABLE@", executable);
+        include_str!("../data/portal/org.freedesktop.impl.portal.desktop.yata.service.in")
+            .replace("@YATA_EXECUTABLE@", executable);
     write_public(&service_directory.join(SERVICE_FILE), service.as_bytes())?;
     if let Some(state) = state {
         write_state(&state_directory, &state)?;
@@ -716,25 +716,25 @@ fn secure_executable(path: &Path) -> Result<PathBuf, String> {
 
 fn secure_executable_for_user(path: &Path, effective_user: u32) -> Result<PathBuf, String> {
     let path = fs::canonicalize(path)
-        .map_err(|error| path_error("resolve the Strata executable", path, error))?;
+        .map_err(|error| path_error("resolve the yata executable", path, error))?;
     for (index, component) in path.ancestors().enumerate() {
         let metadata = fs::metadata(component)
-            .map_err(|error| path_error("inspect the Strata executable path", component, error))?;
+            .map_err(|error| path_error("inspect the yata executable path", component, error))?;
         if index == 0 {
             if !metadata.is_file() || metadata.permissions().mode() & 0o111 == 0 {
-                return Err("The Strata executable must be a regular executable file".to_owned());
+                return Err("The yata executable must be a regular executable file".to_owned());
             }
         } else if !metadata.is_dir() {
-            return Err("The Strata executable path must contain only directories".to_owned());
+            return Err("The yata executable path must contain only directories".to_owned());
         }
         if !trusted_owner(metadata.uid(), effective_user) {
             return Err(
-                "The Strata executable path must be owned by the current user or root".to_owned(),
+                "The yata executable path must be owned by the current user or root".to_owned(),
             );
         }
         if metadata.permissions().mode() & 0o022 != 0 {
             return Err(
-                "The Strata executable path must not be writable by other users".to_owned(),
+                "The yata executable path must not be writable by other users".to_owned(),
             );
         }
     }
@@ -863,20 +863,20 @@ fn update_config(contents: &str, enable: bool) -> Result<String, String> {
     let mut fallback = config
         .value("preferred", "default")
         .map_or_else(|_| vec!["*".to_owned()], |value| backend_values(&value));
-    fallback.retain(|value| value != "strata");
+    fallback.retain(|value| value != "yata");
     if fallback.is_empty() {
         fallback.push("*".to_owned());
     }
     let mut values = chooser
         .as_deref()
         .map_or_else(|| fallback.clone(), backend_values);
-    values.retain(|value| value != "strata");
+    values.retain(|value| value != "yata");
 
     if enable {
         if values.is_empty() {
             values = fallback;
         }
-        values.insert(0, "strata".to_owned());
+        values.insert(0, "yata".to_owned());
         config.set_value(
             "preferred",
             FILE_CHOOSER_KEY,

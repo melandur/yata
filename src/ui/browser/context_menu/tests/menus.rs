@@ -299,7 +299,7 @@ fn assert_actions(popover: &gtk::Popover, present: &[&str], absent: &[&str]) {
 }
 
 fn capture_menu(menu: &gtk::Popover, name: &str) {
-    let Some(output) = std::env::var_os("STRATA_TRASH_MENU_VISUALS") else {
+    let Some(output) = std::env::var_os("YATA_TRASH_MENU_VISUALS") else {
         return;
     };
     let output = std::path::PathBuf::from(output);

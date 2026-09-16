@@ -10,7 +10,7 @@ fn installed(major: u8) -> String {
     let from = installer.find(&start).expect("valid test fixture");
     let to = installer[from..].find(&end).expect("valid test fixture") + from + end.len();
     let block = installer[from..to]
-        .replace("$BIN_PATH", "/home/test/.local/bin/strata")
+        .replace("$BIN_PATH", "/home/test/.local/bin/yata")
         .replace("\\$", "$");
     format!("unrelated-before\n{block}\nunrelated-after\n")
 }
@@ -30,7 +30,7 @@ fn restore_replaces_both_installer_shortcuts_and_keeps_unrelated_configuration()
         ));
         assert!(result.starts_with("unrelated-before\n"));
         assert!(result.ends_with("\nunrelated-after\n"));
-        assert!(!result.contains("/home/test/.local/bin/strata"));
+        assert!(!result.contains("/home/test/.local/bin/yata"));
         assert_eq!(result.matches("nautilus --new-window").count(), 2);
         assert!(result.contains("$(omarchy-cmd-terminal-cwd)"));
         assert_eq!(
@@ -53,7 +53,7 @@ fn restore_replaces_both_installer_shortcuts_and_keeps_unrelated_configuration()
 #[test]
 fn complete_setup_installs_repairs_and_reinstalls_shortcuts() {
     for major in [3, 4] {
-        let executable = Path::new("/home/test/strata/target/debug/strata");
+        let executable = Path::new("/home/test/yata/target/debug/yata");
         for original in [
             String::new(),
             "unrelated-setting\n".into(),
@@ -86,10 +86,10 @@ fn complete_setup_installs_repairs_and_reinstalls_shortcuts() {
         let customized = installed(major).replace("File manager (cwd)", "Custom shortcut");
         assert!(installed_bindings(&customized, major, executable).is_err());
         for unsafe_path in [
-            "/home/test/my strata",
-            "/home/test/$strata",
-            "/home/test/strata;touch-marker",
-            "/home/test/strata\ncommand",
+            "/home/test/my yata",
+            "/home/test/$yata",
+            "/home/test/yata;touch-marker",
+            "/home/test/yata\ncommand",
         ] {
             assert!(installed_bindings("", major, Path::new(unsafe_path)).is_err());
         }

@@ -19,11 +19,11 @@ pub(super) fn settle() {
 }
 
 pub(super) fn key(key: &str) {
-    let tool = std::env::var_os("STRATA_TEST_XDOTOOL").unwrap_or_else(|| "xdotool".into());
+    let tool = std::env::var_os("YATA_TEST_XDOTOOL").unwrap_or_else(|| "xdotool".into());
     let result = Command::new(tool)
         .args(["key", "--clearmodifiers", key])
         .output()
-        .expect("xdotool (or STRATA_TEST_XDOTOOL) is required");
+        .expect("xdotool (or YATA_TEST_XDOTOOL) is required");
     assert!(
         result.status.success(),
         "{}",
@@ -33,14 +33,14 @@ pub(super) fn key(key: &str) {
 }
 
 pub(super) fn focus_window() {
-    let tool = std::env::var_os("STRATA_TEST_XDOTOOL").unwrap_or_else(|| "xdotool".into());
+    let tool = std::env::var_os("YATA_TEST_XDOTOOL").unwrap_or_else(|| "xdotool".into());
     assert!(
         Command::new(tool)
             .args([
                 "search",
                 "--onlyvisible",
                 "--name",
-                "^Strata keyboard regression$",
+                "^yata keyboard regression$",
                 "windowfocus",
                 "--sync"
             ])
@@ -118,7 +118,7 @@ fn sidebar_round_trip(state: &ChooserState) {
 fn save_modal(mode: BrowserMode, root: &Path) {
     let request = ChooserRequest {
         token: format!("save-keyboard-{mode:?}"),
-        title: "Strata keyboard regression".into(),
+        title: "yata keyboard regression".into(),
         accept_label: "Save".into(),
         modal: false,
         parent: None,
@@ -208,7 +208,7 @@ fn keyboard_only_controls_and_file_navigation_work_in_every_chooser_view() {
     ] {
         let request = ChooserRequest {
             token: format!("keyboard-{mode:?}-{grouped}"),
-            title: "Strata keyboard regression".into(),
+            title: "yata keyboard regression".into(),
             accept_label: "Open".into(),
             modal: false,
             parent: None,
@@ -297,7 +297,7 @@ fn keyboard_only_controls_and_file_navigation_work_in_every_chooser_view() {
             );
         }
         let retained = browser.selected_entries();
-        let tool = std::env::var_os("STRATA_TEST_XDOTOOL").unwrap_or_else(|| "xdotool".into());
+        let tool = std::env::var_os("YATA_TEST_XDOTOOL").unwrap_or_else(|| "xdotool".into());
         for (x, y) in [(500, 300), (510, 310)] {
             assert!(
                 Command::new(&tool)
@@ -305,7 +305,7 @@ fn keyboard_only_controls_and_file_navigation_work_in_every_chooser_view() {
                         "search",
                         "--onlyvisible",
                         "--name",
-                        "^Strata keyboard regression$",
+                        "^yata keyboard regression$",
                         "mousemove",
                         "--window",
                         "%1",

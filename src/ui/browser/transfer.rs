@@ -69,7 +69,7 @@ fn cross_volume_drop_description(volume: VolumeRelation) -> &'static str {
     match volume {
         VolumeRelation::Different => "The destination is on a different device.",
         VolumeRelation::Same | VolumeRelation::Unknown => {
-            "Strata could not determine whether the destination is on the same device."
+            "yata could not determine whether the destination is on the same device."
         }
     }
 }

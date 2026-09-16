@@ -10,7 +10,7 @@ from harness.display import HeadlessDisplay
 
 
 def test_artifacts_are_separated_by_worker(tmp_path, monkeypatch):
-    monkeypatch.setenv("STRATA_E2E_ARTIFACTS", str(tmp_path))
+    monkeypatch.setenv("YATA_E2E_ARTIFACTS", str(tmp_path))
     paths = []
     for worker in ("gw0", "gw1"):
         monkeypatch.setenv("PYTEST_XDIST_WORKER", worker)

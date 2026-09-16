@@ -291,7 +291,7 @@ impl UndoState {
     }
 }
 
-// Undo follows the latest operation across every Strata window on the GTK main thread.
+// Undo follows the latest operation across every yata window on the GTK main thread.
 thread_local! {
     static PENDING_UNDO: RefCell<UndoState> = RefCell::new(UndoState::default());
 }
@@ -2936,7 +2936,7 @@ fn location_from_input_with_home(
 
 /// UNC paths (`\\host\share`, bare `//host/share`) and SCP-style addresses
 /// (`user@host:path`) are deliberately not accepted as location-bar shorthand
-/// (see lgse/strata#20) so a proper URI (`smb://`, `sftp://`, ...) is always
+/// (see melandur/yata#20) so a proper URI (`smb://`, `sftp://`, ...) is always
 /// preserved verbatim rather than being guessed at. Report a clear message
 /// instead of silently treating either as a relative local path.
 fn unsupported_shorthand_message(input: &str) -> Option<&'static str> {

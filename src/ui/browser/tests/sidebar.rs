@@ -93,7 +93,7 @@ fn icons_stays_one_grid_when_type_grouping_is_enabled() {
 #[test]
 #[ignore = "requires a mapped GTK window; run this test alone"]
 fn sidebar_boundary_tracks_icons_layout_and_empty_views() {
-    const CHILD: &str = "STRATA_SIDEBAR_BOUNDARY_GTK_CHILD";
+    const CHILD: &str = "YATA_SIDEBAR_BOUNDARY_GTK_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let sandbox = tempfile::tempdir().expect("isolated settings");
         let status = std::process::Command::new(std::env::current_exe().expect("test executable"))

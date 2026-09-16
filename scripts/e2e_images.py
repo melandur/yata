@@ -79,8 +79,8 @@ def discover_bases(refs, image_inputs, dependencies):
         except subprocess.TimeoutExpired:
             return None
 
-    labels = {"org.strata.e2e.inputs": image_inputs}
-    build = lookup(refs["build"], {**labels, "org.strata.e2e.dependencies": dependencies})
+    labels = {"org.yata.e2e.inputs": image_inputs}
+    build = lookup(refs["build"], {**labels, "org.yata.e2e.dependencies": dependencies})
     runtime = lookup(refs["runtime"], labels)
     cache = None
     if not build or not runtime:
@@ -104,7 +104,7 @@ def main():
         if args.command == "environment":
             inputs = image_key()
             refs = references(os.environ["GITHUB_REPOSITORY"], inputs, dependency_key(), os.getuid(), os.getgid())
-            pinned = resolve(refs["environment_image"], expected_labels={"org.strata.e2e.inputs": inputs})
+            pinned = resolve(refs["environment_image"], expected_labels={"org.yata.e2e.inputs": inputs})
             if not pinned:
                 raise ValueError("the published local-development base is unavailable anonymously")
             print(f"environment_image={pinned}")

@@ -1,12 +1,12 @@
 [package]
-name = "strata"
-version = "0.18.0"
+name = "yata"
+version = "0.1.0"
 edition = "2024"
-description = "A fast, keyboard-first file manager for Linux"
-authors = ["LGSE Ltd."]
+description = "A modal, keyboard-first GTK4 file manager: yazi navigation with a native desktop UI"
+authors = ["melandur"]
 license = "MIT"
-repository = "https://github.com/LGSE/strata"
-keywords = ["file-manager", "gtk4", "linux", "wayland"]
+repository = "https://github.com/melandur/yata"
+keywords = ["file-manager", "gtk4", "modal", "vim", "wayland"]
 categories = ["filesystem", "gui"]
 
 [dependencies]

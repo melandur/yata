@@ -188,7 +188,7 @@ fn space_toggles_the_selected_search_result_in_open_and_save_choosers() {
                         if mode == BrowserMode::Columns
                             && !save
                             && let Some(output) =
-                                std::env::var_os("STRATA_FILTER_PREVIEW_SCREENSHOTS")
+                                std::env::var_os("YATA_FILTER_PREVIEW_SCREENSHOTS")
                         {
                             super::sizing::capture(&state.window, Path::new(&output), name);
                         }

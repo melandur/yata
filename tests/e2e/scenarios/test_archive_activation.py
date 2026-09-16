@@ -16,9 +16,9 @@ from harness.artifacts import ArtifactCollector
 )
 @pytest.mark.parametrize("activation", ["keyboard", "double-click"])
 @pytest.mark.parametrize("format", ["zip", "rar", "tar.gz"])
-def test_archive_activation_extracts_to_subfolder(strata, activation, format):
-    strata.wait_for_focused_entry("archive")
-    fixture = strata.fixture
+def test_archive_activation_extracts_to_subfolder(yata, activation, format):
+    yata.wait_for_focused_entry("archive")
+    fixture = yata.fixture
     archive_name = f"activation.{format}"
     if format == "zip":
         with zipfile.ZipFile(fixture.path(archive_name), "w") as archive:
@@ -33,38 +33,38 @@ def test_archive_activation_extracts_to_subfolder(strata, activation, format):
     else:
         shutil.copyfile(Path(__file__).parents[2] / "fixtures/rar/version.rar", fixture.path(archive_name))
         member, contents = "VERSION", "unrar-0.4.0"
-    strata.entry(archive_name)
+    yata.entry(archive_name)
 
     if activation == "keyboard":
-        strata.select_entry("todo.txt")
-        strata.select_entry_with_keyboard(archive_name)
-        strata.keyboard.press("Return")
+        yata.select_entry("todo.txt")
+        yata.select_entry_with_keyboard(archive_name)
+        yata.keyboard.press("Return")
     else:
-        strata.double_click_entry(archive_name)
+        yata.double_click_entry(archive_name)
 
     subfolder = fixture.path("activation")
     extracted = subfolder / member
-    strata.wait(lambda: extracted.exists(), "archive activation to extract into a subfolder")
-    strata.wait(lambda: strata.dialog() is None, "extraction progress dismissal")
+    yata.wait(lambda: extracted.exists(), "archive activation to extract into a subfolder")
+    yata.wait(lambda: yata.dialog() is None, "extraction progress dismissal")
     assert extracted.read_text() == contents
     assert not fixture.path(member).exists()
     assert fixture.path(archive_name).exists()
-    assert strata.pane().name == fixture.root.name
-    strata.entry("activation")
+    assert yata.pane().name == fixture.root.name
+    yata.entry("activation")
     extracted.write_text("keep existing edits\n")
     for suffix in [1, 2]:
         if activation == "keyboard":
-            strata.select_entry("todo.txt")
-            strata.select_entry_with_keyboard(archive_name)
-            strata.keyboard.press("Return")
+            yata.select_entry("todo.txt")
+            yata.select_entry_with_keyboard(archive_name)
+            yata.keyboard.press("Return")
         else:
-            strata.double_click_entry(archive_name)
+            yata.double_click_entry(archive_name)
         fresh = fixture.path(f"activation ({suffix})") / member
-        strata.wait(lambda: fresh.exists(), "repeated activation to use a fresh folder")
-        strata.wait(lambda: strata.dialog() is None, "extraction progress dismissal")
+        yata.wait(lambda: fresh.exists(), "repeated activation to use a fresh folder")
+        yata.wait(lambda: yata.dialog() is None, "extraction progress dismissal")
         assert fresh.read_text() == contents
         assert extracted.read_text() == "keep existing edits\n"
-        strata.entry(f"activation ({suffix})")
+        yata.entry(f"activation ({suffix})")
     if format == "rar":
         collector = ArtifactCollector(test_name=f"rar-activation-{activation}")
-        strata.screenshot(collector.directory / "after.png")
+        yata.screenshot(collector.directory / "after.png")

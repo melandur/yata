@@ -5,77 +5,77 @@ import pytest
 
 
 @pytest.mark.parametrize("width", [1360, 640], ids=["sidebar", "compact-popover"])
-def test_settings_search_filters_navigates_and_clears(strata, width):
-    bounds = strata.window.screen_bounds()
-    strata.keyboard.connection.resize_surface(bounds.width, bounds.height, width, 700)
-    strata.wait(lambda: strata.window.screen_bounds().width == width, "resized window")
-    settings = strata.window.find(role="button", name="Settings")
+def test_settings_search_filters_navigates_and_clears(yata, width):
+    bounds = yata.window.screen_bounds()
+    yata.keyboard.connection.resize_surface(bounds.width, bounds.height, width, 700)
+    yata.wait(lambda: yata.window.screen_bounds().width == width, "resized window")
+    settings = yata.window.find(role="button", name="Settings")
     assert settings is not None and settings.activate()
     if width == 640:
-        button = strata.wait(
-            lambda: strata.window.find(role="button", name="Search settings"),
+        button = yata.wait(
+            lambda: yata.window.find(role="button", name="Search settings"),
             "compact settings search",
         )
-        strata.pointer.click(button)
-    search = strata.wait(
-        lambda: strata.window.find(role="text", name="Search settings"),
+        yata.pointer.click(button)
+    search = yata.wait(
+        lambda: yata.window.find(role="text", name="Search settings"),
         "settings search field",
     )
-    original = strata.environment.read_preferences()
-    strata.pointer.click(search)
-    strata.keyboard.type_text("tezt size")
-    strata.wait(lambda: search.text == "tezt size", "search retains focus across page changes")
-    strata.wait(
-        lambda: strata.window.find(role="spin button", name="Text size in pixels"),
+    original = yata.environment.read_preferences()
+    yata.pointer.click(search)
+    yata.keyboard.type_text("tezt size")
+    yata.wait(lambda: search.text == "tezt size", "search retains focus across page changes")
+    yata.wait(
+        lambda: yata.window.find(role="spin button", name="Text size in pixels"),
         "nearest text-size setting",
     )
-    assert strata.window.find(name="Reduce motion") is None
-    assert strata.window.find(name="Search themes") is None
-    preferences = strata.environment.read_preferences()
+    assert yata.window.find(name="Reduce motion") is None
+    assert yata.window.find(name="Search themes") is None
+    preferences = yata.environment.read_preferences()
     for key in ("folder_peeking", "text_size", "follow_omarchy", "theme"):
         assert preferences.get(key) == original.get(key)
 
-    bounds = strata.window.screen_bounds()
+    bounds = yata.window.screen_bounds()
     width = 640 if width == 1360 else 1360
-    strata.keyboard.connection.resize_surface(bounds.width, bounds.height, width, 700)
-    strata.wait(lambda: strata.window.screen_bounds().width == width, "resize with an active query")
-    search = strata.wait(
-        lambda: strata.window.find(role="text", name="Search settings"),
+    yata.keyboard.connection.resize_surface(bounds.width, bounds.height, width, 700)
+    yata.wait(lambda: yata.window.screen_bounds().width == width, "resize with an active query")
+    search = yata.wait(
+        lambda: yata.window.find(role="text", name="Search settings"),
         "search follows the responsive navigation",
     )
-    strata.wait(lambda: search.has_state("focused"), "search input focus survives resize")
+    yata.wait(lambda: search.has_state("focused"), "search input focus survives resize")
     assert search.text == "tezt size"
-    strata.keyboard.press("ctrl+a")
-    strata.keyboard.type_text("folder peeking")
-    strata.wait(lambda: search.text == "folder peeking", "replace global query")
-    strata.wait(lambda: strata.window.find(name="Folder peeking"), "matching General setting")
-    assert strata.window.find(name="Single-click file previews") is None
+    yata.keyboard.press("ctrl+a")
+    yata.keyboard.type_text("folder peeking")
+    yata.wait(lambda: search.text == "folder peeking", "replace global query")
+    yata.wait(lambda: yata.window.find(name="Folder peeking"), "matching General setting")
+    assert yata.window.find(name="Single-click file previews") is None
 
-    strata.keyboard.press("ctrl+a")
-    strata.keyboard.type_text("keep arrows")
-    strata.wait(lambda: strata.window.find(name="Keep arrows in file list"), "arrow scope setting")
-    assert strata.window.find(name="Folder peeking") is None
+    yata.keyboard.press("ctrl+a")
+    yata.keyboard.type_text("keep arrows")
+    yata.wait(lambda: yata.window.find(name="Keep arrows in file list"), "arrow scope setting")
+    assert yata.window.find(name="Folder peeking") is None
 
-    strata.keyboard.press("ctrl+a")
-    strata.keyboard.type_text("default directory")
-    strata.wait(
-        lambda: strata.window.find(role="button", name="Home directory"),
+    yata.keyboard.press("ctrl+a")
+    yata.keyboard.type_text("default directory")
+    yata.wait(
+        lambda: yata.window.find(role="button", name="Home directory"),
         "startup directory setting",
     )
-    assert strata.window.find(name="Keep arrows in file list") is None
+    assert yata.window.find(name="Keep arrows in file list") is None
 
-    strata.keyboard.press("ctrl+a")
-    strata.keyboard.type_text("unfindablequantumsetting")
-    strata.wait(
-        lambda: strata.window.find(role="label", name="No settings match your search."),
+    yata.keyboard.press("ctrl+a")
+    yata.keyboard.type_text("unfindablequantumsetting")
+    yata.wait(
+        lambda: yata.window.find(role="label", name="No settings match your search."),
         "explicit empty results",
     )
-    strata.keyboard.press("Escape")
-    strata.wait(lambda: search.text == "", "Escape clears the query before closing Settings")
+    yata.keyboard.press("Escape")
+    yata.wait(lambda: search.text == "", "Escape clears the query before closing Settings")
     if width == 640:
-        strata.keyboard.press("Escape")
-    strata.wait(
-        lambda: strata.window.find(name="Single-click file previews"),
+        yata.keyboard.press("Escape")
+    yata.wait(
+        lambda: yata.window.find(name="Single-click file previews"),
         "unfiltered settings restored",
     )
-    assert strata.window.find(role="button", name="Close settings") is not None
+    assert yata.window.find(role="button", name="Close settings") is not None

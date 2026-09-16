@@ -480,7 +480,7 @@ fn current_cross_volume_drop_strategy() -> CrossVolumeDropStrategy {
     crate::ui::theme::ThemeManager::shared().cross_volume_drop_strategy()
 }
 
-/// A compositor's source-side MOVE offer must not prevent Strata's cross-volume copy.
+/// A compositor's source-side MOVE offer must not prevent yata's cross-volume copy.
 fn offered_file_actions(
     dest_actions: gtk::gdk::DragAction,
     source_actions: gtk::gdk::DragAction,

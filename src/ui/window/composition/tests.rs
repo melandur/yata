@@ -183,7 +183,7 @@ fn settings_button_and_shortcut_reuse_the_lazy_layer_without_saving() {
         || {
             ThemeManager::seed_saved_preferences_for_test();
             let fixture = Fixture::new();
-            let path = glib::user_config_dir().join("strata/settings.toml");
+            let path = glib::user_config_dir().join("yata/settings.toml");
             let saved = std::fs::read(&path).expect("saved preferences");
             assert!(fixture.layer("settings-backdrop").is_none());
             let controllers = fixture.window.observe_controllers();
@@ -249,7 +249,7 @@ fn update_notices_clear_in_both_windows_without_opening_settings() {
                             .update_notice
                             .tooltip_text()
                             .as_deref(),
-                        Some("Install Strata v9.0.0")
+                        Some("Install yata v9.0.0")
                     );
                     assert!(
                         !fixture
@@ -304,7 +304,7 @@ fn update_notice_reaches_open_and_later_windows() {
                         .update_notice
                         .tooltip_text()
                         .as_deref(),
-                    Some("Install Strata v9.0.0")
+                    Some("Install yata v9.0.0")
                 );
             }
 

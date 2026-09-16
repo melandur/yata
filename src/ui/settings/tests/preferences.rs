@@ -47,7 +47,7 @@ fn every_general_control_stays_in_sync_without_initializing_browser_behavior() {
                 Rc::new(crate::adapters::LocalFileSource),
                 crate::ui::browser::PeekBehavior::default(),
             );
-            let path = glib::user_config_dir().join("strata/settings.toml");
+            let path = glib::user_config_dir().join("yata/settings.toml");
             let before = std::fs::read_to_string(&path).expect("saved settings");
             let (first, _, _) = general_page(manager.clone());
             let (second, _, _) = general_page(manager.clone());
@@ -323,7 +323,7 @@ fn theme_hint_and_channel_controls_follow_external_changes() {
             }
             manager.set_follow_omarchy(true);
             let saved =
-                std::fs::read_to_string(glib::user_config_dir().join("strata/settings.toml"))
+                std::fs::read_to_string(glib::user_config_dir().join("yata/settings.toml"))
                     .expect("saved preference fixture");
             std::fs::write(
                 glib::home_dir().join(".local/state/omarchy/current/theme.name"),
@@ -356,7 +356,7 @@ fn theme_hint_and_channel_controls_follow_external_changes() {
                 );
             }
             assert_eq!(
-                std::fs::read_to_string(glib::user_config_dir().join("strata/settings.toml"))
+                std::fs::read_to_string(glib::user_config_dir().join("yata/settings.toml"))
                     .expect("saved preference fixture"),
                 saved
             );
@@ -471,7 +471,7 @@ fn follow_omarchy_hides_and_falls_back_when_quattro_state_disappears() {
                 assert!(rows.iter().all(|row| !row.is_visible()));
                 assert_eq!(manager.appearance_tokens().name, "Nord");
                 let saved: toml::Table = toml::from_str(
-                    &std::fs::read_to_string(glib::user_config_dir().join("strata/settings.toml"))
+                    &std::fs::read_to_string(glib::user_config_dir().join("yata/settings.toml"))
                         .expect("saved preferences"),
                 )
                 .expect("settings parse");

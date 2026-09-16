@@ -1,6 +1,6 @@
 # Preview sandbox
 
-Strata treats files shown while browsing as untrusted. Original-file native
+yata treats files shown while browsing as untrusted. Original-file native
 parsing and decoding run inside bubblewrap, never in the application.
 
 ## Providers
@@ -16,7 +16,7 @@ parsing and decoding run inside bubblewrap, never in the application.
 
 ## Bundled interface icons
 
-Strata's bundled Lucide SVGs are trusted application resources, not browser files.
+yata's bundled Lucide SVGs are trusted application resources, not browser files.
 They render directly to bounded in-memory pixels with `resvg`, avoiding synchronous
 GdkPixbuf/Glycin loader startup on the GTK thread during row binding and live theme
 changes. External and embedded image references are disabled; icon inputs and
@@ -70,7 +70,7 @@ HEIC/HEIF can use ImageMagick with libheif inside the image sandbox.
 
 Camera/PTP rows use the backend's `preview::icon` / `GLoadableIcon` interface.
 GVfs's gphoto2 implementation requests `GP_FILE_TYPE_PREVIEW`, not the original.
-Missing or failed previews leave the ordinary file icon; Strata does not fall
+Missing or failed previews leave the ordinary file icon; yata does not fall
 back to downloading full photos for thumbnails.
 
 Retrieval is asynchronous, limited to 1 MiB and 15 seconds. These jobs share the
@@ -117,7 +117,7 @@ and type information; it does not run this metadata inspector.
 One original local file (read-only)
   -> bubblewrap: ffprobe + FFmpeg video/audio decoding and scaling
   -> bounded, validated RGBA frames and PCM blocks
-  -> Strata GtkMediaStream: GTK MemoryTexture presentation
+  -> yata GtkMediaStream: GTK MemoryTexture presentation
                          + GStreamer appsrc raw-audio output
 ```
 
@@ -236,7 +236,7 @@ Bubblewrap retains the existing namespace/mount policy:
 
 - new user, mount, PID, IPC, UTS, cgroup, and network namespaces;
 - read-only `/usr`, required runtime libraries and font/ImageMagick configuration,
-  the Strata executable, and exactly one canonicalized regular input file;
+  the yata executable, and exactly one canonicalized regular input file;
 - writable private mode-0700 output directories for image providers and a
   size-limited (512 MiB) private `/tmp`; media uses pipes, not output mounts;
 - an empty environment, nonexistent home, and no desktop, session-bus, or
@@ -270,7 +270,7 @@ GPU access still expands the helper's attack surface into driver code.
 GStreamer app/base development libraries are now direct build dependencies;
 installed systems need their runtime libraries and raw-audio/output plugins.
 In particular, the core and app/base libraries are now required to **launch**
-Strata, even when no preview is open. Minimal installations that self-update only
+yata, even when no preview is open. Minimal installations that self-update only
 the executable must install these packages before updating. Installer/AUR metadata
 retains the legacy codec-plugin recommendation for currently published binaries;
 the new player does not use those decoders.
@@ -280,7 +280,7 @@ The new player does not use the two patched `GtkGstSink`/`GstPlay` paths, but th
 change neither applies nor retires that patch kit or claims to fix all RAM growth.
 
 The Ubuntu runtime-library alias problem tracked in
-[#806](https://github.com/lgse/strata/issues/806) was initially deferred. The sandbox
+[#806](https://github.com/melandur/yata/issues/806) was initially deferred. The sandbox
 now includes optional read-only binds of the BLAS/LAPACK alternatives used by
 media helpers on x86-64 and ARM64 Debian-family installations. This resolves their
 runtime links without exposing the whole `/etc/alternatives` directory or the

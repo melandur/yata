@@ -83,8 +83,8 @@ def available_resources(proc: Path = Path("/proc")) -> tuple[float, int]:
 def worker_count(cpus: float, memory: int, override: str = "auto") -> int:
     if override != "auto":
         if not override.isdecimal() or int(override) < 1:
-            raise ValueError("STRATA_E2E_WORKERS must be 'auto' or a positive integer")
+            raise ValueError("YATA_E2E_WORKERS must be 'auto' or a positive integer")
         return int(override)
     # Leave memory for the controller and infrastructure. Each worker runs
-    # Strata, Xvfb, and two buses; CPU oversubscription destabilizes GUI timing.
+    # yata, Xvfb, and two buses; CPU oversubscription destabilizes GUI timing.
     return max(1, min(MAX_AUTO_WORKERS, int(cpus / 2), (memory - GIB) // (2 * GIB)))

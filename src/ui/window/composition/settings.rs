@@ -154,9 +154,9 @@ fn notice_handler(sidebar: &SidebarView, available: AvailableUpdate) -> UpdateNo
 
 fn update_tooltip(release: &ReleaseMetadata, method: UpdateMethod) -> String {
     match method {
-        UpdateMethod::InPlace => format!("Install Strata v{}", release.version),
+        UpdateMethod::InPlace => format!("Install yata v{}", release.version),
         UpdateMethod::Aur => format!(
-            "Strata v{} is available through {}",
+            "yata v{} is available through {}",
             release.version,
             InstallSource::detect()
                 .managed()
@@ -164,8 +164,8 @@ fn update_tooltip(release: &ReleaseMetadata, method: UpdateMethod) -> String {
                 .unwrap_or("your package manager")
         ),
         UpdateMethod::Omarchy => {
-            format!("Strata v{} is available through Omarchy", release.version)
+            format!("yata v{} is available through Omarchy", release.version)
         }
-        UpdateMethod::Pacman => format!("Strata v{} is available through pacman", release.version),
+        UpdateMethod::Pacman => format!("yata v{} is available through pacman", release.version),
     }
 }

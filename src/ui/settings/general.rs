@@ -163,7 +163,7 @@ fn append_default_directory_option(content: &gtk::Box, manager: &Rc<ThemeManager
 
     let row = super::control_row(
         "Default directory",
-        "Open this folder when launching Strata without a target.",
+        "Open this folder when launching yata without a target.",
         &controls,
     );
     content.append(&row);

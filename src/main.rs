@@ -22,7 +22,7 @@ use std::{ffi::OsString, os::unix::process::CommandExt, process::Stdio, time::Du
 
 use gtk::{gio, prelude::*};
 
-const APPLICATION_ID: &str = "io.github.lgse.Strata";
+const APPLICATION_ID: &str = "io.github.melandur.yata";
 const GVFS_PROBE_ARGUMENT: &str = "--gvfs-probe";
 const GVFS_PROBE_TIMEOUT: Duration = Duration::from_secs(2);
 const GIO_FALLBACK_BACKENDS: [(&str, &str); 2] =
@@ -99,7 +99,7 @@ fn main() -> gtk::glib::ExitCode {
         eprintln!("Unable to initialize logging: {error}");
     }
     if let Err(error) = portal_setup::refresh_stale_portal() {
-        tracing::warn!(%error, "could not refresh the stale Strata portal");
+        tracing::warn!(%error, "could not refresh the stale yata portal");
     }
 
     // Timed from here so `window presented` covers the whole launch, the way
@@ -212,7 +212,7 @@ fn restart_with_local_vfs_if_gvfs_is_unresponsive() {
         .args(std::env::args_os().skip(1))
         .envs(GIO_FALLBACK_BACKENDS)
         .exec();
-    eprintln!("Unable to restart Strata with local filesystem and volume support: {error}");
+    eprintln!("Unable to restart yata with local filesystem and volume support: {error}");
 }
 
 fn gvfs_probe_marker_path() -> Option<std::path::PathBuf> {

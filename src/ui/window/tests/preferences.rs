@@ -123,7 +123,7 @@ fn saved_browser_preferences_apply_without_settings_and_survive_view_changes() {
     gtk_test(
         "ui::window::tests::preferences::saved_browser_preferences_apply_without_settings_and_survive_view_changes",
         || {
-            let directory = glib::user_config_dir().join("strata");
+            let directory = glib::user_config_dir().join("yata");
             std::fs::create_dir_all(&directory).expect("isolated settings directory");
             let path = directory.join("settings.toml");
             let saved = r#"
@@ -178,7 +178,7 @@ fn startup_directory_loads_without_settings_and_clears_stale_paths() {
             let directory = tempfile::tempdir().expect("startup fixture");
             let chosen = directory.path().join("chosen");
             std::fs::create_dir(&chosen).expect("chosen folder");
-            let config = glib::user_config_dir().join("strata/settings.toml");
+            let config = glib::user_config_dir().join("yata/settings.toml");
             std::fs::create_dir_all(config.parent().expect("config parent"))
                 .expect("config directory");
             let saved = toml::Table::from_iter([(

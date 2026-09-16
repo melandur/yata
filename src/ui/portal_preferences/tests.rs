@@ -6,7 +6,7 @@ use super::*;
 #[ignore = "requires a GTK display and isolated XDG directories; run this test alone"]
 fn inline_setup_actions_follow_status_and_preserve_errors() {
     gtk::init().expect("GTK display");
-    gio::resources_register_include!("strata.gresource").expect("bundled icons");
+    gio::resources_register_include!("yata.gresource").expect("bundled icons");
     crate::ui::prepare_portal_ui();
     let parents = [
         gtk::Box::new(gtk::Orientation::Vertical, 0),

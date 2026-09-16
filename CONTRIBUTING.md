@@ -1,6 +1,6 @@
-# Contributing to Strata
+# Contributing to yata
 
-Thanks for helping build Strata. The project is early, so discuss large changes in an issue before investing in an implementation.
+Thanks for helping build yata. The project is early, so discuss large changes in an issue before investing in an implementation.
 
 ## Development setup
 
@@ -130,7 +130,7 @@ Generate and profile deterministic large directories with:
 ```bash
 ./scripts/generate-fixture.sh target/fixtures
 cargo build --release
-STRATA_BINARY=target/release/strata ./scripts/profile-fixture.sh target/fixtures/100000
+YATA_BINARY=target/release/yata ./scripts/profile-fixture.sh target/fixtures/100000
 ```
 
 See [the performance baseline](docs/performance-baseline.md) for recorded results and measurement guidance.
@@ -160,4 +160,4 @@ Maintained README media and visual-regression test baselines remain versioned.
 
 ## Asset policy
 
-Only package assets Strata uses. Bundled icons use `strata-` names to avoid collisions, while their upstream origin is recorded in [third-party notices](THIRD_PARTY_LICENSES.md). Do not add generated placeholders or assets of unclear provenance.
+Only package assets yata uses. Bundled icons use `strata-` names to avoid collisions, while their upstream origin is recorded in [third-party notices](THIRD_PARTY_LICENSES.md). Do not add generated placeholders or assets of unclear provenance.

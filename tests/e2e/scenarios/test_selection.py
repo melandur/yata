@@ -19,14 +19,14 @@ def _name_label_point(entry, *, leftover: bool) -> tuple[int, int]:
 
 
 @pytest.fixture
-def root(strata) -> str:
+def root(yata) -> str:
     """The fixture directory, named explicitly.
 
     Columns opens a folder on the click that selects it, so assertions name
     the pane they are about rather than relying on the deepest one.
     """
 
-    return strata.fixture.root.name
+    return yata.fixture.root.name
 
 
 # Listing-selected origin is the same contract at startup and after keyboard
@@ -41,21 +41,21 @@ SHIFT_RANGE_CASES = [
 @pytest.mark.parametrize("mode", ALL_MODES)
 @pytest.mark.parametrize("arrival,target", SHIFT_RANGE_CASES)
 def test_shift_click_ranges_from_the_listing_selected_entry(
-    strata, mode, root, arrival, target
+    yata, mode, root, arrival, target
 ):
     if arrival == "startup":
         directory = root
         name = "pictures"
         expected = ["archive", "documents", "pictures"]
     else:
-        strata.select_entry_with_keyboard("documents")
-        strata.keyboard.press("Return")
-        strata.wait_for_directory("documents")
+        yata.select_entry_with_keyboard("documents")
+        yata.keyboard.press("Return")
+        yata.wait_for_directory("documents")
         directory = "documents"
         name = "spreadsheet.csv"
         expected = ["notes.txt", "report.md", "spreadsheet.csv"]
 
-    entry = strata.entry(name, directory)
+    entry = yata.entry(name, directory)
     if target == "row-space":
         if mode == "Icons":
             icon = entry.find(role="image")
@@ -67,25 +67,25 @@ def test_shift_click_ranges_from_the_listing_selected_entry(
             assert label is not None
             bounds = label.screen_bounds()
             point = (bounds.x + bounds.width - 2, bounds.center[1])
-        strata.pointer.click(entry, at=point, modifiers=("shift",))
+        yata.pointer.click(entry, at=point, modifiers=("shift",))
     else:
-        strata.click_entry_with(name, ["shift"], directory=directory)
+        yata.click_entry_with(name, ["shift"], directory=directory)
 
-    strata.wait_for_selection(expected, directory)
+    yata.wait_for_selection(expected, directory)
 
 
 @pytest.mark.parametrize("mode", ALL_MODES)
-def test_keyboard_selection_after_sidebar_navigation_initializes_the_range_anchor(strata, mode):
-    home = strata.environment.home
+def test_keyboard_selection_after_sidebar_navigation_initializes_the_range_anchor(yata, mode):
+    home = yata.environment.home
     names = ["a.txt", "b.txt", "c.txt"]
     for name in names:
         (home / name).write_text(name)
-    strata.pointer.click(strata.sidebar_button("Home"))
-    strata.wait_for_directory(home.name)
-    strata.keyboard.press("Home")
-    strata.wait_for_selection(["a.txt"], home.name)
-    strata.click_entry_with("c.txt", ["shift"], directory=home.name)
-    strata.wait_for_selection(names, home.name)
+    yata.pointer.click(yata.sidebar_button("Home"))
+    yata.wait_for_directory(home.name)
+    yata.keyboard.press("Home")
+    yata.wait_for_selection(["a.txt"], home.name)
+    yata.click_entry_with("c.txt", ["shift"], directory=home.name)
+    yata.wait_for_selection(names, home.name)
 
 
 @pytest.mark.preferences(
@@ -93,113 +93,113 @@ def test_keyboard_selection_after_sidebar_navigation_initializes_the_range_ancho
     sort_key="modified", sort_direction="descending",
 )
 @pytest.mark.parametrize("target", ["name", "row-space"])
-def test_shift_click_revisits_a_file_after_opening_a_folder(strata, root, target):
+def test_shift_click_revisits_a_file_after_opening_a_folder(yata, root, target):
     def click(name, modifiers=()):
-        entry = strata.entry(name, root)
+        entry = yata.entry(name, root)
         label = entry.find(role="label", name=name)
         assert label is not None
         bounds = label.screen_bounds()
         x = bounds.x + 4 if target == "name" else bounds.x + bounds.width - 2
-        strata.pointer.click(entry, at=(x, bounds.center[1]), modifiers=modifiers)
+        yata.pointer.click(entry, at=(x, bounds.center[1]), modifiers=modifiers)
 
     click("todo.txt")
-    strata.wait_for_selection(["todo.txt"], root)
+    yata.wait_for_selection(["todo.txt"], root)
     click("documents")
-    strata.wait_for_directory("documents")
-    strata.wait_for_selection([], "documents")
+    yata.wait_for_directory("documents")
+    yata.wait_for_selection([], "documents")
     click("todo.txt", ("shift",))
     if target == "name":
-        strata.wait_for_focused_entry("todo.txt")
-    names = [entry.name for entry in strata.entries(root)]
-    strata.wait_for_selection(names[names.index("documents"):names.index("todo.txt") + 1], root)
+        yata.wait_for_focused_entry("todo.txt")
+    names = [entry.name for entry in yata.entries(root)]
+    yata.wait_for_selection(names[names.index("documents"):names.index("todo.txt") + 1], root)
 
 
 @pytest.mark.parametrize("mode", ALL_MODES)
-def test_modifier_click_on_a_filename_focuses_the_target(strata, mode, root):
-    strata.select_entry("readme.md", root)
-    strata.wait_for_focused_entry("readme.md")
-    entry = strata.entry("todo.txt", root)
+def test_modifier_click_on_a_filename_focuses_the_target(yata, mode, root):
+    yata.select_entry("readme.md", root)
+    yata.wait_for_focused_entry("readme.md")
+    entry = yata.entry("todo.txt", root)
     label = entry.find(role="label", name="todo.txt")
     assert label is not None
     bounds = label.screen_bounds()
-    strata.pointer.click(entry, at=(bounds.x + 4, bounds.center[1]), modifiers=("ctrl",))
-    strata.wait_for_focused_entry("todo.txt")
-    strata.wait_for_selection(["readme.md", "todo.txt"], root)
+    yata.pointer.click(entry, at=(bounds.x + 4, bounds.center[1]), modifiers=("ctrl",))
+    yata.wait_for_focused_entry("todo.txt")
+    yata.wait_for_selection(["readme.md", "todo.txt"], root)
 
 
 @pytest.mark.preferences(browser_mode="columns")
-def test_returning_to_a_parent_pane_anchors_its_first_entry(strata, root):
-    strata.open_directory("documents", directory=root)
-    strata.pointer.click(strata.pane(root), at=strata.background_point(root))
-    strata.wait_for_selection(["archive"], root)
-    strata.click_entry_with("pictures", ["shift"], directory=root)
-    strata.wait_for_selection(["archive", "documents", "pictures"], root)
-    assert "documents" in strata.pane_names()
+def test_returning_to_a_parent_pane_anchors_its_first_entry(yata, root):
+    yata.open_directory("documents", directory=root)
+    yata.pointer.click(yata.pane(root), at=yata.background_point(root))
+    yata.wait_for_selection(["archive"], root)
+    yata.click_entry_with("pictures", ["shift"], directory=root)
+    yata.wait_for_selection(["archive", "documents", "pictures"], root)
+    assert "documents" in yata.pane_names()
 
 
 @pytest.mark.parametrize("mode", ALL_MODES)
-def test_control_click_toggles_individual_entries(strata, mode, root):
-    strata.select_entry("archive", directory=root)
+def test_control_click_toggles_individual_entries(yata, mode, root):
+    yata.select_entry("archive", directory=root)
 
-    strata.click_entry_with("pictures", ["ctrl"], directory=root)
-    strata.wait(
-        lambda: strata.selected_names(root) == ["archive", "pictures"],
+    yata.click_entry_with("pictures", ["ctrl"], directory=root)
+    yata.wait(
+        lambda: yata.selected_names(root) == ["archive", "pictures"],
         "a control-click to add one entry",
     )
 
-    strata.click_entry_with("archive", ["ctrl"], directory=root)
-    strata.wait(
-        lambda: strata.selected_names(root) == ["pictures"],
+    yata.click_entry_with("archive", ["ctrl"], directory=root)
+    yata.wait(
+        lambda: yata.selected_names(root) == ["pictures"],
         "a second control-click to remove that entry again",
     )
 
 
 @pytest.mark.parametrize("mode", ALL_MODES)
 @pytest.mark.parametrize("target,previous", [("todo.txt", "readme.md"), ("documents", "archive")])
-def test_right_click_selects_the_entry_under_the_pointer(strata, mode, root, target, previous):
-    strata.select_entry("readme.md", directory=root)
-    strata.wait_for_focused_entry("readme.md")
+def test_right_click_selects_the_entry_under_the_pointer(yata, mode, root, target, previous):
+    yata.select_entry("readme.md", directory=root)
+    yata.wait_for_focused_entry("readme.md")
 
-    strata.open_context_menu(target, directory=root)
+    yata.open_context_menu(target, directory=root)
 
-    strata.wait_for_selection([target], root)
-    strata.dismiss_menu()
-    strata.wait_for_focused_entry(target)
-    assert strata.pane_names() == [root], "a folder context menu must not navigate"
-    strata.keyboard.press("Left" if mode == "Icons" else "Up")
-    strata.wait_for_focused_entry(previous)
-    strata.wait_for_selection([previous], root)
+    yata.wait_for_selection([target], root)
+    yata.dismiss_menu()
+    yata.wait_for_focused_entry(target)
+    assert yata.pane_names() == [root], "a folder context menu must not navigate"
+    yata.keyboard.press("Left" if mode == "Icons" else "Up")
+    yata.wait_for_focused_entry(previous)
+    yata.wait_for_selection([previous], root)
 
 
 @pytest.mark.parametrize("mode", ALL_MODES)
-def test_right_click_keeps_an_existing_multi_selection(strata, mode, root):
-    strata.select_entry("todo.txt", directory=root)
-    entry = strata.entry("readme.md", root)
-    strata.pointer.click(entry, at=_name_label_point(entry, leftover=False), modifiers=("ctrl",))
-    strata.wait(
-        lambda: strata.selected_names(root) == ["readme.md", "todo.txt"],
+def test_right_click_keeps_an_existing_multi_selection(yata, mode, root):
+    yata.select_entry("todo.txt", directory=root)
+    entry = yata.entry("readme.md", root)
+    yata.pointer.click(entry, at=_name_label_point(entry, leftover=False), modifiers=("ctrl",))
+    yata.wait(
+        lambda: yata.selected_names(root) == ["readme.md", "todo.txt"],
         "both files to be selected",
     )
-    strata.wait_for_focused_entry("readme.md")
+    yata.wait_for_focused_entry("readme.md")
 
-    strata.open_context_menu("todo.txt", directory=root)
+    yata.open_context_menu("todo.txt", directory=root)
 
-    assert strata.selected_names(root) == ["readme.md", "todo.txt"], (
+    assert yata.selected_names(root) == ["readme.md", "todo.txt"], (
         "right-clicking inside a multi-selection must not collapse it"
     )
-    strata.dismiss_menu()
-    strata.wait_for_focused_entry("todo.txt")
-    strata.wait_for_selection(["readme.md", "todo.txt"], root)
+    yata.dismiss_menu()
+    yata.wait_for_focused_entry("todo.txt")
+    yata.wait_for_selection(["readme.md", "todo.txt"], root)
 
 
 @pytest.mark.parametrize("mode", ALL_MODES)
-def test_selecting_a_second_entry_replaces_the_first(strata, mode, root):
-    strata.select_entry("readme.md", directory=root)
+def test_selecting_a_second_entry_replaces_the_first(yata, mode, root):
+    yata.select_entry("readme.md", directory=root)
 
-    strata.select_entry("todo.txt", directory=root)
+    yata.select_entry("todo.txt", directory=root)
 
-    strata.wait(
-        lambda: strata.selected_names(root) == ["todo.txt"],
+    yata.wait(
+        lambda: yata.selected_names(root) == ["todo.txt"],
         "a plain click to replace the selection",
     )
 
@@ -240,33 +240,33 @@ def _leftover_click_cases():
 
 
 @pytest.mark.parametrize("modifier,target", _leftover_click_cases())
-def test_leftover_click_honors_the_press_modifiers(strata, modifier, target, root):
-    strata.open_directory("documents", directory=root)
-    strata.select_entry("notes.txt", directory="documents")
-    entry = strata.entry("spreadsheet.csv", "documents")
+def test_leftover_click_honors_the_press_modifiers(yata, modifier, target, root):
+    yata.open_directory("documents", directory=root)
+    yata.select_entry("notes.txt", directory="documents")
+    entry = yata.entry("spreadsheet.csv", "documents")
     point = _name_label_point(entry, leftover=(target == "row-space"))
     if modifier is None:
-        strata.pointer.click(entry, at=point)
+        yata.pointer.click(entry, at=point)
         expected = ["spreadsheet.csv"]
     else:
-        strata.pointer.click_releasing_modifiers_before_up(
+        yata.pointer.click_releasing_modifiers_before_up(
             entry, at=point, modifiers=(modifier,)
         )
         if modifier == "shift":
             expected = ["notes.txt", "report.md", "spreadsheet.csv"]
         else:
             expected = ["notes.txt", "spreadsheet.csv"]
-    strata.wait_for_selection(expected, "documents")
+    yata.wait_for_selection(expected, "documents")
 
 
 @pytest.mark.parametrize("mode", ALL_MODES)
-def test_a_click_after_navigating_re_anchors_the_range(strata, mode, root):
-    strata.open_directory("documents", directory=root)
-    strata.select_entry("report.md", directory="documents")
+def test_a_click_after_navigating_re_anchors_the_range(yata, mode, root):
+    yata.open_directory("documents", directory=root)
+    yata.select_entry("report.md", directory="documents")
 
-    strata.click_entry_with("spreadsheet.csv", ["shift"], directory="documents")
+    yata.click_entry_with("spreadsheet.csv", ["shift"], directory="documents")
 
-    strata.wait(
-        lambda: strata.selected_names("documents") == ["report.md", "spreadsheet.csv"],
+    yata.wait(
+        lambda: yata.selected_names("documents") == ["report.md", "spreadsheet.csv"],
         "the range to start at the clicked entry rather than the loaded one",
     )

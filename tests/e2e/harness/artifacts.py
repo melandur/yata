@@ -13,7 +13,7 @@ from . import screenshots
 
 
 def artifact_root() -> Path:
-    configured = os.environ.get("STRATA_E2E_ARTIFACTS")
+    configured = os.environ.get("YATA_E2E_ARTIFACTS")
     base = Path(configured) if configured else _default_root()
     worker = os.environ.get("PYTEST_XDIST_WORKER")
     if worker:
@@ -66,7 +66,7 @@ class ArtifactCollector:
     ) -> list[Path]:
         written = [
             self.write("accessibility-tree.txt", accessibility_tree),
-            self.write("strata.log", application_log),
+            self.write("yata.log", application_log),
             self.write("fixture-tree.txt", fixture_listing),
         ]
         for name, contents in session_logs.items():

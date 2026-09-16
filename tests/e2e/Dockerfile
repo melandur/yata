@@ -7,12 +7,12 @@ RUN apt-get update && apt-get install --yes --no-install-recommends ca-certifica
 
 FROM docker.io/library/ubuntu:24.04@sha256:1e0a86e57d247923571b75e0aaf48a1449cf8c543d51fb3e07a4a7d7bfa79316 AS snapshot-base
 COPY --from=certificates /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-ENV STRATA_E2E_SNAPSHOT_URL=http://snapshot.ubuntu.com/ubuntu/20260901T000000Z
+ENV YATA_E2E_SNAPSHOT_URL=http://snapshot.ubuntu.com/ubuntu/20260901T000000Z
 
 RUN printf '%s\n' \
-    "deb [check-valid-until=no] $STRATA_E2E_SNAPSHOT_URL noble main universe" \
-    "deb [check-valid-until=no] $STRATA_E2E_SNAPSHOT_URL noble-updates main universe" \
-    "deb [check-valid-until=no] $STRATA_E2E_SNAPSHOT_URL noble-security main universe" \
+    "deb [check-valid-until=no] $YATA_E2E_SNAPSHOT_URL noble main universe" \
+    "deb [check-valid-until=no] $YATA_E2E_SNAPSHOT_URL noble-updates main universe" \
+    "deb [check-valid-until=no] $YATA_E2E_SNAPSHOT_URL noble-security main universe" \
     > /etc/apt/sources.list \
     && rm /etc/apt/sources.list.d/ubuntu.sources
 
@@ -45,7 +45,7 @@ RUN (getent group "$E2E_GID" || groupadd --gid "$E2E_GID" strata-e2e) \
     && (getent passwd "$E2E_UID" || useradd --no-log-init --uid "$E2E_UID" \
         --gid "$E2E_GID" --home-dir /tmp/strata-build-home --no-create-home strata-e2e)
 
-ENV STRATA_E2E_VENV=/opt/e2e-venv
+ENV YATA_E2E_VENV=/opt/e2e-venv
 FROM runtime AS toolchain
 RUN --mount=type=bind,from=package-indexes,source=/var/lib/apt/lists,target=/opt/e2e-apt-lists \
     cp -a /opt/e2e-apt-lists/. /var/lib/apt/lists/ \
@@ -63,8 +63,8 @@ ENV CARGO_PROFILE_DEV_DEBUG=0 CARGO_INCREMENTAL=0
 COPY Cargo.toml Cargo.lock ./
 RUN mkdir src && printf 'fn main() {}\n' > src/main.rs \
     && printf 'fn main() {}\n' > build.rs \
-    && cargo build --locked --bin strata \
-    && rm -rf src build.rs target/debug/strata target/debug/deps/strata* \
+    && cargo build --locked --bin yata \
+    && rm -rf src build.rs target/debug/yata target/debug/deps/yata* \
         target/debug/.fingerprint/strata-* target/debug/build/strata-*
 
 FROM ${E2E_RUNTIME_IMAGE} AS ci-runtime
@@ -76,14 +76,14 @@ RUN cmp Cargo.toml /tmp/strata-e2e-manifests/Cargo.toml \
 COPY src ./src
 COPY data ./data
 COPY build.rs ./
-ARG STRATA_BUILD_COMMIT
-RUN cargo build --locked --bin strata
+ARG YATA_BUILD_COMMIT
+RUN cargo build --locked --bin yata
 COPY tests/e2e ./tests/e2e
 COPY scripts/e2e_bundle.py ./scripts/e2e_bundle.py
 RUN /opt/e2e-venv/bin/python -m pytest -c tests/e2e/pytest.ini --rootdir /build \
         --collect-only -q -p no:cacheprovider --e2e-write-plan=/bundle/plan.json \
-    && cp target/debug/strata /bundle/strata \
-    && python3 scripts/e2e_bundle.py create /bundle --commit "$STRATA_BUILD_COMMIT"
+    && cp target/debug/yata /bundle/yata \
+    && python3 scripts/e2e_bundle.py create /bundle --commit "$YATA_BUILD_COMMIT"
 
 FROM scratch AS bundle
 COPY --from=application /bundle/ /

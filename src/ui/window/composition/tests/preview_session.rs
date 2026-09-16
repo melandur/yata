@@ -78,7 +78,7 @@ fn appearance_and_space_share_a_window_local_preview_session_across_unsupported_
                 toggle(second.content.header.content.upcast_ref()).expect("other window toggle");
             assert!(!first_toggle.is_active());
             assert!(!second_toggle.is_active());
-            let path = glib::user_config_dir().join("strata/settings.toml");
+            let path = glib::user_config_dir().join("yata/settings.toml");
             let saved = std::fs::read(&path).expect("saved settings");
             let browser = first.content.browser.browser();
             select(&browser, 0, "z.zip");

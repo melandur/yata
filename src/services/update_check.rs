@@ -17,9 +17,9 @@ use super::update_install::{
     UpdateMethod, aur_repository_version, omarchy_repository_version, package_repository_version,
 };
 
-const API_ROOT: &str = "https://api.github.com/repos/lgse/strata/releases";
-const COMMITS_ROOT: &str = "https://api.github.com/repos/lgse/strata/commits";
-const RELEASES_URL: &str = "https://github.com/lgse/strata/releases";
+const API_ROOT: &str = "https://api.github.com/repos/melandur/yata/releases";
+const COMMITS_ROOT: &str = "https://api.github.com/repos/melandur/yata/commits";
+const RELEASES_URL: &str = "https://github.com/melandur/yata/releases";
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 /// Minimum interval between automatic checks against the same channel.
 const CHECK_INTERVAL: Duration = Duration::from_secs(6 * 60 * 60);
@@ -245,7 +245,7 @@ fn resolve_commit(release: &mut ReleaseMetadata) {
 }
 
 fn cache_dir() -> PathBuf {
-    glib::user_cache_dir().join("strata")
+    glib::user_cache_dir().join("yata")
 }
 
 fn update_check_cache_path() -> PathBuf {

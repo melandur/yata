@@ -200,7 +200,7 @@ in `fixtures.rs`.
 Feature unit tests sit beside their implementations. Cross-feature browser tests remain in
 `ui/browser/tests/`; GTK tests that need independent initialization can use
 `test_support::gtk_test`, which launches a subprocess with disposable XDG directories. Set
-`STRATA_REQUIRE_GTK_TESTS=1` when exercising those tests on a display to make unavailable GTK a
+`YATA_REQUIRE_GTK_TESTS=1` when exercising those tests on a display to make unavailable GTK a
 failure rather than a skip.
 
 This separation is not a redesign of operation policy or a claim that all UI filesystem calls have
@@ -208,7 +208,7 @@ been eliminated. Collision probes, destination creation and permission editing s
 application/adapter boundaries in focused follow-ups. Likewise, alternate renderers, staged
 publication/metadata orchestration, native transfer security and the settings workspace should be
 refactored independently of browser composition. Investigation and scope decisions are recorded in
-[issue #397](https://github.com/lgse/strata/issues/397).
+[issue #397](https://github.com/melandur/yata/issues/397).
 
 ### Browser directory-event routing
 
@@ -277,7 +277,7 @@ other windows are refreshed on their next bookmark action, not by a live monitor
 stages preserve shortcut precedence: modal and editing ownership, window/file commands,
 focus traversal, transient dismissal, then item/directory navigation. The private
 `commands.rs`, `focus.rs`, and `items.rs` modules implement those responsibilities without
-introducing another browser controller. A stage returning `None` continues through Strata's
+introducing another browser controller. A stage returning `None` continues through yata's
 handlers; `Some(Propagation::Proceed)` ends dispatch and leaves the event to GTK. In
 particular, editable controls and native single-pane selection must not fall through to
 browser commands. The file chooser retains its separate, restricted keyboard policy.

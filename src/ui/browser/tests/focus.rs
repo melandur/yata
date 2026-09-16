@@ -720,7 +720,7 @@ fn background_and_header_clicks_focus_and_reveal_without_changing_selection() {
 #[test]
 #[ignore = "requires a mapped GTK window; run this test alone"]
 fn horizontal_scrollbar_stays_below_destination_hints() {
-    const CHILD: &str = "STRATA_DESTINATION_SCROLLBAR_GTK_CHILD";
+    const CHILD: &str = "YATA_DESTINATION_SCROLLBAR_GTK_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let sandbox = tempfile::tempdir().expect("isolated preferences");
         let status = std::process::Command::new(std::env::current_exe().expect("test executable"))
@@ -819,7 +819,7 @@ fn horizontal_scrollbar_stays_below_destination_hints() {
 #[test]
 #[ignore = "requires a mapped GTK window; run this test alone"]
 fn pane_ownership_routes_commands_and_preserves_selection() {
-    const CHILD: &str = "STRATA_FOCUS_GTK_CHILD";
+    const CHILD: &str = "YATA_FOCUS_GTK_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let sandbox = tempfile::tempdir().expect("isolated preferences");
         let status = std::process::Command::new(std::env::current_exe().expect("test executable"))

@@ -1,15 +1,15 @@
 # Distribution packaging
 
-Strata's proposed AUR packages are generated from the same template and both install `/usr/bin/strata`. They are not published yet; AUR publication remains disabled until a maintainer account and both package bases are available:
+yata's proposed AUR packages are generated from the same template and both install `/usr/bin/yata`. They are not published yet; AUR publication remains disabled until a maintainer account and both package bases are available:
 
 | Package | Tracks | Example `pkgver` |
 | --- | --- | --- |
 | `strata-bin` | Latest stable release | `0.9.0` |
 | `strata-rc-bin` | Newest non-nightly Preview release | `0.9.0` or `0.10.0rc.1` |
 
-They declare `provides=("strata=${pkgver}")` and conflict with each other, reserving the `strata` name for a future source-built package.
+They declare `provides=("yata=${pkgver}")` and conflict with each other, reserving the `yata` name for a future source-built package.
 
-Strata's third channel, nightly, is deliberately not packaged. Every nightly has its own release tag in the download URL, and `makepkg` fetches `source` before `pkgver()` runs, so no package can discover the newest nightly and download it in one build. Pinning each nightly instead would mean an AUR push per nightly. Nightly users install manually and update in-app, which already supports the channel. Both install the prebuilt release archive rather than compiling: `options=('!strip')` keeps the binary byte-identical to the published artifact, so `gh attestation verify` still matches the file pacman installed.
+yata's third channel, nightly, is deliberately not packaged. Every nightly has its own release tag in the download URL, and `makepkg` fetches `source` before `pkgver()` runs, so no package can discover the newest nightly and download it in one build. Pinning each nightly instead would mean an AUR push per nightly. Nightly users install manually and update in-app, which already supports the channel. Both install the prebuilt release archive rather than compiling: `options=('!strip')` keeps the binary byte-identical to the published artifact, so `gh attestation verify` still matches the file pacman installed.
 
 ## Layout
 
@@ -27,9 +27,9 @@ The AUR requires a self-contained `PKGBUILD`, so the rendered files are committe
 
 ## Why a package suppresses the in-app updater
 
-Pacman owns `/usr/bin/strata`. If the in-app updater replaced it, `pacman -Qkk strata-bin` would report the package as modified and the next system update would silently overwrite the downloaded binary.
+Pacman owns `/usr/bin/yata`. If the in-app updater replaced it, `pacman -Qkk strata-bin` would report the package as modified and the next system update would silently overwrite the downloaded binary.
 
-`package()` therefore installs `/usr/share/strata/install-source.toml`:
+`package()` therefore installs `/usr/share/yata/install-source.toml`:
 
 ```toml
 manager = "pacman"
@@ -39,13 +39,13 @@ aur_helpers = ["yay", "paru", "pikaur", "trizen"]
 alternate_package = "strata-rc-bin"
 ```
 
-There is no `update_command`. pacman cannot update an AUR package -- no configured repository carries `strata-bin`, so `pacman -Syu strata-bin` fails with `target not found` -- and which helper to name depends on what the user has installed. The marker lists candidates and Strata names the first one on `PATH`, falling back to generic AUR-helper wording when none is.
+There is no `update_command`. pacman cannot update an AUR package -- no configured repository carries `strata-bin`, so `pacman -Syu strata-bin` fails with `target not found` -- and which helper to name depends on what the user has installed. The marker lists candidates and yata names the first one on `PATH`, falling back to generic AUR-helper wording when none is.
 
-`channel` is the packaging channel, named after the package (`stable`, `rc`). Strata maps it onto its own persisted channel -- `rc` becomes `preview`, the in-app channel that accepts alpha, beta, and RC builds -- and then locks the **Settings -> Updates** channel selector to it. The channel is a property of the installed package, not a preference: switching channels means installing the other package.
+`channel` is the packaging channel, named after the package (`stable`, `rc`). yata maps it onto its own persisted channel -- `rc` becomes `preview`, the in-app channel that accepts alpha, beta, and RC builds -- and then locks the **Settings -> Updates** channel selector to it. The channel is a property of the installed package, not a preference: switching channels means installing the other package.
 
-Strata reads it relative to its own install prefix (`<prefix>/share/strata/install-source.toml`). When it is present, Strata checks the AUR first and reports a release only after that package version is available. **Settings → Updates** opens the installed AUR helper in a terminal with a full-system update command, or opens the package’s AUR page when no supported helper is available. `services::install_update` still refuses to replace the package-owned binary outright. Every field is optional and unknown keys are ignored, so the parser can evolve without breaking an older binary. A marker that exists but cannot be parsed still counts as packaged, which fails safe.
+yata reads it relative to its own install prefix (`<prefix>/share/yata/install-source.toml`). When it is present, yata checks the AUR first and reports a release only after that package version is available. **Settings → Updates** opens the installed AUR helper in a terminal with a full-system update command, or opens the package’s AUR page when no supported helper is available. `services::install_update` still refuses to replace the package-owned binary outright. Every field is optional and unknown keys are ignored, so the parser can evolve without breaking an older binary. A marker that exists but cannot be parsed still counts as packaged, which fails safe.
 
-This is currently an official Strata metadata format for these two AUR packages, not a public cross-distribution packaging API. Supporting Debian, RPM, Flatpak, or other providers requires an explicit design for ownership, availability checks, channels, and update actions rather than assuming AUR semantics.
+This is currently an official yata metadata format for these two AUR packages, not a public cross-distribution packaging API. Supporting Debian, RPM, Flatpak, or other providers requires an explicit design for ownership, availability checks, channels, and update actions rather than assuming AUR semantics.
 
 ## Updating the packages for a release
 
@@ -69,7 +69,7 @@ This is currently an official Strata metadata format for these two AUR packages,
    namcap PKGBUILD
    namcap strata-bin-*.pkg.tar.zst
    sudo pacman -U strata-bin-*.pkg.tar.zst
-   strata --version
+   yata --version
    ```
 4. Commit the rendered `PKGBUILD` and `.SRCINFO` through a pull request.
 5. Merge the reviewed package update. `.github/workflows/publish-aur.yml` then pushes both package repositories to the AUR.
@@ -92,13 +92,13 @@ Verify any change to this with `vercmp` directly. The download URL always uses t
 
 ### Expected `namcap` output
 
-`namcap` reports `bubblewrap` as an unnecessary dependency. It is required: Strata executes `bwrap` to sandbox every preview and thumbnail render, and `namcap` only inspects ELF linkage, not processes a program spawns. The packaging CI job fails on `E:` lines only, so this warning does not break the build.
+`namcap` reports `bubblewrap` as an unnecessary dependency. It is required: yata executes `bwrap` to sandbox every preview and thumbnail render, and `namcap` only inspects ELF linkage, not processes a program spawns. The packaging CI job fails on `E:` lines only, so this warning does not break the build.
 
 ## Desktop metadata
 
-The launcher and application icon are installed from the release archive, not from this repository, so the package always matches the binary it ships. Releases published before desktop metadata was added to the archive produce a package with a working `strata` command and no launcher; `package()` prints a warning rather than failing, so the package stays installable. Drop the conditional once the oldest release either package pins carries the metadata.
+The launcher and application icon are installed from the release archive, not from this repository, so the package always matches the binary it ships. Releases published before desktop metadata was added to the archive produce a package with a working `yata` command and no launcher; `package()` prints a warning rather than failing, so the package stays installable. Drop the conditional once the oldest release either package pins carries the metadata.
 
-The archive also ships `io.github.lgse.Strata.FileManager1.service`, which users can install under `$XDG_DATA_HOME/dbus-1/services` to make Strata the D-Bus-activatable owner of `org.freedesktop.FileManager1`. Packages must not install it into a system service directory: multiple files providing that name in one directory are selected arbitrarily, and merely installing Strata must not change the user's preferred file manager. They may install the inactive template under `/usr/share/strata` so users can opt in without downloading the archive. Keep activation an explicit per-user choice as documented in the README.
+The archive also ships `io.github.melandur.yata.FileManager1.service`, which users can install under `$XDG_DATA_HOME/dbus-1/services` to make yata the D-Bus-activatable owner of `org.freedesktop.FileManager1`. Packages must not install it into a system service directory: multiple files providing that name in one directory are selected arbitrarily, and merely installing yata must not change the user's preferred file manager. They may install the inactive template under `/usr/share/yata` so users can opt in without downloading the archive. Keep activation an explicit per-user choice as documented in the README.
 
 ## Other distributions
 

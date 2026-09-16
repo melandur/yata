@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Launching and stopping the real Strata binary."""
+"""Launching and stopping the real yata binary."""
 
 from __future__ import annotations
 
@@ -13,25 +13,25 @@ from .display import HeadlessDisplay
 from .environment import TestEnvironment, process_environment
 from .process import ManagedProcess, terminate
 
-APPLICATION_NAME = "strata"
+APPLICATION_NAME = "yata"
 # GtkListView reports "list"; GtkGridView reports "layered pane".
 ENTRY_CONTAINER_ROLES = frozenset({"list", "layered pane", "table"})
-WINDOW_TITLE = "Strata"
+WINDOW_TITLE = "yata"
 LAUNCH_TIMEOUT = 60.0
 
 
 def binary_path() -> Path:
     """The debug binary the suite drives."""
 
-    override = os.environ.get("STRATA_BINARY")
+    override = os.environ.get("YATA_BINARY")
     if override:
         path = Path(override)
     else:
-        path = repository_root() / "target" / "debug" / "strata"
+        path = repository_root() / "target" / "debug" / "yata"
     if not path.is_file():
         raise FileNotFoundError(
             f"{path} does not exist. Build it with `cargo build` or set "
-            "STRATA_BINARY."
+            "YATA_BINARY."
         )
     return path.resolve()
 
@@ -50,10 +50,10 @@ def repository_root() -> Path:
 def build_binary() -> Path:
     """Build the debug binary unless one was supplied."""
 
-    if os.environ.get("STRATA_BINARY"):
+    if os.environ.get("YATA_BINARY"):
         return binary_path()
     subprocess.run(
-        ["cargo", "build", "--bin", "strata"],
+        ["cargo", "build", "--bin", "yata"],
         cwd=repository_root(),
         check=True,
     )
@@ -62,7 +62,7 @@ def build_binary() -> Path:
 
 @dataclass
 class Application:
-    """One running Strata process and its accessible root."""
+    """One running yata process and its accessible root."""
 
     display: HeadlessDisplay
     environment: TestEnvironment
@@ -75,7 +75,7 @@ class Application:
         variables.update(self.environment.variables())
         variables.update(self.display.environment)
         self.process = ManagedProcess.spawn(
-            "strata",
+            "yata",
             [str(binary_path()), str(self.location)],
             log_dir=self.environment.root,
             env=variables,
@@ -94,7 +94,7 @@ class Application:
         def window() -> tree.Node | None:
             if self.process is not None and self.process.exited():
                 raise AssertionError(
-                    "strata exited during startup with "
+                    "yata exited during startup with "
                     f"{self.process.returncode()}\n{self.process.tail()}"
                 )
             application = tree.find_application(APPLICATION_NAME)
@@ -108,7 +108,7 @@ class Application:
 
         self._frame = tree.wait_until(
             window,
-            message="the Strata window to be ready",
+            message="the yata window to be ready",
             timeout=LAUNCH_TIMEOUT,
             on_timeout=self.diagnostics,
         )
@@ -119,10 +119,10 @@ class Application:
             return self._frame
         application = tree.find_application(APPLICATION_NAME)
         if application is None:
-            raise AssertionError("the Strata application is not on the a11y bus")
+            raise AssertionError("the yata application is not on the a11y bus")
         frame = application.find(role="frame", name=WINDOW_TITLE)
         if frame is None:
-            raise AssertionError("the Strata window is gone")
+            raise AssertionError("the yata window is gone")
         self._frame = frame
         return frame
 
@@ -130,19 +130,19 @@ class Application:
     def application_node(self) -> tree.Node:
         application = tree.find_application(APPLICATION_NAME)
         if application is None:
-            raise AssertionError("the Strata application is not on the a11y bus")
+            raise AssertionError("the yata application is not on the a11y bus")
         return application
 
     def log(self) -> str:
         if self.process:
             return self.process.read_log()
-        path = self.environment.root / "strata.log"
+        path = self.environment.root / "yata.log"
         return path.read_text(errors="replace") if path.exists() else ""
 
     def diagnostics(self) -> str:
         application = tree.find_application(APPLICATION_NAME)
         if application is None:
-            return "(the Strata application is not on the accessibility bus)"
+            return "(the yata application is not on the accessibility bus)"
         return application.dump()
 
     def stop(self) -> None:

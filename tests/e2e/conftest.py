@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from harness import resources, screenshots, tree  # noqa: E402
 from harness.application import Application, build_binary  # noqa: E402
 from harness.artifacts import ArtifactCollector  # noqa: E402
-from harness.browser import Strata  # noqa: E402
+from harness.browser import yata  # noqa: E402
 from harness.display import HeadlessDisplay  # noqa: E402
 from harness.environment import TestEnvironment  # noqa: E402
 from harness.fixtures import FixtureTree  # noqa: E402
@@ -39,7 +39,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 def pytest_xdist_auto_num_workers(config: pytest.Config) -> int:
     cpus, memory = resources.available_resources()
     try:
-        workers = resources.worker_count(cpus, memory, os.environ.get("STRATA_E2E_WORKERS", "auto"))
+        workers = resources.worker_count(cpus, memory, os.environ.get("YATA_E2E_WORKERS", "auto"))
     except ValueError as error:
         raise pytest.UsageError(str(error)) from error
     print(f"E2E resources: {cpus:g} CPUs, {memory / resources.GIB:.1f} GiB available; {workers} workers")
@@ -132,7 +132,7 @@ def preferences() -> dict[str, object]:
 
 
 @pytest.fixture
-def strata(
+def yata(
     request: pytest.FixtureRequest,
     strata_binary: Path,
     headless_display: HeadlessDisplay,
@@ -140,7 +140,7 @@ def strata(
     fixture_tree: FixtureTree,
     keyboard: Keyboard,
     pointer: Pointer,
-) -> Strata:
+) -> yata:
     overrides: dict[str, object] = dict(request.getfixturevalue("preferences"))
     for marker in request.node.iter_markers("preferences"):
         overrides.update(marker.kwargs)
@@ -151,7 +151,7 @@ def strata(
         environment=test_environment,
         location=fixture_tree.root,
     )
-    window = Strata(
+    window = yata(
         application=application,
         keyboard=keyboard,
         pointer=pointer,
@@ -179,7 +179,7 @@ def strata(
 _REPORT_KEY = pytest.StashKey[bool]()
 
 
-def _collect_artifacts(request: pytest.FixtureRequest, window: Strata) -> None:
+def _collect_artifacts(request: pytest.FixtureRequest, window: yata) -> None:
     collector = ArtifactCollector(test_name=request.node.name)
     collector.collect(
         display=window.display.display,
@@ -209,7 +209,7 @@ def pytest_configure(config: pytest.Config) -> None:
         raise pytest.UsageError("Parallel E2E requires --dist=loadgroup to isolate visual baselines")
     config.stash[_TERMINATION_HANDLER_KEY] = signal.signal(signal.SIGTERM, _terminate_session)
     config.addinivalue_line(
-        "markers", "preferences(**values): seed Strata preferences for a scenario"
+        "markers", "preferences(**values): seed yata preferences for a scenario"
     )
     config.addinivalue_line(
         "markers", "baseline: a scenario that compares against a golden screenshot"
@@ -228,14 +228,14 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
 def baseline(request: pytest.FixtureRequest):
     """Compare a capture with its committed golden image."""
 
-    def compare(window: Strata, name: str) -> screenshots.Comparison:
+    def compare(window: yata, name: str) -> screenshots.Comparison:
         collector = ArtifactCollector(test_name=request.node.name)
         actual = window.screenshot(collector.directory / f"{name}.capture.png")
         comparison = screenshots.compare_to_baseline(name, actual, collector.directory)
         assert comparison.matched, (
             comparison.summary
             + f"\nExpected, actual, and diff images are in {collector.directory}"
-            + "\nRegenerate deliberately with STRATA_E2E_UPDATE_BASELINES=1."
+            + "\nRegenerate deliberately with YATA_E2E_UPDATE_BASELINES=1."
         )
         return comparison
 

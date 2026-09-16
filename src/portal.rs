@@ -30,8 +30,8 @@ use gio::prelude::*;
 
 use crate::model::{FileEntry, Location};
 
-const BACKEND_NAME: &str = "org.freedesktop.impl.portal.desktop.strata";
-pub(crate) const CHOOSER_APPLICATION_ID: &str = "io.github.lgse.Strata.FileChooser";
+const BACKEND_NAME: &str = "org.freedesktop.impl.portal.desktop.yata";
+pub(crate) const CHOOSER_APPLICATION_ID: &str = "io.github.melandur.yata.FileChooser";
 pub(crate) const FILE_CHOOSER_VERSION: u32 = 4;
 const MAX_ACTIVE_REQUESTS: usize = 16;
 const MAX_CHOICES: usize = 16;
@@ -168,7 +168,7 @@ impl FileChooserBackend {
 
 pub(crate) fn run() -> glib::ExitCode {
     glib::set_prgname(Some(CHOOSER_APPLICATION_ID));
-    glib::set_application_name("Strata");
+    glib::set_application_name("yata");
 
     // Keep worker-thread invocations queued until GTK is ready on this thread.
     let context = glib::MainContext::default();
@@ -196,13 +196,13 @@ pub(crate) fn run() -> glib::ExitCode {
         });
         if let Err(error) = result {
             failed.store(true, Ordering::SeqCst);
-            eprintln!("Strata portal backend failed: {error}");
+            eprintln!("yata portal backend failed: {error}");
         }
         glib::MainContext::default().invoke(move || service_loop.quit());
     });
 
     if let Err(error) = gtk::init() {
-        eprintln!("Unable to initialize the Strata portal UI: {error}");
+        eprintln!("Unable to initialize the yata portal UI: {error}");
         return glib::ExitCode::FAILURE;
     }
     crate::metrics::initialize();
@@ -211,7 +211,7 @@ pub(crate) fn run() -> glib::ExitCode {
     }
     tracing::info!(
         version = FILE_CHOOSER_VERSION,
-        "starting Strata FileChooser portal backend"
+        "starting yata FileChooser portal backend"
     );
     if let Err(error) = crate::assets::prepare() {
         eprintln!("Unable to prepare bundled assets: {error}");

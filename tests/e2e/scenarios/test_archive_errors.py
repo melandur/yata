@@ -15,72 +15,72 @@ ARCHIVE_FIXTURES = Path(__file__).parents[1] / "fixtures"
 
 
 @pytest.mark.parametrize("format", ["7Z", "TAR.GZ"])
-def test_cancel_compression_stops_before_publishing_and_allows_another_operation(strata, format):
-    fixture = strata.fixture
+def test_cancel_compression_stops_before_publishing_and_allows_another_operation(yata, format):
+    fixture = yata.fixture
     fixture.path("payload.bin").write_bytes(os.urandom(16 * 1024 * 1024))
-    strata.entry("payload.bin")
-    strata.open_context_menu("payload.bin")
-    strata.choose_menu_item("Compress…")
-    dialog = strata.wait_for_dialog()
-    strata.pointer.click(dialog.find(role="toggle button", name=format))
-    strata.pointer.click(strata.dialog_button("Compress"))
-    strata.wait(
-        lambda: (dialog := strata.dialog()) is not None
+    yata.entry("payload.bin")
+    yata.open_context_menu("payload.bin")
+    yata.choose_menu_item("Compress…")
+    dialog = yata.wait_for_dialog()
+    yata.pointer.click(dialog.find(role="toggle button", name=format))
+    yata.pointer.click(yata.dialog_button("Compress"))
+    yata.wait(
+        lambda: (dialog := yata.dialog()) is not None
         and dialog.name == "Processing archive…"
         and dialog.find(role="label", name="Preparing…") is not None,
         "immediate preparation feedback",
     )
-    strata.pointer.click(strata.dialog_button("Cancel"))
-    strata.wait(
-        lambda: (dialog := strata.dialog()) is not None and dialog.name == "Operation cancelled",
+    yata.pointer.click(yata.dialog_button("Cancel"))
+    yata.wait(
+        lambda: (dialog := yata.dialog()) is not None and dialog.name == "Operation cancelled",
         "compression worker to stop and report cancellation",
     )
-    assert not strata.window.find(role="progress bar")
+    assert not yata.window.find(role="progress bar")
     assert not list(fixture.root.glob(".strata-compression-*"))
     assert not list(fixture.root.glob("*.7z"))
     assert not list(fixture.root.glob("*.tar.gz"))
     assert fixture.path("payload.bin").stat().st_size == 16 * 1024 * 1024
-    strata.pointer.click(strata.dialog_button("Close"))
-    strata.wait(lambda: strata.dialog() is None, "cancellation summary dismissal")
+    yata.pointer.click(yata.dialog_button("Close"))
+    yata.wait(lambda: yata.dialog() is None, "cancellation summary dismissal")
 
-    strata.open_context_menu("todo.txt")
-    strata.choose_menu_item("Compress…")
-    strata.wait_for_dialog()
-    strata.pointer.click(strata.dialog_button("Compress"))
-    strata.wait(lambda: fixture.path("todo.txt.zip").exists(), "subsequent compression")
-    strata.wait(lambda: strata.dialog() is None, "subsequent progress dismissal")
+    yata.open_context_menu("todo.txt")
+    yata.choose_menu_item("Compress…")
+    yata.wait_for_dialog()
+    yata.pointer.click(yata.dialog_button("Compress"))
+    yata.wait(lambda: fixture.path("todo.txt.zip").exists(), "subsequent compression")
+    yata.wait(lambda: yata.dialog() is None, "subsequent progress dismissal")
     with zipfile.ZipFile(fixture.path("todo.txt.zip")) as archive:
         assert archive.read("todo.txt") == fixture.path("todo.txt").read_bytes()
 
 
 @pytest.mark.parametrize("name", ["fake.zip", "fake.7z", "fake.tar", "fake.tar.gz", "fake.rar"])
-def test_invalid_archive_reports_damage_and_allows_another_extraction(strata, name):
-    fixture = strata.fixture
+def test_invalid_archive_reports_damage_and_allows_another_extraction(yata, name):
+    fixture = yata.fixture
     fixture.path(name).write_bytes(b"This is harmless text, not an archive.\n")
     with zipfile.ZipFile(fixture.path("valid.zip"), "w") as archive:
         archive.writestr("extracted.txt", "harmless contents")
-    strata.keyboard.press("ctrl+r")
-    strata.pointer.right_click(strata.entry(name))
-    strata.choose_menu_item("Extract here")
-    dialog = strata.wait(
+    yata.keyboard.press("ctrl+r")
+    yata.pointer.right_click(yata.entry(name))
+    yata.choose_menu_item("Extract here")
+    dialog = yata.wait(
         lambda: (
             dialog
-            if (dialog := strata.dialog()) is not None
+            if (dialog := yata.dialog()) is not None
             and dialog.name == "Unable to complete operation"
             else None
         ),
         "the archive error dialog to replace the progress dialog",
     )
     assert dialog.find(role="label", name="This file is not a valid archive or is damaged.")
-    assert not strata.window.find(role="progress bar")
+    assert not yata.window.find(role="progress bar")
     assert fixture.path(name).read_bytes() == b"This is harmless text, not an archive.\n"
-    strata.pointer.click(strata.dialog_button("Close"))
-    strata.wait(lambda: strata.dialog() is None, "error dismissal")
-    strata.pointer.right_click(strata.entry("valid.zip"))
-    strata.choose_menu_item("Extract here")
-    strata.wait(lambda: fixture.path("extracted.txt").exists(), "valid archive extraction")
+    yata.pointer.click(yata.dialog_button("Close"))
+    yata.wait(lambda: yata.dialog() is None, "error dismissal")
+    yata.pointer.right_click(yata.entry("valid.zip"))
+    yata.choose_menu_item("Extract here")
+    yata.wait(lambda: fixture.path("extracted.txt").exists(), "valid archive extraction")
     assert fixture.path("extracted.txt").read_text() == "harmless contents"
-    strata.wait(lambda: strata.dialog() is None, "extraction progress dismissal")
+    yata.wait(lambda: yata.dialog() is None, "extraction progress dismissal")
 
 
 @pytest.mark.parametrize("source,password,member,contents", [
@@ -88,33 +88,33 @@ def test_invalid_archive_reports_damage_and_allows_another_extraction(strata, na
     (Path(__file__).parents[2] / "fixtures/rar/encrypted.rar", "unrar", ".gitignore", "target\nCargo.lock\n"),
     (Path(__file__).parents[2] / "fixtures/rar/comment-hpw-password.rar", "password", ".gitignore", "target\nCargo.lock\n"),
 ])
-def test_wrong_extract_password_reopens_dialog_until_password_is_correct(strata, source, password, member, contents):
-    fixture = strata.fixture
+def test_wrong_extract_password_reopens_dialog_until_password_is_correct(yata, source, password, member, contents):
+    fixture = yata.fixture
     archive_name = source.name
     shutil.copyfile(source, fixture.path(archive_name))
-    strata.keyboard.press("ctrl+r")
-    strata.pointer.right_click(strata.entry(archive_name))
-    strata.choose_menu_item("Extract here")
+    yata.keyboard.press("ctrl+r")
+    yata.pointer.right_click(yata.entry(archive_name))
+    yata.choose_menu_item("Extract here")
 
-    dialog = strata.wait(
+    dialog = yata.wait(
         lambda: (
             dialog
-            if (dialog := strata.dialog()) is not None and dialog.name == "Extract"
+            if (dialog := yata.dialog()) is not None and dialog.name == "Extract"
             else None
         ),
         "the password dialog to replace the progress dialog",
     )
-    strata.pointer.click(strata.dialog_button("Extract"))
-    dialog = strata.wait_for_dialog()
+    yata.pointer.click(yata.dialog_button("Extract"))
+    dialog = yata.wait_for_dialog()
     assert dialog.find(role="label", name="Enter a password") is not None
 
-    strata.keyboard.type_text("wrong")
-    strata.pointer.click(strata.dialog_button("Extract"))
+    yata.keyboard.type_text("wrong")
+    yata.pointer.click(yata.dialog_button("Extract"))
 
-    dialog = strata.wait(
+    dialog = yata.wait(
         lambda: (
             dialog
-            if (dialog := strata.dialog()) is not None
+            if (dialog := yata.dialog()) is not None
             and dialog.name == "Extract"
             and dialog.find(role="password text", states={"focused"}) is not None
             else None
@@ -126,47 +126,47 @@ def test_wrong_extract_password_reopens_dialog_until_password_is_correct(strata,
 
     if source.suffix == ".rar":
         collector = ArtifactCollector(test_name=f"rar-password-{source.stem}")
-        strata.screenshot(collector.directory / "password-retry.png")
-    strata.keyboard.type_text(password)
-    strata.pointer.click(strata.dialog_button("Extract"))
+        yata.screenshot(collector.directory / "password-retry.png")
+    yata.keyboard.type_text(password)
+    yata.pointer.click(yata.dialog_button("Extract"))
     extracted = fixture.path(member)
-    strata.wait(lambda: extracted.exists(), "the archive to extract with the correct password")
-    strata.wait(lambda: strata.dialog() is None, "extraction progress dismissal")
+    yata.wait(lambda: extracted.exists(), "the archive to extract with the correct password")
+    yata.wait(lambda: yata.dialog() is None, "extraction progress dismissal")
     assert extracted.read_text() == contents
 
 
-def test_cancelled_extract_to_does_not_hijack_later_extract_here(strata):
-    fixture = strata.fixture
+def test_cancelled_extract_to_does_not_hijack_later_extract_here(yata):
+    fixture = yata.fixture
     archive_name = "content-encrypted.7z"
     shutil.copyfile(ARCHIVE_FIXTURES / archive_name, fixture.path(archive_name))
     with zipfile.ZipFile(fixture.path("later.zip"), "w") as archive:
         archive.writestr("later.txt", "later extraction\n")
-    strata.keyboard.press("ctrl+r")
-    strata.open_context_menu(archive_name)
-    strata.choose_menu_item("Extract to…")
+    yata.keyboard.press("ctrl+r")
+    yata.open_context_menu(archive_name)
+    yata.choose_menu_item("Extract to…")
     destination = fixture.path("leftover")
-    field = strata.editable_field()
-    strata.keyboard.press("ctrl+a")
-    strata.keyboard.type_text(str(destination))
-    strata.wait(lambda: field.text == str(destination), "the destination field")
-    strata.keyboard.press("Return")
-    strata.wait(
-        lambda: (dialog := strata.dialog()) is not None and dialog.name == "Extract",
+    field = yata.editable_field()
+    yata.keyboard.press("ctrl+a")
+    yata.keyboard.type_text(str(destination))
+    yata.wait(lambda: field.text == str(destination), "the destination field")
+    yata.keyboard.press("Return")
+    yata.wait(
+        lambda: (dialog := yata.dialog()) is not None and dialog.name == "Extract",
         "the password prompt",
     )
-    strata.keyboard.press("Escape")
-    strata.wait(lambda: strata.dialog() is None, "password prompt cancellation")
+    yata.keyboard.press("Escape")
+    yata.wait(lambda: yata.dialog() is None, "password prompt cancellation")
     assert not destination.exists()
-    strata.open_context_menu("later.zip")
-    strata.choose_menu_item("Extract here")
-    strata.wait(lambda: fixture.path("later.txt").exists(), "later extraction")
-    strata.wait(lambda: strata.dialog() is None, "extraction progress dismissal")
-    assert strata.current_directory() == fixture.root.name
+    yata.open_context_menu("later.zip")
+    yata.choose_menu_item("Extract here")
+    yata.wait(lambda: fixture.path("later.txt").exists(), "later extraction")
+    yata.wait(lambda: yata.dialog() is None, "extraction progress dismissal")
+    assert yata.current_directory() == fixture.root.name
     assert fixture.path("later.txt").read_text() == "later extraction\n"
     assert not destination.exists()
-    strata.entry("later.txt")
+    yata.entry("later.txt")
     collector = ArtifactCollector(test_name="cancelled-extract-to")
-    strata.screenshot(collector.directory / "after.png")
+    yata.screenshot(collector.directory / "after.png")
 
 
 _CRCTABLE = None
@@ -289,37 +289,37 @@ def _zipcrypto_crc_collision(path, member="some.txt"):
         pytest.param(True, b"hello from zipcrypto\n" * 64, id="deflated"),
     ],
 )
-def test_zipcrypto_collision_reopens_extract_dialog(strata, deflated, contents):
-    fixture = strata.fixture
+def test_zipcrypto_collision_reopens_extract_dialog(yata, deflated, contents):
+    fixture = yata.fixture
     archive_name = "password.zip"
     archive_path = fixture.path(archive_name)
     _write_zipcrypto(
         archive_path, b"zipsecret", "some.txt", contents, deflated=deflated
     )
     collision = _zipcrypto_crc_collision(archive_path)
-    strata.keyboard.press("ctrl+r")
-    strata.pointer.right_click(strata.entry(archive_name))
-    strata.choose_menu_item("Extract here")
+    yata.keyboard.press("ctrl+r")
+    yata.pointer.right_click(yata.entry(archive_name))
+    yata.choose_menu_item("Extract here")
 
-    dialog = strata.wait(
+    dialog = yata.wait(
         lambda: (
             dialog
-            if (dialog := strata.dialog()) is not None and dialog.name == "Extract"
+            if (dialog := yata.dialog()) is not None and dialog.name == "Extract"
             else None
         ),
         "the password dialog to replace the progress dialog",
     )
-    strata.pointer.click(strata.dialog_button("Extract"))
-    dialog = strata.wait_for_dialog()
+    yata.pointer.click(yata.dialog_button("Extract"))
+    dialog = yata.wait_for_dialog()
     assert dialog.find(role="label", name="Enter a password") is not None
 
-    strata.keyboard.type_text(collision)
-    strata.pointer.click(strata.dialog_button("Extract"))
+    yata.keyboard.type_text(collision)
+    yata.pointer.click(yata.dialog_button("Extract"))
 
-    dialog = strata.wait(
+    dialog = yata.wait(
         lambda: (
             dialog
-            if (dialog := strata.dialog()) is not None
+            if (dialog := yata.dialog()) is not None
             and dialog.name == "Extract"
             and dialog.find(role="password text", states={"focused"}) is not None
             else None
@@ -330,9 +330,9 @@ def test_zipcrypto_collision_reopens_extract_dialog(strata, deflated, contents):
     assert dialog.find(role="label", name="Unable to complete operation") is None
     assert dialog.find(role="label", name="This file is not a valid archive or is damaged.") is None
 
-    strata.keyboard.type_text("zipsecret")
-    strata.pointer.click(strata.dialog_button("Extract"))
+    yata.keyboard.type_text("zipsecret")
+    yata.pointer.click(yata.dialog_button("Extract"))
     extracted = fixture.path("some.txt")
-    strata.wait(lambda: extracted.exists(), "the archive to extract with the correct password")
+    yata.wait(lambda: extracted.exists(), "the archive to extract with the correct password")
     assert extracted.read_text() == contents.decode()
-    strata.wait(lambda: strata.dialog() is None, "extraction progress dismissal")
+    yata.wait(lambda: yata.dialog() is None, "extraction progress dismissal")

@@ -204,7 +204,7 @@ pub(crate) fn parse(
 
     let output = PrivateOutput::create().map_err(|error| error.to_string())?;
     let current_executable = std::env::current_exe()
-        .map_err(|error| format!("Unable to locate the Strata executable: {error}"))?;
+        .map_err(|error| format!("Unable to locate the yata executable: {error}"))?;
     let running_executable = PathBuf::from(format!("/proc/{}/exe", std::process::id()));
     let executable =
         resolve_renderer_executable(&current_executable, &running_executable, output.path())?;
@@ -252,7 +252,7 @@ fn resolve_renderer_executable(
 
     let snapshot = private_output.join("strata-preview-helper");
     fs::copy(running, &snapshot)
-        .map_err(|error| format!("Unable to preserve the running Strata executable: {error}"))?;
+        .map_err(|error| format!("Unable to preserve the running yata executable: {error}"))?;
     Ok(snapshot)
 }
 
@@ -391,7 +391,7 @@ fn sandbox_command(
     }
     let sandbox_input = sandbox_input_path(input);
     if operation != ParseOperation::ThumbnailVideo {
-        command.arg("--ro-bind").arg(executable).arg("/app/strata");
+        command.arg("--ro-bind").arg(executable).arg("/app/yata");
     }
     command.arg("--ro-bind").arg(input).arg(&sandbox_input);
     if !operation.is_media() {
@@ -434,7 +434,7 @@ fn sandbox_command(
         return command;
     }
     command.args([
-        "/app/strata",
+        "/app/yata",
         "--preview-helper",
         operation.argument(),
         &sandbox_input,

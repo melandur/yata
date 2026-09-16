@@ -6,7 +6,7 @@ use std::cell::Cell;
 #[test]
 #[ignore = "requires a mapped GTK window; run this test alone"]
 fn sidebar_top_reaches_navigation_bar_and_restores_focus() {
-    const CHILD: &str = "STRATA_TOP_BAR_GTK_CHILD";
+    const CHILD: &str = "YATA_TOP_BAR_GTK_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let sandbox = tempfile::tempdir().expect("isolated GTK configuration");
         let status = std::process::Command::new(std::env::current_exe().expect("test executable"))

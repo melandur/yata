@@ -10,7 +10,7 @@ pub(super) fn about_page() -> gtk::Widget {
     let identity = gtk::Box::new(gtk::Orientation::Horizontal, 20);
     identity.add_css_class("about-identity");
     super::search::tag(&identity, "Version information");
-    let icon = gtk::Image::from_resource("/io/github/lgse/Strata/brand/strata-logo-white.svg");
+    let icon = gtk::Image::from_resource("/io/github/melandur/yata/brand/strata-logo-white.svg");
     icon.set_pixel_size(36);
     let logo = gtk::Box::new(gtk::Orientation::Horizontal, 0);
     logo.add_css_class("about-logo");
@@ -26,7 +26,7 @@ pub(super) fn about_page() -> gtk::Widget {
     copy.set_hexpand(true);
     copy.set_valign(gtk::Align::Center);
     let heading = gtk::Box::new(gtk::Orientation::Horizontal, 10);
-    let name = gtk::Label::new(Some("Strata"));
+    let name = gtk::Label::new(Some("yata"));
     name.add_css_class("about-name");
     heading.append(&name);
     let kind = crate::build_info::build_kind();
@@ -123,7 +123,7 @@ fn toolkit_version() -> String {
 
 fn version_info() -> String {
     format!(
-        "Strata {}\n{}\nCommit: {}\nToolkit: {}\nAuthor: {}\nLicense: MIT",
+        "yata {}\n{}\nCommit: {}\nToolkit: {}\nAuthor: {}\nLicense: MIT",
         crate::build_info::installed_version(),
         crate::build_info::DESCRIPTION,
         crate::build_info::COMMIT,

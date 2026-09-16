@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Triage Strata's Discord report forums against GitHub issues."""
+"""Triage yata's Discord report forums against GitHub issues."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from typing import Any
 DISCORD_API = "https://discord.com/api/v10"
 GITHUB_API = "https://api.github.com"
 GUILD_ID = "1546233919609774181"
-CHECKED_FOOTER = "Strata triage · checked"
+CHECKED_FOOTER = "yata triage · checked"
 LINK_MARKER = "strata-discord-thread"
 STOP_WORDS = {
     "about",
@@ -32,7 +32,7 @@ STOP_WORDS = {
     "issue",
     "request",
     "should",
-    "strata",
+    "yata",
     "that",
     "this",
     "when",

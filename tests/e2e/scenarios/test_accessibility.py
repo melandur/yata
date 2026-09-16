@@ -12,18 +12,18 @@ FOLDERS = {"archive", "documents", "pictures"}
 
 
 @pytest.mark.parametrize("mode", ALL_MODES)
-def test_listing_names_descriptions_and_selection_semantics(strata, mode):
-    root = strata.fixture.root.name
-    pane = strata.pane(root)
+def test_listing_names_descriptions_and_selection_semantics(yata, mode):
+    root = yata.fixture.root.name
+    pane = yata.pane(root)
     assert pane.name == root
     assert pane.description == f"{mode} view"
 
-    container = strata.entry_container(root)
+    container = yata.entry_container(root)
     assert container is not None
     assert container.name == root
     assert container.description == "Files"
 
-    entries = strata.entries(root)
+    entries = yata.entries(root)
     assert [node.name for node in entries] == ROOT_ENTRIES
     for node in entries:
         expected = "Folder" if node.name in FOLDERS else "File"
@@ -33,13 +33,13 @@ def test_listing_names_descriptions_and_selection_semantics(strata, mode):
         assert "focusable" in node.states, f"{node.name} should be focusable"
 
     # GTK 4.14 omits SELECTABLE on unselected rows; exercise SELECTED transitions.
-    strata.select_entry("todo.txt", directory=root)
-    assert "selected" in strata.entry("todo.txt", directory=root).states
-    others = [node for node in strata.entries(root) if node.name != "todo.txt"]
+    yata.select_entry("todo.txt", directory=root)
+    assert "selected" in yata.entry("todo.txt", directory=root).states
+    others = [node for node in yata.entries(root) if node.name != "todo.txt"]
     assert all("selected" not in node.states for node in others)
 
 
-def test_toolbar_controls_are_named(strata):
+def test_toolbar_controls_are_named(yata):
     for name in (
         "Search (Ctrl+K)",
         "Appearance",
@@ -47,21 +47,21 @@ def test_toolbar_controls_are_named(strata):
         "Close window",
         "Toggle sidebar (Ctrl+B)",
     ):
-        assert strata.window.find(name=name) is not None, f"{name!r} is unnamed"
+        assert yata.window.find(name=name) is not None, f"{name!r} is unnamed"
 
 
-def test_focus_order_reaches_the_files_from_the_header(strata):
+def test_focus_order_reaches_the_files_from_the_header(yata):
     """Tab from the window's first control eventually reaches the listing."""
 
-    strata.keyboard.press("Tab")
+    yata.keyboard.press("Tab")
     seen = []
     for _ in range(20):
-        focused = strata.focused_node()
+        focused = yata.focused_node()
         if focused is None:
-            strata.keyboard.press("Tab")
+            yata.keyboard.press("Tab")
             continue
         seen.append(f"{focused.role}:{focused.name}")
-        if focused.role in ("list", "table") or strata.focused_name() is not None:
+        if focused.role in ("list", "table") or yata.focused_name() is not None:
             return
-        strata.keyboard.press("Tab")
+        yata.keyboard.press("Tab")
     raise AssertionError(f"Tab never reached the file listing; visited {seen}")

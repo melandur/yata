@@ -177,7 +177,7 @@ const TARGETS: &[Target] = &[
         id: "version",
         page: "about",
         title: "Version information",
-        aliases: "strata build commit toolkit gtk copy author",
+        aliases: "yata build commit toolkit gtk copy author",
     },
     Target {
         id: "website",

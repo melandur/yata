@@ -27,13 +27,13 @@ class QualityRunnerTests(unittest.TestCase):
                 "bus=os.getenv('DBUS_SESSION_BUS_ADDRESS'))) + '\\n')\n"
                 "if sys.argv[1:3] == ['image', 'inspect']:\n"
                 f" print(json.dumps([{{'Id': 'sha256:'+'a'*64, 'Os': 'linux', 'Architecture': 'amd64', "
-                f"'Config': {{'Labels': {{'org.strata.e2e.inputs': {(image_key() if key is None else key)!r}}}, "
+                f"'Config': {{'Labels': {{'org.yata.e2e.inputs': {(image_key() if key is None else key)!r}}}, "
                 "'Env': ['RUSTUP_HOME=/opt/rustup']}}]))\n"
             )
             engine.chmod(0o755)
             result = subprocess.run([str(REPOSITORY / "scripts/quality.sh"), phase],
-                                    env={**os.environ, "STRATA_CONTAINER_ENGINE": str(engine),
-                                         "STRATA_QUALITY_IMAGE": "fixture", "DISPLAY": ":0",
+                                    env={**os.environ, "YATA_CONTAINER_ENGINE": str(engine),
+                                         "YATA_QUALITY_IMAGE": "fixture", "DISPLAY": ":0",
                                          "WAYLAND_DISPLAY": "wayland-0", "DBUS_SESSION_BUS_ADDRESS": "unix:path=/desktop",
                                          **(extra_env or {})}, capture_output=True, text=True)
             calls = [json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
@@ -58,12 +58,12 @@ class QualityRunnerTests(unittest.TestCase):
 
     def test_shard_handoff_is_forwarded_without_changing_public_phases(self):
         result, calls = self.run_runner("test", extra_env={
-            "STRATA_QUALITY_TASK": "shard", "STRATA_QUALITY_SHARD": "0"})
+            "YATA_QUALITY_TASK": "shard", "YATA_QUALITY_SHARD": "0"})
         self.assertEqual(result.returncode, 0, result.stderr)
         args = calls[-1]["args"]
-        self.assertIn("STRATA_QUALITY_TASK", args)
-        self.assertIn("STRATA_QUALITY_SHARD", args)
-        self.assertTrue(any(arg.startswith("STRATA_QUALITY_COMMIT=") for arg in args))
+        self.assertIn("YATA_QUALITY_TASK", args)
+        self.assertIn("YATA_QUALITY_SHARD", args)
+        self.assertTrue(any(arg.startswith("YATA_QUALITY_COMMIT=") for arg in args))
         self.assertEqual(args[-1], "test")
 
     def test_workflow_matrix_and_required_gate_match_the_plan(self):
@@ -72,7 +72,7 @@ class QualityRunnerTests(unittest.TestCase):
         shard = workflow.split("\n  quality-shard:", 1)[1].split("\n  quality:", 1)[0]
         self.assertIn(f"shard: {list(range(SHARDS))}", shard)
         self.assertIn("fail-fast: false", shard)
-        self.assertIn("STRATA_QUALITY_TASK: shard", shard)
+        self.assertIn("YATA_QUALITY_TASK: shard", shard)
         self.assertNotIn("cargo test", shard)
         gate = workflow.split("\n  quality:\n", 1)[1].split("\n  e2e-build:", 1)[0]
         self.assertIn("name: Format, lint, and test", gate)
@@ -94,7 +94,7 @@ class QualityRunnerTests(unittest.TestCase):
         build = jobs["quality-build"]
         condition = re.search(r"^    if: (.+)$", build, re.M).group(1)
         self.assertNotIn("github.event_name != 'push'", condition)
-        self.assertIn("STRATA_QUALITY_TASK: build", build)
+        self.assertIn("YATA_QUALITY_TASK: build", build)
         self.assertIn("if: github.event_name == 'push' && github.ref == 'refs/heads/main'", build)
         packaging = (REPOSITORY / ".github/workflows/packaging.yml").read_text()
         renderer = packaging.split("- name: Test the package renderer\n", 1)[1].split("\n      - name:", 1)[0]
@@ -181,7 +181,7 @@ class QualityRunnerTests(unittest.TestCase):
                     self.assertNotIn("xvfb", text)
                 else:
                     self.assertIn("xvfb -a dbus-run-session -- env -u WAYLAND_DISPLAY GDK_BACKEND=x11", text)
-                    self.assertIn("GTK_A11Y=none NO_AT_BRIDGE=1 STRATA_REQUIRE_GTK_TESTS=1", text)
+                    self.assertIn("GTK_A11Y=none NO_AT_BRIDGE=1 YATA_REQUIRE_GTK_TESTS=1", text)
                     self.assertIn("test --locked --all-targets --all-features", text)
 
 

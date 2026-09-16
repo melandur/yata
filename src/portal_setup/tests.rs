@@ -18,20 +18,20 @@ const FILE_CHOOSER: &str = "org.freedesktop.impl.portal.FileChooser";
 #[test]
 fn chooser_preference_uses_existing_backends_and_round_trips() {
     let original = "[preferred]\ndefault=hyprland;gtk;\norg.example.Other=gtk;\n";
-    let enabled = enable_config(original).expect("enable Strata");
+    let enabled = enable_config(original).expect("enable yata");
 
-    assert!(enabled.contains(&format!("{FILE_CHOOSER}=strata;hyprland;gtk;")));
+    assert!(enabled.contains(&format!("{FILE_CHOOSER}=yata;hyprland;gtk;")));
     assert_eq!(enable_config(&enabled).expect("enable again"), enabled);
-    assert_eq!(disable_config(&enabled).expect("disable Strata"), original);
+    assert_eq!(disable_config(&enabled).expect("disable yata"), original);
 }
 
 #[test]
 fn chooser_preference_preserves_explicit_fallbacks() {
     let original = format!("[preferred]\ndefault=gnome;gtk;\n{FILE_CHOOSER}=kde;gtk;\n");
-    let enabled = enable_config(&original).expect("enable Strata");
+    let enabled = enable_config(&original).expect("enable yata");
 
-    assert!(enabled.contains(&format!("{FILE_CHOOSER}=strata;kde;gtk;")));
-    assert_eq!(disable_config(&enabled).expect("disable Strata"), original);
+    assert!(enabled.contains(&format!("{FILE_CHOOSER}=yata;kde;gtk;")));
+    assert_eq!(disable_config(&enabled).expect("disable yata"), original);
 }
 
 #[test]
@@ -88,7 +88,7 @@ fn startup_refreshes_a_configured_portal_running_an_old_executable() {
         &proc_root,
         123,
         &executable,
-        &fixture.path().join("old-strata"),
+        &fixture.path().join("old-yata"),
     );
     let refreshed = Cell::new(false);
 
@@ -150,23 +150,23 @@ fn install_and_uninstall_restore_an_existing_user_configuration() {
     assert!(
         fs::read_to_string(&config)
             .expect("installed config")
-            .contains("strata;gtk;")
+            .contains("yata;gtk;")
     );
     assert!(
         context
             .data_home
-            .join("xdg-desktop-portal/portals/strata.portal")
+            .join("xdg-desktop-portal/portals/yata.portal")
             .is_file()
     );
     assert!(
         fs::read_to_string(
             context
                 .data_home
-                .join("dbus-1/services/org.freedesktop.impl.portal.desktop.strata.service")
+                .join("dbus-1/services/org.freedesktop.impl.portal.desktop.yata.service")
         )
         .expect("D-Bus service")
         .contains(&format!(
-            "Exec={}/bin/strata --portal",
+            "Exec={}/bin/yata --portal",
             fixture.path().display()
         ))
     );
@@ -191,14 +191,14 @@ fn uninstall_keeps_later_configuration_edits() {
     fs::write(
         &config,
         format!(
-            "[preferred]\ndefault=gtk;\n{FILE_CHOOSER}=strata;gtk;\norg.example.Other=custom;\n"
+            "[preferred]\ndefault=gtk;\n{FILE_CHOOSER}=yata;gtk;\norg.example.Other=custom;\n"
         ),
     )
     .expect("edit portal config");
 
     assert!(uninstall_at(&context).expect("uninstall portal"));
     let remaining = fs::read_to_string(config).expect("preserved config");
-    assert!(!remaining.contains("strata"));
+    assert!(!remaining.contains("yata"));
     assert!(remaining.contains("org.example.Other=custom;"));
 }
 
@@ -217,7 +217,7 @@ fn generated_override_is_removed_on_uninstall() {
     assert!(
         fs::read_to_string(&generated)
             .expect("generated config")
-            .contains("strata;")
+            .contains("yata;")
     );
     assert!(!uninstall_at(&context).expect("uninstall portal"));
     assert!(!generated.exists());
@@ -306,7 +306,7 @@ fn status_uses_the_active_configuration_and_requires_activation_files() {
     let status = super::status_at(&context).expect("external preference");
     assert!(!status.configured);
     assert!(status.has_installation);
-    fs::write(&config, "[preferred]\ndefault=strata;gtk;\n").expect("prefer Strata");
+    fs::write(&config, "[preferred]\ndefault=yata;gtk;\n").expect("prefer yata");
     assert!(
         super::status_at(&context)
             .expect("default preference")
@@ -361,7 +361,7 @@ fn context(root: &std::path::Path) -> SetupContext {
 }
 
 fn executable(root: &std::path::Path) -> PathBuf {
-    let path = root.join("bin/strata");
+    let path = root.join("bin/yata");
     fs::create_dir_all(path.parent().expect("executable parent")).expect("executable directory");
     fs::write(&path, b"binary").expect("executable file");
     fs::set_permissions(&path, fs::Permissions::from_mode(0o755)).expect("executable permissions");

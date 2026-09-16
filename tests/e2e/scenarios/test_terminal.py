@@ -26,10 +26,10 @@ def test_environment():
         environment.cleanup()
 
 
-def test_opening_a_terminal_without_an_emulator_reports_no_terminal_found(strata):
-    strata.keyboard.press("ctrl+t")
+def test_opening_a_terminal_without_an_emulator_reports_no_terminal_found(yata):
+    yata.keyboard.press("ctrl+t")
 
-    dialog = strata.wait_for_dialog()
+    dialog = yata.wait_for_dialog()
     assert dialog.name == "Unable to open terminal", (
         f"unexpected dialog {dialog.name!r}"
     )
@@ -37,5 +37,5 @@ def test_opening_a_terminal_without_an_emulator_reports_no_terminal_found(strata
         "No terminal emulator" in node.name for node in dialog.find_all(role="label")
     ), f"the error should explain that no terminal was found\n{dialog.dump()}"
 
-    strata.pointer.click(strata.dialog_button("Close"))
-    strata.wait(lambda: strata.dialog() is None, "the dialog to close")
+    yata.pointer.click(yata.dialog_button("Close"))
+    yata.wait(lambda: yata.dialog() is None, "the dialog to close")

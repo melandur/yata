@@ -22,7 +22,7 @@ mod commands;
 mod focus;
 mod items;
 
-// None tries the next Strata stage; Some(Proceed) gives the event to GTK instead.
+// None tries the next yata stage; Some(Proceed) gives the event to GTK instead.
 type KeyResult = Option<Propagation>;
 
 pub(super) struct Bindings {

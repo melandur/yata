@@ -23,7 +23,7 @@ impl fmt::Display for ForgetCachedPasswordError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::NeedsConfirmation => f.write_str(
-                "Strata cannot display the password manager's deletion confirmation. Remove this volume's saved password in your password manager, then try Lock again.",
+                "yata cannot display the password manager's deletion confirmation. Remove this volume's saved password in your password manager, then try Lock again.",
             ),
             Self::ItemLocked => f.write_str(
                 "The saved password is locked in the password manager. Unlock the keyring and try again.",

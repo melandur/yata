@@ -162,7 +162,7 @@ jobs:
           if [[ "$MODE" != "stable" ]]; then
             # Fail closed when targeting source older than release-channel
             # support; otherwise the archive tag and binary identity diverge.
-            if ! grep -q 'STRATA_RELEASE_TAG' build.rs; then
+            if ! grep -q 'YATA_RELEASE_TAG' build.rs; then
               echo "The selected source does not support prerelease build metadata." >&2
               exit 1
             fi
@@ -170,8 +170,8 @@ jobs:
             # Prerelease identity is injected at build time instead of being
             # written into Cargo.toml, which remains the stable version line.
             {
-              echo "STRATA_RELEASE_TAG=v${VERSION}"
-              echo "STRATA_BUILD_KIND=${MODE}"
+              echo "YATA_RELEASE_TAG=v${VERSION}"
+              echo "YATA_BUILD_KIND=${MODE}"
             } >> "$GITHUB_ENV"
             exit 0
           fi
@@ -198,13 +198,13 @@ jobs:
           lock_path = pathlib.Path("Cargo.lock")
           lock = lock_path.read_text()
           lock, count = re.subn(
-              r'(\[\[package\]\]\nname = "strata"\nversion = ")\d+\.\d+\.\d+("\n)',
+              r'(\[\[package\]\]\nname = "yata"\nversion = ")\d+\.\d+\.\d+("\n)',
               rf'\g<1>{version}\2',
               lock,
               count=1,
           )
           if count != 1:
-              raise SystemExit("could not update the strata version in Cargo.lock")
+              raise SystemExit("could not update the yata version in Cargo.lock")
           lock_path.write_text(lock)
           PY
 
@@ -238,18 +238,18 @@ jobs:
         run: |
           package="strata-${VERSION}-${TARGET}"
           mkdir -p "dist/$package"
-          install -m 755 "target/$TARGET/release/strata" "dist/$package/strata"
-          objcopy --only-keep-debug --compress-debug-sections=zlib "dist/$package/strata" "dist/$package.debug"
-          strip --strip-unneeded "dist/$package/strata"
-          objcopy --add-gnu-debuglink="dist/$package.debug" "dist/$package/strata"
+          install -m 755 "target/$TARGET/release/yata" "dist/$package/yata"
+          objcopy --only-keep-debug --compress-debug-sections=zlib "dist/$package/yata" "dist/$package.debug"
+          strip --strip-unneeded "dist/$package/yata"
+          objcopy --add-gnu-debuglink="dist/$package.debug" "dist/$package/yata"
           printf '%s\n' "$SOURCE_SHA" > "dist/$package/SOURCE_COMMIT"
           cp README.md LICENSE THIRD_PARTY_LICENSES.md data/licenses/UnRAR.txt "dist/$package/"
           mkdir -p "dist/$package/docs" "dist/$package/portal"
           cp docs/portal-file-chooser.md "dist/$package/docs/"
           cp data/portal/* "dist/$package/portal/"
-          install -m 644 data/io.github.lgse.Strata.desktop "dist/$package/"
-          install -m 644 data/io.github.lgse.Strata.FileManager1.service "dist/$package/"
-          install -m 644 data/icons/scalable/apps/io.github.lgse.Strata.svg "dist/$package/"
+          install -m 644 data/io.github.melandur.yata.desktop "dist/$package/"
+          install -m 644 data/io.github.melandur.yata.FileManager1.service "dist/$package/"
+          install -m 644 data/icons/scalable/apps/io.github.melandur.yata.svg "dist/$package/"
           tar -C dist -czf "dist/$package.tar.gz" "$package"
           (cd dist && sha256sum "$package.tar.gz" > "$package.tar.gz.sha256")
           (cd dist && sha256sum "$package.debug" > "$package.debug.sha256")
@@ -317,7 +317,7 @@ jobs:
               exit 1
             fi
 
-            git tag -a "v$VERSION" -m "Strata v$VERSION"
+            git tag -a "v$VERSION" -m "yata v$VERSION"
             git push origin "v$VERSION"
             exit 0
           fi
@@ -340,7 +340,7 @@ jobs:
           version = os.environ["VERSION"]
           for filename, pattern in (
               ("Cargo.toml", r'(^version = ")\d+\.\d+\.\d+("$)'),
-              ("Cargo.lock", r'(\[\[package\]\]\nname = "strata"\nversion = ")\d+\.\d+\.\d+("\n)'),
+              ("Cargo.lock", r'(\[\[package\]\]\nname = "yata"\nversion = ")\d+\.\d+\.\d+("\n)'),
           ):
               path = pathlib.Path(filename)
               text, count = re.subn(pattern, rf'\g<1>{version}\2', path.read_text(), count=1, flags=re.MULTILINE)
@@ -351,7 +351,7 @@ jobs:
 
           git add Cargo.toml Cargo.lock
           git commit -m "chore: release v$VERSION"
-          git tag -a "v$VERSION" -m "Strata v$VERSION"
+          git tag -a "v$VERSION" -m "yata v$VERSION"
           git push --atomic origin "HEAD:$BRANCH" "v$VERSION"
 
       - name: Create GitHub release
@@ -363,9 +363,9 @@ jobs:
           if [[ "$MODE" != "stable" ]]; then
             # --prerelease keeps /releases/latest pointing at the last final
             # release, which is the endpoint a Stable user polls.
-            gh release create "v$VERSION" dist/* --verify-tag --generate-notes --prerelease --title "Strata v$VERSION"
+            gh release create "v$VERSION" dist/* --verify-tag --generate-notes --prerelease --title "yata v$VERSION"
           else
-            gh release create "v$VERSION" dist/* --verify-tag --generate-notes --title "Strata v$VERSION"
+            gh release create "v$VERSION" dist/* --verify-tag --generate-notes --title "yata v$VERSION"
           fi
 
   announce:
@@ -422,7 +422,7 @@ jobs:
               "allowed_mentions": {"parse": []},
               "embeds": [
                   {
-                      "title": f"Strata {tag} is available",
+                      "title": f"yata {tag} is available",
                       "url": release["html_url"],
                       "description": notes,
                       "color": color,
@@ -430,7 +430,7 @@ jobs:
                           {"name": "Channel", "value": channel, "inline": True},
                           {"name": "Version", "value": tag, "inline": True},
                       ],
-                      "footer": {"text": "Strata · Navigate every layer."},
+                      "footer": {"text": "yata · Modal, keyboard-first file management."},
                   }
               ],
           }
@@ -458,7 +458,7 @@ jobs:
           post(
               "1546233920926916630",
               {
-                  "content": f"**Strata {tag}** ({channel}) is available. Read the announcement: {announcement_url}",
+                  "content": f"**yata {tag}** ({channel}) is available. Read the announcement: {announcement_url}",
                   "allowed_mentions": {"parse": []},
               },
           )
@@ -537,7 +537,7 @@ jobs:
           cat > /tmp/aur-package-pr.md <<EOF
           ## Description
 
-          Updates the reviewed AUR package sources for Strata v$VERSION.
+          Updates the reviewed AUR package sources for yata v$VERSION.
 
           ## How to test
 

@@ -6,7 +6,7 @@ use super::*;
 #[ignore = "requires GVfs Trash and dbus-run-session; creates its own disposable HOME/XDG and session bus"]
 fn isolated_trash_supports_read_copy_move_restore_and_delete() {
     const NAME: &str = "adapters::local_operations::tests::trash_capabilities::isolated_trash_supports_read_copy_move_restore_and_delete";
-    const CHILD: &str = "STRATA_TRASH_CAPABILITIES_CHILD";
+    const CHILD: &str = "YATA_TRASH_CAPABILITIES_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let fixture = tempfile::tempdir().expect("isolated Trash");
         for name in ["home", "data", "config", "cache", "runtime"] {

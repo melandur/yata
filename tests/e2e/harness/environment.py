@@ -9,7 +9,7 @@ import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
-# Strata records that it has already offered to become the file-chooser
+# yata records that it has already offered to become the file-chooser
 # portal by creating this file in its config directory.
 PORTAL_OFFER_MARKER = "portal-opt-in-v1"
 
@@ -128,7 +128,7 @@ class TestEnvironment:
 
     @property
     def settings_path(self) -> Path:
-        return self.config_home / "strata" / "settings.toml"
+        return self.config_home / "yata" / "settings.toml"
 
     @property
     def trash_files(self) -> Path:
@@ -137,11 +137,11 @@ class TestEnvironment:
     def _dismiss_portal_offer(self) -> None:
         """Pre-answer the first-run file-chooser portal offer.
 
-        Strata shows it once per config home; leaving it armed would put a
+        yata shows it once per config home; leaving it armed would put a
         modal dialog over every scenario.
         """
 
-        marker = self.config_home / "strata" / PORTAL_OFFER_MARKER
+        marker = self.config_home / "yata" / PORTAL_OFFER_MARKER
         marker.parent.mkdir(parents=True, exist_ok=True)
         marker.write_text("1\n")
 

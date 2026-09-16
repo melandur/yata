@@ -48,13 +48,13 @@ From the issue worktree:
 ./scripts/test-headless.py ui::browser::events::tests
 ./scripts/test-headless.py ui::browser_modes::tests::column_widths
 ./scripts/test-headless.py ui::browser::trash::tests
-STRATA_CONTAINER_ENGINE=podman ./scripts/e2e.sh \
+YATA_CONTAINER_ENGINE=podman ./scripts/e2e.sh \
   tests/e2e/scenarios/test_drag_animation.py \
   tests/e2e/scenarios/test_entry_management.py \
   tests/e2e/scenarios/test_view_switching.py \
   -k 'delete or list_column_resize'
-STRATA_CONTAINER_ENGINE=podman ./scripts/quality.sh fmt
-STRATA_CONTAINER_ENGINE=podman ./scripts/quality.sh clippy
+YATA_CONTAINER_ENGINE=podman ./scripts/quality.sh fmt
+YATA_CONTAINER_ENGINE=podman ./scripts/quality.sh clippy
 git diff --check
 ```
 

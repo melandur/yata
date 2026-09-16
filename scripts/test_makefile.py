@@ -57,7 +57,7 @@ class ChooserLauncherTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(calls[0][:2], ["cargo", ["build"]])
         self.assertEqual(calls[1], ["python3", ["scripts/portal-test.py", "save", "--binary",
-                                              "target/debug/strata", "--choices"], "none"])
+                                              "target/debug/yata", "--choices"], "none"])
 
     def test_case_and_options_can_be_overridden(self):
         result, calls = self.run_target(env_overrides={
@@ -66,7 +66,7 @@ class ChooserLauncherTests(unittest.TestCase):
         })
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(calls[1][1], ["scripts/portal-test.py", "multiple", "--binary",
-                                      "target/debug/strata", "--view", "list", "--group-by-type"])
+                                      "target/debug/yata", "--view", "list", "--group-by-type"])
 
     def test_a_failed_build_does_not_launch_a_stale_binary(self):
         result, calls = self.run_target(build_status=1)

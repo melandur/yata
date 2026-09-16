@@ -1,6 +1,6 @@
 # Archive creation
 
-Strata chooses compression according to the output container, not just the
+yata chooses compression according to the output container, not just the
 selected filename extension.
 
 | Output | Payload encoding | Password support |
@@ -38,7 +38,7 @@ extensions retain compression.
 
 Extensions are hints, not content validation: an MP4/MOV/MKV container can contain
 uncompressed streams, a PDF can contain plain data, and even a ZIP can contain
-stored members. Such exceptions may yield a larger output. Strata does not read
+stored members. Such exceptions may yield a larger output. yata does not read
 all payloads to estimate compressibility. The existing preflight walk opens
 entries to count members and classify names; payloads are streamed once during
 encoding. Directory recursion remains descriptor-relative and symlinks are not

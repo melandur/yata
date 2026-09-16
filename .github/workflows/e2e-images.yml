@@ -96,8 +96,8 @@ jobs:
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.strata.e2e.inputs=${{ steps.identity.outputs.image_key }}
-            org.strata.e2e.dependencies=${{ steps.identity.outputs.dependency_key }}
+            org.yata.e2e.inputs=${{ steps.identity.outputs.image_key }}
+            org.yata.e2e.dependencies=${{ steps.identity.outputs.dependency_key }}
           tags: |
             ${{ steps.identity.outputs.build }}
             ${{ steps.existing.outputs.environment_image != 'true' && steps.identity.outputs.environment_image || '' }}
@@ -124,7 +124,7 @@ jobs:
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.strata.e2e.inputs=${{ steps.identity.outputs.image_key }}
+            org.yata.e2e.inputs=${{ steps.identity.outputs.image_key }}
           tags: ${{ steps.identity.outputs.runtime }}
           push: true
           cache-from: type=registry,ref=${{ steps.identity.outputs.cache }}

@@ -13,4 +13,4 @@ fi
 
 cargo build
 GTK_A11Y=none python3 scripts/portal-test.py "$chooser_case" \
-  --binary target/debug/strata "${chooser_args[@]}"
+  --binary target/debug/yata "${chooser_args[@]}"

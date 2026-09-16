@@ -11,7 +11,7 @@ from PIL import Image
 
 from harness import screenshots, tree
 from harness.application import Application, binary_path
-from harness.browser import Strata
+from harness.browser import yata
 from harness.environment import process_environment
 from harness.fixtures import FixtureTree
 from harness.process import ManagedProcess, terminate
@@ -61,9 +61,9 @@ def _opaque_sibling():
     return acc
 
 
-def _page(window: Node, monkeypatch) -> Strata:
+def _page(window: Node, monkeypatch) -> yata:
     monkeypatch.setattr(tree, "set_surface_origin_provider", lambda _provider: None)
-    return Strata(
+    return yata(
         application=Mock(root=window),
         keyboard=Mock(),
         pointer=Mock(),
@@ -80,11 +80,11 @@ def test_button_role_is_stable_across_atspi_versions(reported):
 
 
 def test_find_returns_the_first_match_without_querying_later_siblings():
-    frame = _accessible(role="frame", name="Strata")
+    frame = _accessible(role="frame", name="yata")
     root = Node(_accessible(role="application", children=[frame, _opaque_sibling()]))
-    found = root.find(role="frame", name="Strata")
+    found = root.find(role="frame", name="yata")
     assert found is not None
-    assert found.name == "Strata"
+    assert found.name == "yata"
 
 
 def test_find_all_returns_every_match_in_walk_order():
@@ -117,7 +117,7 @@ def test_containers_skip_extents_on_non_pane_nodes_and_sort_left_to_right(monkey
     left = _accessible(
         role="group", name="root", description="Columns view", extents=(10, 0, 80, 40)
     )
-    window = Node(_accessible(role="frame", name="Strata", children=[chrome, right, left]))
+    window = Node(_accessible(role="frame", name="yata", children=[chrome, right, left]))
     assert [pane.name for pane in _page(window, monkeypatch).containers()] == [
         "root",
         "docs",
@@ -139,7 +139,7 @@ def test_entries_walk_each_pane_once_and_sort_visually(monkeypatch):
     pane = _accessible(
         role="group", name="root", description="Columns view", children=[files]
     )
-    window = Node(_accessible(role="frame", name="Strata", children=[pane]))
+    window = Node(_accessible(role="frame", name="yata", children=[pane]))
     page = _page(window, monkeypatch)
     assert [entry.name for entry in page.entries()] == ["a.txt", "b.txt", "c.txt"]
     assert decoy.get_role_name.call_count == 1
@@ -167,7 +167,7 @@ def test_entries_ignore_a_recycled_row_until_its_label_matches(monkeypatch):
     pane = _accessible(
         role="group", name="root", description="Columns view", children=[files]
     )
-    window = Node(_accessible(role="frame", name="Strata", children=[pane]))
+    window = Node(_accessible(role="frame", name="yata", children=[pane]))
     assert [entry.name for entry in _page(window, monkeypatch).entries()] == [
         "documents"
     ]
@@ -185,7 +185,7 @@ def test_entries_are_absent_while_two_names_share_a_box(monkeypatch):
     pane = _accessible(
         role="group", name="root", description="Columns view", children=[files]
     )
-    window = Node(_accessible(role="frame", name="Strata", children=[pane]))
+    window = Node(_accessible(role="frame", name="yata", children=[pane]))
     assert _page(window, monkeypatch).entries() == []
 
 
@@ -211,7 +211,7 @@ def test_directoryless_entry_lookup_does_not_rebuild_the_pane_list(monkeypatch):
         children=[second_files],
     )
     window = Node(
-        _accessible(role="frame", name="Strata", children=[chrome, first, second])
+        _accessible(role="frame", name="yata", children=[chrome, first, second])
     )
     found = _page(window, monkeypatch)._entry_or_none("todo.txt", None)
     assert found is not None
@@ -220,7 +220,7 @@ def test_directoryless_entry_lookup_does_not_rebuild_the_pane_list(monkeypatch):
 
 
 def test_application_root_reuses_an_alive_frame(monkeypatch):
-    frame = Node(_accessible(role="frame", name="Strata"))
+    frame = Node(_accessible(role="frame", name="yata"))
     application = Application(
         display=Mock(), environment=Mock(), location=Path("/tmp"), _frame=frame
     )
@@ -234,7 +234,7 @@ def test_application_root_reuses_an_alive_frame(monkeypatch):
 def test_application_root_refetches_when_the_cached_frame_dies(monkeypatch):
     dead = Mock()
     dead.get_role_name.side_effect = RuntimeError("gone")
-    fresh = _accessible(role="frame", name="Strata")
+    fresh = _accessible(role="frame", name="yata")
     monkeypatch.setattr(
         "harness.application.tree.find_application",
         lambda _name: Node(_accessible(role="application", children=[fresh])),
@@ -242,7 +242,7 @@ def test_application_root_refetches_when_the_cached_frame_dies(monkeypatch):
     application = Application(
         display=Mock(), environment=Mock(), location=Path("/tmp"), _frame=Node(dead)
     )
-    assert application.root.name == "Strata"
+    assert application.root.name == "yata"
 
 
 def test_marquee_uses_rendered_child_bounds_for_virtualized_cells():
@@ -314,10 +314,10 @@ def test_popup_bounds_account_for_native_surface_origins(monkeypatch, anchor):
 def test_empty_pane_context_target_avoids_the_paste_footer():
     pane = Mock()
     pane.screen_bounds.return_value = Bounds(10, 20, 300, 600)
-    page = Mock(spec=Strata)
+    page = Mock(spec=yata)
     page._pane_or_none.return_value = pane
     page._entry_container_in.return_value = None
-    assert Strata.background_point(page, "empty") == (160, 320)
+    assert yata.background_point(page, "empty") == (160, 320)
 
 
 def test_fixed_fixture_refuses_existing_directory(tmp_path):
@@ -353,7 +353,7 @@ def test_visual_comparison_checks_each_channel(tmp_path, monkeypatch, channel):
     baselines = tmp_path / "baselines"
     baselines.mkdir()
     monkeypatch.setattr(screenshots, "BASELINE_DIRECTORY", baselines)
-    monkeypatch.delenv("STRATA_E2E_UPDATE_BASELINES", raising=False)
+    monkeypatch.delenv("YATA_E2E_UPDATE_BASELINES", raising=False)
     Image.new("RGB", (10, 10)).save(baselines / "test.png")
     color = [0, 0, 0]
     color[channel] = screenshots.CHANNEL_TOLERANCE + 1
@@ -367,7 +367,7 @@ def test_visual_comparison_checks_each_channel(tmp_path, monkeypatch, channel):
 
 def test_visual_comparison_accepts_channel_tolerance(tmp_path, monkeypatch):
     monkeypatch.setattr(screenshots, "BASELINE_DIRECTORY", tmp_path)
-    monkeypatch.delenv("STRATA_E2E_UPDATE_BASELINES", raising=False)
+    monkeypatch.delenv("YATA_E2E_UPDATE_BASELINES", raising=False)
     Image.new("RGB", (10, 10)).save(tmp_path / "test.png")
     actual = tmp_path / "actual.png"
     Image.new("RGB", (10, 10), (24, 24, 24)).save(actual)
@@ -381,16 +381,16 @@ def test_session_overrides_do_not_leak(monkeypatch):
 
 
 def test_relative_binary_override_survives_the_fixture_working_directory(monkeypatch, tmp_path):
-    binary = tmp_path / "strata"
+    binary = tmp_path / "yata"
     binary.touch()
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("STRATA_BINARY", "strata")
+    monkeypatch.setenv("YATA_BINARY", "yata")
     assert binary_path() == binary
 
 
 def test_application_start_failure_stops_process(monkeypatch, tmp_path):
     process = Mock()
-    monkeypatch.setattr("harness.application.binary_path", lambda: Path("/test/strata"))
+    monkeypatch.setattr("harness.application.binary_path", lambda: Path("/test/yata"))
     monkeypatch.setattr(ManagedProcess, "spawn", Mock(return_value=process))
     stop = Mock()
     monkeypatch.setattr("harness.application.terminate", stop)

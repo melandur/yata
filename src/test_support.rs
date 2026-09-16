@@ -32,11 +32,11 @@ pub(crate) static ASYNC_MAIN_CONTEXT_DEFAULT: TestMutex = TestMutex::new();
 
 /// GTK initialization is thread-affine; each UI test gets a process and disposable preferences.
 pub(crate) fn gtk_test(name: &str, run: impl FnOnce()) {
-    const CHILD: &str = "STRATA_ISOLATED_GTK_TEST";
+    const CHILD: &str = "YATA_ISOLATED_GTK_TEST";
     if std::env::var(CHILD).as_deref() == Ok(name) {
         if let Err(error) = gtk::init() {
             assert!(
-                std::env::var_os("STRATA_REQUIRE_GTK_TESTS").is_none(),
+                std::env::var_os("YATA_REQUIRE_GTK_TESTS").is_none(),
                 "GTK display required: {error}"
             );
             eprintln!("Skipping {name}: {error}");
@@ -81,7 +81,7 @@ pub(crate) fn distinct_device_dirs(name: &str) -> Option<(tempfile::TempDir, tem
     })();
     if dirs.is_none() {
         assert!(
-            std::env::var_os("STRATA_REQUIRE_DEVICE_TESTS").is_none(),
+            std::env::var_os("YATA_REQUIRE_DEVICE_TESTS").is_none(),
             "{name} requires two filesystems: /dev/shm must be a distinct device from the temp dir"
         );
         eprintln!("Skipping {name}: /dev/shm is not a distinct device from the temp dir");

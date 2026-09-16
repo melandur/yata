@@ -1,10 +1,10 @@
 # Private media runtime patch kit (#779)
 
 This directory preserves an experimental GStreamer fix, pinned source archives,
-and standalone reproducers for [#779](https://github.com/lgse/strata/issues/779).
-It is independent of the [diagnostics PR #782](https://github.com/lgse/strata/pull/782).
-**It does not change Strata's binary, installer, or release workflow. Building
-Strata alone does not apply the patch. This is not a shipping runtime yet.**
+and standalone reproducers for [#779](https://github.com/melandur/yata/issues/779).
+It is independent of the [diagnostics PR #782](https://github.com/melandur/yata/pull/782).
+**It does not change yata's binary, installer, or release workflow. Building
+yata alone does not apply the patch. This is not a shipping runtime yet.**
 
 ## GTK patch removal
 
@@ -178,8 +178,8 @@ protocol was not completed. Several intervals were shorter than five seconds.
 Do not claim an established RAM plateau or complete resolution of #779.
 
 Sanitized discussion:
-[initial candidate measurements](https://github.com/lgse/strata/pull/782#issuecomment-5623792996),
-[review corrections and latest capture](https://github.com/lgse/strata/pull/782#issuecomment-5623949139).
+[initial candidate measurements](https://github.com/melandur/yata/pull/782#issuecomment-5623792996),
+[review corrections and latest capture](https://github.com/melandur/yata/pull/782#issuecomment-5623949139).
 Raw captures, profiles, core dumps, and host-built binaries are deliberately absent.
 
 ## Dependency updates
@@ -214,14 +214,14 @@ the observations above are not a reason to freeze all future security updates.
 The manual GStreamer `patch` command above is the only application mechanism
 currently provided. There is **no automated runtime build/apply/package gate** in this kit.
 A release from this branch still builds and distributes the usual system-linked
-Strata executable. The next shipping implementation needs to:
+yata executable. The next shipping implementation needs to:
 
 1. Choose and pin the supported runtime baseline for both x86_64 and aarch64.
    A pair of Arch-built `.so` files is not a portable Ubuntu release artifact.
 2. Build and bundle the dependency closure required by the chosen toolkit.
    Keep driver libraries supplied by the host; verify GStreamer plugin and
    GtkSourceView/Poppler compatibility rather than copying arbitrary host libraries.
-3. Make runtime selection private to Strata, with no global loader configuration.
+3. Make runtime selection private to yata, with no global loader configuration.
    A launcher's `LD_LIBRARY_PATH` is inherited by children: account for file-open
    commands, D-Bus activation, portal execution, sandbox helper loading, and the
    installer's current single-executable assumptions before choosing that design.

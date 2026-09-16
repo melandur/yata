@@ -3,7 +3,7 @@ set -euo pipefail
 
 fixture="${1:?usage: $0 FIXTURE_DIRECTORY [TIMEOUT_SECONDS]}"
 timeout_seconds="${2:-15}"
-binary="${STRATA_BINARY:-target/debug/strata}"
+binary="${YATA_BINARY:-target/debug/yata}"
 
 if [[ ! -x "$binary" ]]; then
   echo "$binary does not exist; run cargo build first" >&2
@@ -38,7 +38,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-env RUST_LOG=strata=debug "$binary" "$fixture" >"$log" 2>&1 &
+env RUST_LOG=yata=debug "$binary" "$fixture" >"$log" 2>&1 &
 pid=$!
 started=$SECONDS
 

@@ -2,8 +2,8 @@
 
 set -Eeuo pipefail
 
-REPOSITORY="lgse/strata"
-APP_ID="io.github.lgse.Strata"
+REPOSITORY="melandur/yata"
+APP_ID="io.github.melandur.yata"
 MIN_GLIBC="2.39"
 REQUIRED_PACKAGES=(
   bubblewrap desktop-file-utils ffmpeg ffmpegthumbnailer fontconfig gst-libav gstreamer
@@ -73,7 +73,7 @@ show_banner() {
   printf '\n'
   printf '%b%s%b\n' "${colors[0]}" '         ▄▄██▄' "$reset"
   printf '%b%s%b         %bS T R A T A%b\n' "${colors[1]}" '      ▄████▀▀   ▄▄▄' "$reset" "$bold" "$reset"
-  printf '%b%s%b       %s\n' "${colors[2]}" '   ▄████▀      ▀▀███▄' "$reset" 'Navigate every layer.'
+  printf '%b%s%b       %s\n' "${colors[2]}" '   ▄████▀      ▀▀███▄' "$reset" 'Modal, keyboard-first file management.'
   printf '%b%s%b\n' "${colors[3]}" '   ███    ████▄▄   ▀▀' "$reset"
   printf '%b%s%b\n' "${colors[4]}" '   ███▄▄    ▀▀███▄▄' "$reset"
   printf '%b%s%b\n' "${colors[5]}" '    ▀▀███▄▄    ▀▀████' "$reset"
@@ -101,16 +101,16 @@ usage() {
   cat <<'EOF'
 Usage: install.sh [options]
 
-Without options, Strata asks about dependencies and desktop integration.
+Without options, yata asks about dependencies and desktop integration.
 
 Options:
   --non-interactive             Never prompt; install required components only
   --with-smb                    Install SMB network-share support
   --with-raw                    Install broader image and camera RAW support
-  --with-desktop-entry          Add Strata to the desktop application menu
-  --with-folder-association     Make Strata the default folder handler
+  --with-desktop-entry          Add yata to the desktop application menu
+  --with-folder-association     Make yata the default folder handler
   --with-file-manager           Handle "Open file location" requests
-  --with-file-chooser           Use Strata for portal Open and Save dialogs
+  --with-file-chooser           Use yata for portal Open and Save dialogs
   --without-file-chooser        Keep the current chooser; suppress the app offer
   --with-omarchy-keybinds       Replace Omarchy's file-manager keybinds
   -h, --help                    Show this help
@@ -166,7 +166,7 @@ detect_target() {
   case $(uname -m) in
     x86_64 | amd64) printf '%s\n' x86_64-unknown-linux-gnu ;;
     aarch64 | arm64) printf '%s\n' aarch64-unknown-linux-gnu ;;
-    *) die "Strata has no prebuilt release for $(uname -m)." ;;
+    *) die "yata has no prebuilt release for $(uname -m)." ;;
   esac
 }
 
@@ -201,7 +201,7 @@ latest_stable_version() {
   local effective tag
   effective=$(curl -fsSL -o /dev/null -w '%{url_effective}' \
     "https://github.com/$REPOSITORY/releases/latest") \
-    || die "Could not find the latest stable Strata release."
+    || die "Could not find the latest stable yata release."
   tag=${effective##*/}
   [[ $tag =~ ^v([0-9]+[.][0-9]+[.][0-9]+)$ ]] \
     || die "GitHub returned an unexpected stable release tag: $tag"
@@ -260,14 +260,14 @@ install_desktop_entry() {
 
   install -Dm644 "$extracted/$APP_ID.svg" \
     "$icon_dir/scalable/apps/$APP_ID.svg"
-  sed "s|^Exec=strata |Exec=$escaped_bin |" "$extracted/$APP_ID.desktop" >"$staged"
+  sed "s|^Exec=yata |Exec=$escaped_bin |" "$extracted/$APP_ID.desktop" >"$staged"
   install -Dm644 "$staged" "$desktop_dir/$APP_ID.desktop"
 
   command -v update-desktop-database >/dev/null 2>&1 \
     && update-desktop-database "$desktop_dir" 2>/dev/null || true
   command -v gtk-update-icon-cache >/dev/null 2>&1 \
     && gtk-update-icon-cache -qtf "$icon_dir" 2>/dev/null || true
-  info "Added Strata to the desktop application menu."
+  info "Added yata to the desktop application menu."
 
   if [[ $make_default == yes ]]; then
     command -v xdg-mime >/dev/null 2>&1 \
@@ -277,7 +277,7 @@ install_desktop_entry() {
     current=$(xdg-mime query default inode/directory)
     [[ $current == "$APP_ID.desktop" ]] \
       || die "The folder association did not change (current value: $current)."
-    info "Strata is now the default application for folders."
+    info "yata is now the default application for folders."
   fi
 }
 
@@ -297,10 +297,10 @@ install_file_manager_service() {
 
   staged=$TEMP_DIR/$APP_ID.FileManager1.service
   escaped_bin=${BIN_PATH//&/\\&}
-  sed "s|^Exec=/usr/bin/strata |Exec=$escaped_bin |" \
+  sed "s|^Exec=/usr/bin/yata |Exec=$escaped_bin |" \
     "$extracted/$APP_ID.FileManager1.service" >"$staged"
   install -Dm644 "$staged" "$target"
-  info 'Strata now handles "Open file location" requests.'
+  info 'yata now handles "Open file location" requests.'
 }
 
 configure_omarchy_bindings() {
@@ -313,7 +313,7 @@ configure_omarchy_bindings() {
 
   install -d "$(dirname "$bindings")"
   if grep -q 'strata-installer: file-manager start' "$bindings" 2>/dev/null; then
-    info "Omarchy file-manager keybinds already point to Strata."
+    info "Omarchy file-manager keybinds already point to yata."
     return
   fi
 
@@ -364,28 +364,28 @@ EOF
     warn "Hyprland is not running, so the keybind file could not be reloaded now."
   fi
 
-  info "Omarchy $major file-manager shortcuts now open Strata."
+  info "Omarchy $major file-manager shortcuts now open yata."
   [[ -n $backup ]] && printf 'Backup: %s\n' "$backup"
   return 0
 }
 
 configure_file_chooser() {
   local extracted=$1 arch_based=${2:-no}
-  if [[ ! -r $extracted/portal/strata.portal ]]; then
+  if [[ ! -r $extracted/portal/yata.portal ]]; then
     [[ $WITH_FILE_CHOOSER != yes ]] \
       || die "This release does not include file chooser integration. Install a newer release."
     return 0
   fi
   if want_option "$WITH_FILE_CHOOSER" \
-    'Replace your current Open/Save chooser with Strata in portal-aware apps? (Restarts the portal service; close open file dialogs first.)' no; then
+    'Replace your current Open/Save chooser with yata in portal-aware apps? (Restarts the portal service; close open file dialogs first.)' no; then
     if [[ $arch_based == yes ]]; then
       install_optional_arch_packages "File chooser integration" xdg-desktop-portal
     fi
     "$BIN_PATH" --install-portal \
-      || die "File chooser setup failed. Strata is installed; retry in Settings → General → System file chooser."
+      || die "File chooser setup failed. yata is installed; retry in Settings → General → System file chooser."
   elif [[ $NON_INTERACTIVE == no || $WITH_FILE_CHOOSER == no ]]; then
     "$BIN_PATH" --dismiss-portal-prompt \
-      || warn "Could not save your choice. Strata may offer file chooser integration on first launch."
+      || warn "Could not save your choice. yata may offer file chooser integration on first launch."
   fi
 }
 
@@ -394,7 +394,7 @@ main() {
   local local_bin_on_path=no make_default=no arch_based=no
 
   parse_args "$@"
-  [[ $(uname -s) == Linux ]] || die "The prebuilt Strata release supports Linux only."
+  [[ $(uname -s) == Linux ]] || die "The prebuilt yata release supports Linux only."
   [[ $EUID -ne 0 ]] || die "Run this installer as your normal desktop user, not as root."
   if [[ $NON_INTERACTIVE == no ]]; then
     [[ -e /dev/tty && -r /dev/tty && -w /dev/tty ]] \
@@ -407,9 +407,9 @@ main() {
   target=$(detect_target)
   command -v getconf >/dev/null 2>&1 || die "Could not detect the system C library."
   glibc=$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}')
-  [[ $glibc =~ ^[0-9]+[.][0-9]+ ]] || die "Strata requires a glibc-based Linux system."
+  [[ $glibc =~ ^[0-9]+[.][0-9]+ ]] || die "yata requires a glibc-based Linux system."
   version_at_least "$glibc" "$MIN_GLIBC" \
-    || die "Strata requires glibc $MIN_GLIBC or newer (found $glibc)."
+    || die "yata requires glibc $MIN_GLIBC or newer (found $glibc)."
 
   distro_id="unknown"
   distro_like=""
@@ -463,7 +463,7 @@ main() {
   TEMP_DIR=$(mktemp -d)
   trap 'rm -rf -- "$TEMP_DIR"' EXIT
 
-  info "Downloading stable Strata v$version"
+  info "Downloading stable yata v$version"
   curl --fail --location --show-error --progress-bar \
     --output "$TEMP_DIR/$archive" "$url/$archive"
   curl --fail --location --show-error --progress-bar \
@@ -475,11 +475,11 @@ main() {
 
   tar -xzf "$TEMP_DIR/$archive" -C "$TEMP_DIR"
   extracted=$TEMP_DIR/${archive%.tar.gz}
-  [[ -x $extracted/strata ]] || die "The verified archive does not contain the Strata binary."
+  [[ -x $extracted/yata ]] || die "The verified archive does not contain the yata binary."
   [[ -r $extracted/$APP_ID.desktop && -r $extracted/$APP_ID.svg ]] \
     || die "The verified archive is missing desktop integration files."
 
-  BIN_PATH=$HOME/.local/bin/strata
+  BIN_PATH=$HOME/.local/bin/yata
   if [[ -e $BIN_PATH ]]; then
     if [[ $NON_INTERACTIVE == yes ]]; then
       die "$BIN_PATH already exists; remove it or run the interactive installer to replace it."
@@ -487,13 +487,13 @@ main() {
     prompt "Replace the existing $BIN_PATH?" no \
       || die "Installation cancelled without replacing the existing file."
   fi
-  install -Dm755 "$extracted/strata" "$BIN_PATH"
+  install -Dm755 "$extracted/yata" "$BIN_PATH"
   export PATH="$HOME/.local/bin:$PATH"
   info "Installed $BIN_PATH"
 
-  if want_option "$WITH_DESKTOP_ENTRY" "Add Strata to your desktop application menu?" yes; then
+  if want_option "$WITH_DESKTOP_ENTRY" "Add yata to your desktop application menu?" yes; then
     if want_option "$WITH_FOLDER_ASSOCIATION" \
-      "Make Strata the default application for opening folders?"; then
+      "Make yata the default application for opening folders?"; then
       make_default=yes
       WITH_FILE_MANAGER=yes
     fi
@@ -501,30 +501,30 @@ main() {
   fi
 
   if want_option "$WITH_FILE_MANAGER" \
-    'Use Strata for "Open file location" from other applications?'; then
+    'Use yata for "Open file location" from other applications?'; then
     install_file_manager_service "$extracted"
   fi
 
   configure_file_chooser "$extracted" "$arch_based"
 
   if want_option "$WITH_OMARCHY_KEYBINDS" \
-    "Replace Omarchy's Nautilus file-manager keybinds with Strata?"; then
+    "Replace Omarchy's Nautilus file-manager keybinds with yata?"; then
     [[ -n $omarchy_major ]] \
       || die "--with-omarchy-keybinds requires Omarchy 3 or 4."
     configure_omarchy_bindings "$omarchy_major"
   fi
 
   info "Installation complete"
-  printf 'Installed Strata v%s from the stable release.\n' "$version"
+  printf 'Installed yata v%s from the stable release.\n' "$version"
   if [[ -r $extracted/SOURCE_COMMIT ]]; then
     printf 'Source commit: %s\n' "$(<"$extracted/SOURCE_COMMIT")"
   fi
-  printf 'Run Strata with: %s\n' "$BIN_PATH"
+  printf 'Run yata with: %s\n' "$BIN_PATH"
   if [[ $local_bin_on_path == no ]]; then
     warn "$HOME/.local/bin is not on PATH in this shell."
   fi
 }
 
-if [[ ${STRATA_INSTALLER_TESTING:-0} != 1 ]]; then
+if [[ ${YATA_INSTALLER_TESTING:-0} != 1 ]]; then
   main "$@"
 fi

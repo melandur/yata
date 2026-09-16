@@ -75,21 +75,21 @@ jobs:
 
       - name: Check formatting
         env:
-          STRATA_CONTAINER_ENGINE: docker
-          STRATA_QUALITY_IMAGE: ${{ steps.environment.outputs.environment_image }}
+          YATA_CONTAINER_ENGINE: docker
+          YATA_QUALITY_IMAGE: ${{ steps.environment.outputs.environment_image }}
         run: ./scripts/quality.sh fmt
 
       - name: Run Clippy
         env:
-          STRATA_CONTAINER_ENGINE: docker
-          STRATA_QUALITY_IMAGE: ${{ steps.environment.outputs.environment_image }}
+          YATA_CONTAINER_ENGINE: docker
+          YATA_QUALITY_IMAGE: ${{ steps.environment.outputs.environment_image }}
         run: ./scripts/quality.sh clippy
 
       - name: Compile all test targets once and plan two shards
         env:
-          STRATA_CONTAINER_ENGINE: docker
-          STRATA_QUALITY_IMAGE: ${{ steps.environment.outputs.environment_image }}
-          STRATA_QUALITY_TASK: build
+          YATA_CONTAINER_ENGINE: docker
+          YATA_QUALITY_IMAGE: ${{ steps.environment.outputs.environment_image }}
+          YATA_QUALITY_TASK: build
         run: ./scripts/quality.sh test
 
       - name: Share test binaries and inventory
@@ -176,10 +176,10 @@ jobs:
 
       - name: Run assigned tests on a private display and bus without compiling
         env:
-          STRATA_CONTAINER_ENGINE: docker
-          STRATA_QUALITY_IMAGE: ${{ needs.quality-build.outputs.environment_image }}
-          STRATA_QUALITY_TASK: shard
-          STRATA_QUALITY_SHARD: ${{ matrix.shard }}
+          YATA_CONTAINER_ENGINE: docker
+          YATA_QUALITY_IMAGE: ${{ needs.quality-build.outputs.environment_image }}
+          YATA_QUALITY_TASK: shard
+          YATA_QUALITY_SHARD: ${{ matrix.shard }}
         run: ./scripts/quality.sh test
 
       - name: Share quality reports and logs even on failure
@@ -289,7 +289,7 @@ jobs:
           build-args: |
             E2E_UID=${{ steps.identity.outputs.uid }}
             E2E_GID=${{ steps.identity.outputs.gid }}
-            STRATA_BUILD_COMMIT=${{ github.sha }}
+            YATA_BUILD_COMMIT=${{ github.sha }}
             E2E_DEPENDENCIES_IMAGE=${{ steps.registry.outputs.dependencies_image || 'dependencies' }}
           outputs: type=local,dest=target/e2e-bundle
           cache-from: |
@@ -315,7 +315,7 @@ jobs:
             E2E_UID=${{ steps.identity.outputs.uid }}
             E2E_GID=${{ steps.identity.outputs.gid }}
             E2E_RUNTIME_IMAGE=${{ steps.registry.outputs.runtime_image || 'runtime' }}
-          labels: ${{ (steps.registry.outputs.runtime_image == '' || steps.registry.outputs.runtime_image == 'runtime') && format('org.strata.e2e.inputs={0}', steps.identity.outputs.image_key) || '' }}
+          labels: ${{ (steps.registry.outputs.runtime_image == '' || steps.registry.outputs.runtime_image == 'runtime') && format('org.yata.e2e.inputs={0}', steps.identity.outputs.image_key) || '' }}
           tags: strata-e2e:ci-runtime
           outputs: type=docker,dest=target/e2e-runtime/runtime.tar
           cache-from: |
@@ -424,13 +424,13 @@ jobs:
 
       - name: Run the assigned scenarios without rebuilding or installing
         env:
-          STRATA_CONTAINER_ENGINE: docker
-          STRATA_E2E_IMAGE: strata-e2e:ci-runtime
-          STRATA_E2E_BUNDLE: target/e2e-bundle
-          STRATA_E2E_WORKERS: '2'
+          YATA_CONTAINER_ENGINE: docker
+          YATA_E2E_IMAGE: strata-e2e:ci-runtime
+          YATA_E2E_BUNDLE: target/e2e-bundle
+          YATA_E2E_WORKERS: '2'
           SHARD: ${{ matrix.shard }}
         run: |
-          chmod +x target/e2e-bundle/strata
+          chmod +x target/e2e-bundle/yata
           ./scripts/e2e.sh -p no:cacheprovider --timeout=60 \
             --e2e-plan=target/e2e-bundle/plan.json --e2e-shard="$SHARD" \
             --e2e-report="target/e2e-reports/shard-$SHARD.json" \

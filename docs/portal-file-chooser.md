@@ -1,6 +1,6 @@
-# Strata system file chooser
+# yata system file chooser
 
-Strata can serve the XDG Desktop Portal FileChooser interface for portal-aware applications. Native file pickers and applications that do not use the portal are unchanged.
+yata can serve the XDG Desktop Portal FileChooser interface for portal-aware applications. Native file pickers and applications that do not use the portal are unchanged.
 
 The chooser is deliberately limited to local files and folders. It uses the main app's sidebar, Columns/Icons/List views, List type grouping, filters, metadata, previews, and themed controls. Overwrite confirmation uses the same in-window modal as the app.
 
@@ -9,7 +9,7 @@ Wayland applications can provide an exported parent handle. X11 parent handles a
 ### Initial size in split-window layouts
 
 On Hyprland, requests with a Wayland parent and an application ID can use the
-requesting application's window size as an initial sizing hint. Strata queries
+requesting application's window size as an initial sizing hint. yata queries
 Hyprland's local IPC socket before loading the requested directory, and uses the
 hint only when exactly one window's current or initial class matches the app ID
 (case-insensitively). The query is read-only, limited to 100 ms and a 1 MiB reply,
@@ -27,10 +27,10 @@ and the controls' minimum usable size continue to apply.
 
 On native Wayland under Hyprland, floating choosers open at the center of their
 monitor by default, rather than at the center of the calling application. The portal process identifies its
-windows as `io.github.lgse.Strata.FileChooser`, separate from the normal file
-manager's `io.github.lgse.Strata` identity.
+windows as `io.github.melandur.yata.FileChooser`, separate from the normal file
+manager's `io.github.melandur.yata` identity.
 
-Before showing a chooser, Strata registers the named runtime rule
+Before showing a chooser, yata registers the named runtime rule
 `strata-file-chooser-center` through Hyprland's IPC socket. The rule matches only
 the chooser identity and sets `center`; it does not force floating, resize the
 window, or remove its parent/modal relationship. No Hyprland configuration files
@@ -44,14 +44,14 @@ not require identifying the calling application's size.
 
 ## Opt in through the app or installer
 
-On the first normal launch after updating to a version with this feature, Strata
+On the first normal launch after updating to a version with this feature, yata
 asks once whether to replace your Open and Save dialogs. **Nothing changes without
 consent.** “Not now”, Escape, closing the offer, or clicking outside it keeps your
 current chooser. Portal requests themselves never show the offer.
 
-You can always enable Strata later through **Settings → General → System file
+You can always enable yata later through **Settings → General → System file
 chooser → Configure…**. The same control restores your previous chooser when
-Strata is configured. File chooser replacement is separate from making Strata the
+yata is configured. File chooser replacement is separate from making yata the
 default file manager, folder handler, or “Open file location” handler.
 
 The installer asks separately, defaulting to **No**, after placing the binary at
@@ -61,9 +61,9 @@ ask again. For unattended installation, `--with-file-chooser` opts in;
 A plain `--non-interactive` install does neither: the app can still ask on its first
 normal launch. These options require a release containing portal support.
 
-The offer is remembered in `${XDG_CONFIG_HOME:-~/.config}/strata/portal-opt-in-v1`,
+The offer is remembered in `${XDG_CONFIG_HOME:-~/.config}/yata/portal-opt-in-v1`,
 shared by the installer, CLI, and all app windows. Administrators can suppress only
-the offer with `strata --dismiss-portal-prompt`, without changing portal preferences.
+the offer with `yata --dismiss-portal-prompt`, without changing portal preferences.
 
 ## Per-user installation
 
@@ -71,24 +71,24 @@ Ensure `xdg-desktop-portal` is installed. The Arch/Omarchy installer includes it
 when file chooser integration is selected. Close active file dialogs before
 enabling or restoring the chooser: setup restarts the portal frontend.
 
-Install Strata at a stable absolute path, then run:
+Install yata at a stable absolute path, then run:
 
 ```bash
-strata --install-portal
+yata --install-portal
 ```
 
-This installs the portal metadata and D-Bus activation service below `$XDG_DATA_HOME`, makes Strata the preferred FileChooser while retaining the active backends as fallbacks, reloads D-Bus, and restarts the portal frontend. If no user portal configuration exists, Strata copies the active desktop configuration before changing the FileChooser preference. The command records whether that user override was created or modified so it can be removed safely later.
+This installs the portal metadata and D-Bus activation service below `$XDG_DATA_HOME`, makes yata the preferred FileChooser while retaining the active backends as fallbacks, reloads D-Bus, and restarts the portal frontend. If no user portal configuration exists, yata copies the active desktop configuration before changing the FileChooser preference. The command records whether that user override was created or modified so it can be removed safely later.
 
-The generated D-Bus service contains the absolute path of the command being run. Move Strata to its permanent location before installing the portal. For safe activation, every component of the canonical executable path must be owned by the current user or root and must not be writable by other users. D-Bus service-file argument parsing is not shell quoting, so the installer also rejects executable paths containing whitespace, quotes, or backslashes.
+The generated D-Bus service contains the absolute path of the command being run. Move yata to its permanent location before installing the portal. For safe activation, every component of the canonical executable path must be owned by the current user or root and must not be writable by other users. D-Bus service-file argument parsing is not shell quoting, so the installer also rejects executable paths containing whitespace, quotes, or backslashes.
 
 ### Manual installation
 
-The equivalent commands below use the default XDG locations and an existing installation at `~/.local/bin/strata`:
+The equivalent commands below use the default XDG locations and an existing installation at `~/.local/bin/yata`:
 
 ```bash
 data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
 config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
-strata_executable="$(readlink -f "$HOME/.local/bin/strata")"
+strata_executable="$(readlink -f "$HOME/.local/bin/yata")"
 strata_replacement="${strata_executable//\\/\\\\}"
 strata_replacement="${strata_replacement//&/\\&}"
 strata_replacement="${strata_replacement//|/\\|}"
@@ -96,25 +96,25 @@ strata_replacement="${strata_replacement//|/\\|}"
 install -d "$data_home/xdg-desktop-portal/portals" \
   "$data_home/dbus-1/services" \
   "$config_home/xdg-desktop-portal"
-install -m 644 portal/strata.portal \
-  "$data_home/xdg-desktop-portal/portals/strata.portal"
-sed "s|@STRATA_EXECUTABLE@|$strata_replacement|" \
-  portal/org.freedesktop.impl.portal.desktop.strata.service.in \
-  > "$data_home/dbus-1/services/org.freedesktop.impl.portal.desktop.strata.service"
-chmod 644 "$data_home/dbus-1/services/org.freedesktop.impl.portal.desktop.strata.service"
+install -m 644 portal/yata.portal \
+  "$data_home/xdg-desktop-portal/portals/yata.portal"
+sed "s|@YATA_EXECUTABLE@|$strata_replacement|" \
+  portal/org.freedesktop.impl.portal.desktop.yata.service.in \
+  > "$data_home/dbus-1/services/org.freedesktop.impl.portal.desktop.yata.service"
+chmod 644 "$data_home/dbus-1/services/org.freedesktop.impl.portal.desktop.yata.service"
 gdbus call --session \
   --dest org.freedesktop.DBus \
   --object-path /org/freedesktop/DBus \
   --method org.freedesktop.DBus.ReloadConfig
 ```
 
-The generated D-Bus service must contain an absolute `Exec=` path. If that path contains whitespace, quotes, or backslashes, install Strata somewhere else; D-Bus service-file argument parsing is not shell quoting.
+The generated D-Bus service must contain an absolute `Exec=` path. If that path contains whitespace, quotes, or backslashes, install yata somewhere else; D-Bus service-file argument parsing is not shell quoting.
 
-Open `$config_home/xdg-desktop-portal/portals.conf`, preserve its existing `[preferred]` section and settings, and merge Strata into the FileChooser preference:
+Open `$config_home/xdg-desktop-portal/portals.conf`, preserve its existing `[preferred]` section and settings, and merge yata into the FileChooser preference:
 
 ```ini
 [preferred]
-org.freedesktop.impl.portal.FileChooser=strata;<existing-backend>;
+org.freedesktop.impl.portal.FileChooser=yata;<existing-backend>;
 ```
 
 Replace `<existing-backend>` with the backend already configured for the desktop, such as `gtk` or `gnome`. Do not install the placeholder literally and do not replace unrelated portal preferences. The archive's `portal/portals.conf` is an example, not a complete desktop configuration.
@@ -158,7 +158,7 @@ On a desktop that does not manage the frontend as a systemd user unit, log out a
   before cancelling the request. Confirmation dialogs initially focus Cancel.
 
 The X11 keyboard and context-menu regression tests require `xdotool` (or
-`STRATA_TEST_XDOTOOL`) and isolated XDG directories. Run each alone under a test display:
+`YATA_TEST_XDOTOOL`) and isolated XDG directories. Run each alone under a test display:
 
 ```bash
 cargo test keyboard_only_controls_and_file_navigation_work_in_every_chooser_view -- --ignored
@@ -167,14 +167,14 @@ cargo test chooser_context_menus_and_rename_work_in_every_view -- --ignored
 
 ## Verification
 
-Confirm that D-Bus can activate Strata and that it advertises FileChooser version 4:
+Confirm that D-Bus can activate yata and that it advertises FileChooser version 4:
 
 ```bash
 gdbus introspect --session \
-  --dest org.freedesktop.impl.portal.desktop.strata \
+  --dest org.freedesktop.impl.portal.desktop.yata \
   --object-path /org/freedesktop/portal/desktop
 gdbus call --session \
-  --dest org.freedesktop.impl.portal.desktop.strata \
+  --dest org.freedesktop.impl.portal.desktop.yata \
   --object-path /org/freedesktop/portal/desktop \
   --method org.freedesktop.DBus.Properties.Get \
   org.freedesktop.impl.portal.FileChooser version
@@ -182,7 +182,7 @@ gdbus call --session \
 
 The second command should report `uint32 4`. Then open or save a file from a portal-aware application. Only local locations appear in this initial picker; entering a remote URI shows an unsupported-location error.
 
-Portal backend selection happens before a request is sent. Keeping the existing backend after `strata;` lets the frontend choose it when Strata's `.portal` metadata is absent. It does not provide live failover if an already-selected Strata backend crashes during a request.
+Portal backend selection happens before a request is sent. Keeping the existing backend after `yata;` lets the frontend choose it when yata's `.portal` metadata is absent. It does not provide live failover if an already-selected yata backend crashes during a request.
 
 ## Local test tools
 
@@ -198,21 +198,21 @@ CHOOSER_ARGS="--choices --theme classic-light" mise run chooser-dev
 
 This task disables accessibility integration only for the test session, whose private bus does not provide a working accessibility registry. `mise run dev` still launches the normal app.
 
-You can also build Strata and run the dedicated client directly:
+You can also build yata and run the dedicated client directly:
 
 ```bash
 cargo build
-python3 scripts/portal-test.py single --binary target/debug/strata
-python3 scripts/portal-test.py multiple --binary target/debug/strata --view list --group-by-type
-python3 scripts/portal-test.py directory --binary target/debug/strata --view columns
-python3 scripts/portal-test.py filters --binary target/debug/strata
-python3 scripts/portal-test.py save --binary target/debug/strata --choices
-python3 scripts/portal-test.py savefiles --binary target/debug/strata --choices
+python3 scripts/portal-test.py single --binary target/debug/yata
+python3 scripts/portal-test.py multiple --binary target/debug/yata --view list --group-by-type
+python3 scripts/portal-test.py directory --binary target/debug/yata --view columns
+python3 scripts/portal-test.py filters --binary target/debug/yata
+python3 scripts/portal-test.py save --binary target/debug/yata --choices
+python3 scripts/portal-test.py savefiles --binary target/debug/yata --choices
 ```
 
 `--binary` starts a private session bus and backend with disposable settings, cache, and sample files. It disables accessibility integration for that isolated backend so it cannot replace the desktop's accessibility bus. It never installs portal metadata, changes your preferences, or restarts your desktop services. Closing the chooser prints the actual D-Bus response (`0` for success, `1` for cancellation) and cleans up the private backend. The client returns destinations but does not write to them.
 
-Use `--folder /absolute/path` for your own files, `--theme classic-light` for a light theme, or `--cancel-after 1` to exercise `Request.Close`. Omit `--binary` to call an already-running Strata backend on your session bus. This client tests the backend directly, not portal frontend routing.
+Use `--folder /absolute/path` for your own files, `--theme classic-light` for a light theme, or `--cancel-after 1` to exercise `Request.Close`. Omit `--binary` to call an already-running yata backend on your session bus. This client tests the backend directly, not portal frontend routing.
 
 Check these interactions:
 
@@ -231,7 +231,7 @@ The five-case page from the original PR is checked in at [`scripts/portal-test.h
 python3 -m http.server 8765 --bind 127.0.0.1 --directory scripts
 ```
 
-Open `http://localhost:8765/portal-test.html` in a portal-aware Chromium browser **after enabling Strata as the preferred FileChooser**. It exercises single open, multiple open, directory selection, image/text filters, and saving `strata-portal-demo.txt`. The SaveFile button explicitly writes a short test file to the destination you choose. Each row reports success, cancellation, or an error; the page shows the returned filenames.
+Open `http://localhost:8765/portal-test.html` in a portal-aware Chromium browser **after enabling yata as the preferred FileChooser**. It exercises single open, multiple open, directory selection, image/text filters, and saving `strata-portal-demo.txt`. The SaveFile button explicitly writes a short test file to the destination you choose. Each row reports success, cancellation, or an error; the page shows the returned filenames.
 
 The browser must expose the File System Access API, and its Linux file picker must use the portal. If a different chooser appears, check browser portal support and the configured frontend backend preference. Browsers do not expose the portal's `SaveFiles` or application-defined choices; use the dedicated client for those cases.
 
@@ -240,30 +240,30 @@ The browser must expose the File System Access API, and its Linux file picker mu
 Run the matching per-user command:
 
 ```bash
-strata --uninstall-portal
+yata --uninstall-portal
 ```
 
-It removes Strata's metadata and activation service and restores the previous user portal configuration. If the configuration changed after installation, it preserves those changes and removes only Strata from the FileChooser preference. It then reloads D-Bus and restarts the portal frontend. If the frontend cannot be restarted automatically, log out and back in.
+It removes yata's metadata and activation service and restores the previous user portal configuration. If the configuration changed after installation, it preserves those changes and removes only yata from the FileChooser preference. It then reloads D-Bus and restarts the portal frontend. If the frontend cannot be restarted automatically, log out and back in.
 
-For a complete Strata uninstall, also remove the application binary and desktop entry as described in the main installation guide.
+For a complete yata uninstall, also remove the application binary and desktop entry as described in the main installation guide.
 
 ### Manual uninstall
 
-Remove the Strata metadata and activation service:
+Remove the yata metadata and activation service:
 
 ```bash
 data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
-rm -f "$data_home/xdg-desktop-portal/portals/strata.portal" \
-  "$data_home/dbus-1/services/org.freedesktop.impl.portal.desktop.strata.service" \
-  "$data_home/strata/portal-install/state.toml"
-rmdir "$data_home/strata/portal-install" 2>/dev/null || true
+rm -f "$data_home/xdg-desktop-portal/portals/yata.portal" \
+  "$data_home/dbus-1/services/org.freedesktop.impl.portal.desktop.yata.service" \
+  "$data_home/yata/portal-install/state.toml"
+rmdir "$data_home/yata/portal-install" 2>/dev/null || true
 gdbus call --session \
   --dest org.freedesktop.DBus \
   --object-path /org/freedesktop/DBus \
   --method org.freedesktop.DBus.ReloadConfig
 ```
 
-Edit `${XDG_CONFIG_HOME:-$HOME/.config}/xdg-desktop-portal/portals.conf`, remove `strata;` from the FileChooser preference while retaining the previous backend, then restart the portal:
+Edit `${XDG_CONFIG_HOME:-$HOME/.config}/xdg-desktop-portal/portals.conf`, remove `yata;` from the FileChooser preference while retaining the previous backend, then restart the portal:
 
 ```bash
 systemctl --user restart xdg-desktop-portal.service

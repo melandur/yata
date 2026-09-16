@@ -425,7 +425,7 @@ fn mount_error_is_authentication_failure(location: &Location, error: &glib::Erro
 /// A user-initiated cancel (the GTK credential dialog's Cancel button, or a
 /// backend that already reported the failure to the operation itself) should
 /// quietly return to the prior state rather than surface an alarming error,
-/// per lgse/strata#20's "cancelling authentication returns to the prior
+/// per melandur/yata#20's "cancelling authentication returns to the prior
 /// committed location" requirement.
 fn mount_failure_message(location: &Location, error: &glib::Error) -> Option<String> {
     if mount_error_is_cancelled(error) {
@@ -1743,7 +1743,7 @@ impl ViewState {
         // A native gtk::MountOperation (rather than a bare gio::MountOperation)
         // is required so GTK's own "ask-question" dialog handles host-key and
         // certificate trust decisions for us; we only override "ask-password"
-        // below with Strata's own dialog, stopping that one signal's default
+        // below with yata's own dialog, stopping that one signal's default
         // handler so the two don't both try to reply.
         let operation = gtk::MountOperation::new(Some(&window));
         let prompt_overlay = self.overlay.clone();

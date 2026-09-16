@@ -174,13 +174,13 @@ class BundleTests(unittest.TestCase):
             requirements.write_text("pytest==9.1.1\n")
             bundle = root / "bundle"
             bundle.mkdir()
-            (bundle / "strata").write_bytes(b"binary")
+            (bundle / "yata").write_bytes(b"binary")
             (bundle / "plan.json").write_text("{}")
             create(bundle, "revision", root)
             verify(bundle, "revision", root)
             with self.assertRaisesRegex(ValueError, "revision"):
                 verify(bundle, "another", root)
-            for name in ("strata", "plan.json"):
+            for name in ("yata", "plan.json"):
                 original = (bundle / name).read_bytes()
                 (bundle / name).write_bytes(b"changed")
                 with self.assertRaisesRegex(ValueError, "checksum"):
@@ -270,7 +270,7 @@ class TimingTests(unittest.TestCase):
         batches = [{"jobs": [{"name": f"job-{index}"} for index in range(100)]},
                    {"jobs": [{"name": "last"}]}]
         responses = [io.BytesIO(json.dumps(batch).encode()) for batch in batches]
-        with patch.dict("os.environ", {"GITHUB_REPOSITORY": "example/strata", "GITHUB_RUN_ID": "123",
+        with patch.dict("os.environ", {"GITHUB_REPOSITORY": "example/yata", "GITHUB_RUN_ID": "123",
                                        "GITHUB_RUN_ATTEMPT": "2", "GH_TOKEN": "test-only",
                                        "GITHUB_API_URL": "https://api.github.com"}), \
              patch("e2e_ci.urlopen", side_effect=responses) as request:

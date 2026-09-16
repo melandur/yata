@@ -37,55 +37,55 @@ def fixture_tree():
         fixture.cleanup()
 
 
-def viewport(strata, directory=None):
-    for node in strata.entry_container(directory).ancestors():
+def viewport(yata, directory=None):
+    for node in yata.entry_container(directory).ancestors():
         if node.role == "scroll pane":
             return node.screen_bounds()
     raise AssertionError("listing has no scroll viewport")
 
 
-def open_panel(strata, panel):
+def open_panel(yata, panel):
     if panel == "sort":
-        strata.pointer.click(strata.header_button("Choose sort field"))
+        yata.pointer.click(yata.header_button("Choose sort field"))
         label = "Folders first"
     elif panel == "appearance":
-        strata.open_appearance_menu()
+        yata.open_appearance_menu()
         label = "Compact"
     else:
-        strata.pointer.click(strata.header_button("Thumbnail size"))
+        yata.pointer.click(yata.header_button("Thumbnail size"))
         label = "Small"
     role = "label" if panel == "thumbnail" else "button"
-    return strata.wait(
-        lambda: strata.window.find(role=role, name=label),
+    return yata.wait(
+        lambda: yata.window.find(role=role, name=label),
         f"the {panel} panel to open",
     )
 
 
 @pytest.mark.parametrize("mode,panel", PANELS)
 @pytest.mark.parametrize("target", ["listing", "sidebar", "inside"])
-def test_panel_wheel_routing(strata, mode, panel, target):
-    row = strata.entry("005.txt")
-    strata.settle(row)
+def test_panel_wheel_routing(yata, mode, panel, target):
+    row = yata.entry("005.txt")
+    yata.settle(row)
     before = row.screen_bounds()
-    bounds = viewport(strata)
-    option = open_panel(strata, panel)
+    bounds = viewport(yata)
+    option = open_panel(yata, panel)
     if target == "listing":
         point = (bounds.center[0], bounds.y + bounds.height * 4 // 5)
     elif target == "sidebar":
-        point = strata.sidebar_button("Home").screen_bounds().center
+        point = yata.sidebar_button("Home").screen_bounds().center
     else:
         point = option.screen_bounds().center
-    strata.pointer.scroll(at=point, clicks=1)
+    yata.pointer.scroll(at=point, clicks=1)
     if target == "inside":
-        assert strata.window.find(role=option.role, name=option.name) is not None
+        assert yata.window.find(role=option.role, name=option.name) is not None
         assert row.screen_bounds() == before
     else:
-        strata.wait(
-            lambda: strata.window.find(role=option.role, name=option.name) is None,
+        yata.wait(
+            lambda: yata.window.find(role=option.role, name=option.name) is None,
             "outside wheel to close the panel",
         )
         if target == "listing":
-            strata.wait(
+            yata.wait(
                 lambda: row.screen_bounds().y < before.y,
                 "the same wheel tick to move the listing",
             )
@@ -94,31 +94,31 @@ def test_panel_wheel_routing(strata, mode, panel, target):
 
 
 @pytest.mark.parametrize("pointed_column", ["parent", "child"])
-def test_outside_wheel_only_moves_the_column_under_the_pointer(strata, pointed_column):
-    root = strata.fixture.root.name
-    strata.open_directory("nested")
-    parent_row = strata.entry("005.txt", directory=root)
-    child_row = strata.entry("005.txt", directory="nested")
-    strata.settle(parent_row)
-    strata.settle(child_row)
+def test_outside_wheel_only_moves_the_column_under_the_pointer(yata, pointed_column):
+    root = yata.fixture.root.name
+    yata.open_directory("nested")
+    parent_row = yata.entry("005.txt", directory=root)
+    child_row = yata.entry("005.txt", directory="nested")
+    yata.settle(parent_row)
+    yata.settle(child_row)
     parent_before = parent_row.screen_bounds()
     child_before = child_row.screen_bounds()
-    option = open_panel(strata, "appearance")
-    bounds = viewport(strata, root if pointed_column == "parent" else "nested")
-    strata.pointer.scroll(
+    option = open_panel(yata, "appearance")
+    bounds = viewport(yata, root if pointed_column == "parent" else "nested")
+    yata.pointer.scroll(
         at=(bounds.center[0], bounds.y + bounds.height * 4 // 5), clicks=1
     )
-    strata.wait(
-        lambda: strata.window.find(role=option.role, name=option.name) is None,
+    yata.wait(
+        lambda: yata.window.find(role=option.role, name=option.name) is None,
         "outside wheel to close the panel",
     )
     if pointed_column == "parent":
-        strata.wait(
+        yata.wait(
             lambda: parent_row.screen_bounds().y < parent_before.y, "parent to scroll"
         )
         assert child_row.screen_bounds() == child_before
     else:
-        strata.wait(
+        yata.wait(
             lambda: child_row.screen_bounds().y < child_before.y, "child to scroll"
         )
         assert parent_row.screen_bounds() == parent_before

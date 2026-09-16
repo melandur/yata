@@ -1,30 +1,30 @@
 use std::{env, path::PathBuf, process::Command};
 
 fn main() {
-    glib_build_tools::compile_resources(&["data"], "data/strata.gresource.xml", "strata.gresource");
+    glib_build_tools::compile_resources(&["data"], "data/yata.gresource.xml", "yata.gresource");
 
-    println!("cargo::rerun-if-env-changed=STRATA_BUILD_COMMIT");
+    println!("cargo::rerun-if-env-changed=YATA_BUILD_COMMIT");
     track_git_metadata();
 
-    let commit = env::var("STRATA_BUILD_COMMIT")
+    let commit = env::var("YATA_BUILD_COMMIT")
         .ok()
         .and_then(|value| value.lines().next().map(str::trim).map(str::to_owned))
         .filter(|value| !value.is_empty())
         .or_else(git_commit)
         .unwrap_or_else(|| "unknown".to_owned());
-    println!("cargo::rustc-env=STRATA_BUILD_COMMIT={commit}");
+    println!("cargo::rustc-env=YATA_BUILD_COMMIT={commit}");
 
-    println!("cargo::rerun-if-env-changed=STRATA_RELEASE_TAG");
-    println!("cargo::rerun-if-env-changed=STRATA_BUILD_KIND");
+    println!("cargo::rerun-if-env-changed=YATA_RELEASE_TAG");
+    println!("cargo::rerun-if-env-changed=YATA_BUILD_KIND");
 
-    let release_tag = env::var("STRATA_RELEASE_TAG")
+    let release_tag = env::var("YATA_RELEASE_TAG")
         .ok()
         .and_then(|value| value.lines().next().map(str::trim).map(str::to_owned))
         .filter(|value| !value.is_empty())
         .unwrap_or_else(|| format!("v{}", env!("CARGO_PKG_VERSION")));
-    println!("cargo::rustc-env=STRATA_RELEASE_TAG={release_tag}");
+    println!("cargo::rustc-env=YATA_RELEASE_TAG={release_tag}");
 
-    let build_kind = env::var("STRATA_BUILD_KIND")
+    let build_kind = env::var("YATA_BUILD_KIND")
         .ok()
         .and_then(|value| value.lines().next().map(str::trim).map(str::to_owned))
         .filter(|value| {
@@ -34,7 +34,7 @@ fn main() {
             )
         })
         .unwrap_or_else(|| "stable".to_owned());
-    println!("cargo::rustc-env=STRATA_BUILD_KIND={build_kind}");
+    println!("cargo::rustc-env=YATA_BUILD_KIND={build_kind}");
 }
 
 fn git_commit() -> Option<String> {

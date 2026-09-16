@@ -59,7 +59,7 @@ class HeadlessRunnerTests(unittest.TestCase):
         self.assertEqual(environment["HOME"], "/private/home")
         self.assertNotIn("WAYLAND_DISPLAY", environment)
         self.assertNotIn("GTK_MODULES", environment)
-        self.assertEqual(environment["STRATA_REQUIRE_GTK_TESTS"], "1")
+        self.assertEqual(environment["YATA_REQUIRE_GTK_TESTS"], "1")
         self.assertEqual(environment["GTK_A11Y"], "none")
         self.assertEqual(environment["NO_AT_BRIDGE"], "1")
         terminate.assert_called_once_with(child)

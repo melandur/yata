@@ -152,7 +152,7 @@ fn cross_volume_prompt_only_claims_another_device_when_the_lookup_resolved() {
     );
     assert_eq!(
         cross_volume_drop_description(VolumeRelation::Unknown),
-        "Strata could not determine whether the destination is on the same device."
+        "yata could not determine whether the destination is on the same device."
     );
 }
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Strata File Chooser</title>
+<title>yata File Chooser</title>
 <style>
   :root { color-scheme: dark; --bg: #101316; --surface: #1c2126; --border: #343b44; --text: #e6e9ef; --muted: #a3abb8; --accent: #82aaff; --success: #a6d5a1; }
   * { box-sizing: border-box; }
@@ -23,11 +23,11 @@
   @media (max-width: 620px) { article { grid-template-columns: 1fr; } output { max-width: none; } }
 </style>
 <main>
-  <h1>Strata File Chooser</h1>
+  <h1>yata File Chooser</h1>
   <p>XDG FileChooser v4 portal test page</p>
   <div id="tests"></div>
   <p>Chromium exposes OpenFile and SaveFile. SaveFiles requires the dedicated portal client.<br>
-  Serve this page on localhost and use a portal-aware Chromium build with Strata configured as its FileChooser backend.</p>
+  Serve this page on localhost and use a portal-aware Chromium build with yata configured as its FileChooser backend.</p>
   <pre id="result" aria-live="polite"></pre>
 </main>
 <script>
@@ -43,7 +43,7 @@
     ['Save demo file', 'SaveFile', 'Tests a suggested name, filter, writing, and overwrite confirmation.', async () => {
       const file = await showSaveFilePicker({suggestedName: 'strata-portal-demo.txt', types: [types[1]]});
       const stream = await file.createWritable();
-      await stream.write('Strata FileChooser portal test\n');
+      await stream.write('yata FileChooser portal test\n');
       await stream.close();
       return [`Wrote ${file.name}`];
     }]

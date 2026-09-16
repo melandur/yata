@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: MIT
 set -eu
 
-root=${STRATA_E2E_APT_ROOT:-}
+root=${YATA_E2E_APT_ROOT:-}
 sources="$root/etc/apt/sources.list"
 lists="$root/var/lib/apt/lists"
-snapshot=${STRATA_E2E_SNAPSHOT_URL:?the dated snapshot URL is required}
+snapshot=${YATA_E2E_SNAPSHOT_URL:?the dated snapshot URL is required}
 mirror=https://archive.ubuntu.com/ubuntu
 prefix=$(printf '%s' "${snapshot#*://}" | tr / _)
 mirror_prefix=archive.ubuntu.com_ubuntu

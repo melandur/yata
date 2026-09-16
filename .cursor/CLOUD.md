@@ -1,7 +1,7 @@
 # Cursor Cloud Agent: running tests
 
 This is the machine-specific runbook for the Cursor Cloud Agent
-environment used with `lgse/strata`. It records commands that were
+environment used with `melandur/yata`. It records commands that were
 verified on this VM. Product rules in `AGENTS.md` still apply; this
 file only explains how to satisfy them here.
 
@@ -68,7 +68,7 @@ cargo fmt --all --check
 cargo clippy --all-targets --all-features -- -D warnings
 
 xvfb-run -a env -u WAYLAND_DISPLAY GDK_BACKEND=x11 \
-  GTK_A11Y=none NO_AT_BRIDGE=1 STRATA_REQUIRE_GTK_TESTS=1 \
+  GTK_A11Y=none NO_AT_BRIDGE=1 YATA_REQUIRE_GTK_TESTS=1 \
   cargo test --all-targets --all-features
 ```
 
@@ -109,7 +109,7 @@ EOF
 chmod +x /tmp/docker-hostnet/docker
 
 export PATH="/tmp/docker-hostnet:$PATH"
-export STRATA_E2E_WORKERS="${STRATA_E2E_WORKERS:-auto}"
+export YATA_E2E_WORKERS="${YATA_E2E_WORKERS:-auto}"
 
 ./scripts/e2e.sh
 ```
@@ -118,7 +118,7 @@ The auto worker budget on this 4-CPU / 15 GiB machine is 2, the same
 as the CI runner. Override only when debugging:
 
 ```bash
-STRATA_E2E_WORKERS=1 PATH="/tmp/docker-hostnet:$PATH" ./scripts/e2e.sh -n 0
+YATA_E2E_WORKERS=1 PATH="/tmp/docker-hostnet:$PATH" ./scripts/e2e.sh -n 0
 ```
 
 First image build installs GTK, Xvfb, and Rust 1.98.1 from the pinned
@@ -133,7 +133,7 @@ Native debugging (`./scripts/e2e-native.sh`) can use the preinstalled
 
 - Do not run `cargo test` or E2E with `DISPLAY=:1` (the Cloud Agent
   desktop). That maps real windows onto the VNC session.
-- Do not set `STRATA_CONTAINER_ENGINE=podman`; Podman is not installed.
+- Do not set `YATA_CONTAINER_ENGINE=podman`; Podman is not installed.
 - Do not fall back to Broadway or the host Wayland/X11 display if Xvfb
   fails. Fix Xvfb instead.
 - Do not change `/etc/docker/daemon.json` to enable `bridge` or
@@ -144,7 +144,7 @@ Native debugging (`./scripts/e2e-native.sh`) can use the preinstalled
 
 ## Verified on this snapshot
 
-Ran on 2026-09-07 against `origin/main` at `ab0cdc8` (Strata 0.12.0)
+Ran on 2026-09-07 against `origin/main` at `ab0cdc8` (yata 0.12.0)
 inside Cloud Agent run `bc-e9e926b7-3910-4572-ac73-35846d9c7804`.
 
 | Check | Result |
@@ -156,7 +156,7 @@ inside Cloud Agent run `bc-e9e926b7-3910-4572-ac73-35846d9c7804`.
 
 The ignored Rust tests are expected on this VM: they require GVfs Trash,
 `dbus-run-session`, `xdotool`, or “run this test alone” mapped-window
-fixtures. `STRATA_REQUIRE_GTK_TESTS=1` still executed the GTK cases that
+fixtures. `YATA_REQUIRE_GTK_TESTS=1` still executed the GTK cases that
 can share the private Xvfb display.
 
 E2E container banner from this run:
@@ -168,7 +168,7 @@ E2E resources: 4 CPUs, 13.8 GiB available; 2 workers
 ```
 
 Cold E2E image build (apt snapshot packages, rustup 1.98.1, Python venv)
-is the long pole; the in-container `cargo build --locked --bin strata`
+is the long pole; the in-container `cargo build --locked --bin yata`
 then took 54.55s. Later runs reuse `target/e2e-container`.
 
 Harmless noise seen here:

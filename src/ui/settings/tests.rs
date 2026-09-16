@@ -52,7 +52,7 @@ fn available_release() -> UpdateCheck {
     UpdateCheck::Available {
         release: ReleaseMetadata {
             version: "0.8.0".to_owned(),
-            url: "https://github.com/lgse/strata/releases/tag/v0.8.0".to_owned(),
+            url: "https://github.com/melandur/yata/releases/tag/v0.8.0".to_owned(),
             notes: String::new(),
             note_blocks: Vec::new(),
             kind: BuildKind::Stable,
@@ -60,7 +60,7 @@ fn available_release() -> UpdateCheck {
             published_at: None,
             commit: None,
         },
-        download_url: "https://example.invalid/strata.tar.gz".to_owned(),
+        download_url: "https://example.invalid/yata.tar.gz".to_owned(),
     }
 }
 
@@ -130,7 +130,7 @@ fn a_packaged_install_is_told_how_to_update_through_its_package_manager() {
     let message = update_check_message(&result, UpdateMethod::Aur);
     let markup = update_status_markup(message, &result, &packaged());
 
-    assert!(markup.ends_with("\nUpdate Strata with: yay -Syu strata-bin"));
+    assert!(markup.ends_with("\nUpdate yata with: yay -Syu strata-bin"));
 }
 
 #[test]
@@ -163,7 +163,7 @@ fn the_managed_row_names_the_package_channel_and_commands() {
         managed_install_summary(managed),
         "Installed by pacman as strata-bin.\n\
          Tracking the stable release channel.\n\
-         Update Strata with: yay -Syu strata-bin\n\
+         Update yata with: yay -Syu strata-bin\n\
          Other release channels are published as strata-rc-bin."
     );
 }
@@ -195,7 +195,7 @@ fn the_update_dialog_defers_to_the_package_manager() {
 
     assert_eq!(
         update_dialog_status(managed),
-        "Installed by pacman as strata-bin. Update Strata with: yay -Syu strata-bin"
+        "Installed by pacman as strata-bin. Update yata with: yay -Syu strata-bin"
     );
 }
 
@@ -441,7 +441,7 @@ fn due_failed_or_up_to_date_does_not_clear_existing_notice() {
                     UpdateCheck::Available { release, .. } => release,
                     _ => unreachable!(),
                 },
-                "https://example.invalid/strata.tar.gz".to_owned(),
+                "https://example.invalid/yata.tar.gz".to_owned(),
                 UpdateMethod::InPlace,
             )));
             assert_eq!(*notices.borrow(), vec![true]);

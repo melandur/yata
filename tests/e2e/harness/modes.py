@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-# `Strata.view_mode()` reports these names; the stored preference uses the
+# `yata.view_mode()` reports these names; the stored preference uses the
 # lower-case form.
 ALL_MODES = [
     pytest.param(

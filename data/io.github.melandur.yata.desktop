@@ -1,13 +1,13 @@
 [Desktop Entry]
 Type=Application
-Name=Strata
+Name=yata
 GenericName=File Manager
-Comment=Navigate every layer
-Exec=strata %U
-Icon=io.github.lgse.Strata
+Comment=Modal, keyboard-first file management
+Exec=yata %U
+Icon=io.github.melandur.yata
 Terminal=false
 Categories=Utility;FileTools;FileManager;
 MimeType=inode/directory;
 Keywords=files;folders;browser;explorer;manager;
 StartupNotify=true
-StartupWMClass=io.github.lgse.Strata
+StartupWMClass=io.github.melandur.yata

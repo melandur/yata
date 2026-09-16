@@ -66,7 +66,7 @@ fn svg_body_preserves_bundled_icon_geometry() {
 
 #[test]
 fn folder_emoji_renders_at_high_resolution() {
-    gio::resources_register_include!("strata.gresource").expect("resources register");
+    gio::resources_register_include!("yata.gresource").expect("resources register");
     let texture = folder_decoration_texture("emoji:🚀", "#e5484d").expect("emoji renders");
     assert!(texture.width() > 0);
     assert!(texture.height() > 0);
@@ -97,7 +97,7 @@ fn cold_interface_icons_render_when_decoder_workers_cannot_start() {
             .expect("disable new decoder workers in this isolated process");
             super::ICON_TEXTURES.with(|cache| cache.borrow_mut().clear());
             let names = gio::resources_enumerate_children(
-                "/io/github/lgse/Strata/icons/scalable/actions/",
+                "/io/github/melandur/yata/icons/scalable/actions/",
                 gio::ResourceLookupFlags::NONE,
             )
             .expect("bundled icon resources");
@@ -141,7 +141,7 @@ fn cold_interface_icons_render_when_decoder_workers_cannot_start() {
 
 #[test]
 fn primary_icons_rasterize_at_high_resolution() {
-    gio::resources_register_include!("strata.gresource").expect("resources register");
+    gio::resources_register_include!("yata.gresource").expect("resources register");
     let texture = primary_icon_texture(icons::DOCUMENTS, "#8bc9eb").expect("icon renders");
     assert!(texture.width() > 0);
     assert!(texture.height() > 0);
@@ -151,7 +151,7 @@ fn primary_icons_rasterize_at_high_resolution() {
 fn chrome_icon_textures_are_twice_the_toolbar_size() {
     assert_eq!(texture_px_for_pixel_size(-1), 96);
     assert_eq!(texture_px_for_pixel_size(i32::MAX), 768);
-    gio::resources_register_include!("strata.gresource").expect("resources register");
+    gio::resources_register_include!("yata.gresource").expect("resources register");
     let texture = primary_icon_texture_at(icons::SEARCH, "#8bc9eb", 32).expect("icon renders");
     assert_eq!(texture.width(), 32);
     assert_eq!(texture.height(), 32);

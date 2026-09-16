@@ -89,8 +89,8 @@ jobs:
             package=$1 channel=$2
             shift 2
             archive=$(echo packaging/aur/"$package"/*.pkg.tar.zst)
-            bsdtar -tf "$archive" | grep -qx 'usr/bin/strata'
-            marker=$(bsdtar -xOf "$archive" usr/share/strata/install-source.toml)
+            bsdtar -tf "$archive" | grep -qx 'usr/bin/yata'
+            marker=$(bsdtar -xOf "$archive" usr/share/yata/install-source.toml)
             printf '%s\n' "$marker" | grep -qx "package = \"$package\""
             printf '%s\n' "$marker" | grep -qx "channel = \"$channel\""
             if printf '%s\n' "$marker" | grep -q '^update_command'; then
@@ -102,8 +102,8 @@ jobs:
       - name: Confirm packaging does not modify the published binary
         run: |
           archive=$(echo packaging/aur/strata-bin/*.pkg.tar.zst)
-          packaged=$(bsdtar -xOf "$archive" usr/bin/strata | sha256sum | cut -d' ' -f1)
-          upstream=$(tar -xOzf packaging/aur/strata-bin/strata-*.tar.gz --wildcards '*/strata' | sha256sum | cut -d' ' -f1)
+          packaged=$(bsdtar -xOf "$archive" usr/bin/yata | sha256sum | cut -d' ' -f1)
+          upstream=$(tar -xOzf packaging/aur/strata-bin/strata-*.tar.gz --wildcards '*/yata' | sha256sum | cut -d' ' -f1)
           if [[ "$packaged" != "$upstream" ]]; then
             echo "The packaged binary differs from the published release artifact, which breaks provenance verification." >&2
             exit 1

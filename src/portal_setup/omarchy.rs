@@ -69,7 +69,7 @@ fn installed_bindings(original: &str, major: u8, executable: &Path) -> Result<St
             .all(|byte| byte.is_ascii_alphanumeric() || b"/._-".contains(&byte))
     {
         return Err(
-            "The Strata executable path contains characters unsupported by keyboard shortcuts."
+            "The yata executable path contains characters unsupported by keyboard shortcuts."
                 .into(),
         );
     }
@@ -115,7 +115,7 @@ pub(super) fn restore(context: &SetupContext) -> Result<(), String> {
     };
     if detected_nautilus().is_none() {
         return Err(
-            "Nautilus was not detected; the Strata keyboard shortcuts were left unchanged.".into(),
+            "Nautilus was not detected; the yata keyboard shortcuts were left unchanged.".into(),
         );
     }
     replace_bindings(&path, &original, &updated, reload)
@@ -156,14 +156,14 @@ fn restored_bindings(original: &str, major: u8) -> Result<Option<String>, String
         return Ok(None);
     }
     if original.matches(&start).count() != 1 || original.matches(&end).count() != 1 {
-        return Err("The Strata keyboard shortcut block is ambiguous; restore it manually.".into());
+        return Err("The yata keyboard shortcut block is ambiguous; restore it manually.".into());
     }
     let start_index = original
         .find(&start)
         .ok_or("Missing shortcut block start")?;
     let end_index = original.find(&end).ok_or("Missing shortcut block end")?;
     if end_index < start_index {
-        return Err("The Strata keyboard shortcut block is malformed; restore it manually.".into());
+        return Err("The yata keyboard shortcut block is malformed; restore it manually.".into());
     }
     let block = &original[start_index + start.len()..end_index];
     let lines: Vec<_> = block
@@ -176,22 +176,22 @@ fn restored_bindings(original: &str, major: u8) -> Result<Option<String>, String
             && lines[0] == "hl.unbind(\"SUPER + SHIFT + F\")"
             && lines[1] == "hl.unbind(\"SUPER + ALT + SHIFT + F\")"
             && lines[2].starts_with("o.bind(\"SUPER + SHIFT + F\", \"File manager\", { launch = \"")
-            && lines[2].ends_with("strata\" })")
+            && lines[2].ends_with("yata\" })")
             && lines[3] == "o.bind(\"SUPER + ALT + SHIFT + F\", \"File manager (cwd)\","
             && lines[4].starts_with("\"uwsm-app -- ")
-            && lines[4].ends_with("strata \\\"$(omarchy-cmd-terminal-cwd)\\\"\")")
+            && lines[4].ends_with("yata \\\"$(omarchy-cmd-terminal-cwd)\\\"\")")
     } else {
         lines.len() == 4
             && lines[0] == "unbind = SUPER SHIFT, F"
             && lines[1] == "unbind = SUPER ALT SHIFT, F"
             && lines[2].starts_with("bindd = SUPER SHIFT, F, File manager, exec, uwsm-app -- ")
-            && lines[2].ends_with("strata")
+            && lines[2].ends_with("yata")
             && lines[3]
                 .starts_with("bindd = SUPER ALT SHIFT, F, File manager (cwd), exec, uwsm-app -- ")
-            && lines[3].ends_with("strata \"$(omarchy-cmd-terminal-cwd)\"")
+            && lines[3].ends_with("yata \"$(omarchy-cmd-terminal-cwd)\"")
     };
     if !recognized {
-        return Err("The Strata keyboard shortcuts have been customized; restore them manually to avoid losing your edits.".into());
+        return Err("The yata keyboard shortcuts have been customized; restore them manually to avoid losing your edits.".into());
     }
     let replacement = if major == 4 {
         "hl.unbind(\"SUPER + SHIFT + F\")\nhl.unbind(\"SUPER + ALT + SHIFT + F\")\no.bind(\"SUPER + SHIFT + F\", \"File manager\", { launch = \"nautilus --new-window\" })\no.bind(\"SUPER + ALT + SHIFT + F\", \"File manager (cwd)\",\n  \"uwsm-app -- nautilus --new-window \\\"$(omarchy-cmd-terminal-cwd)\\\"\")"

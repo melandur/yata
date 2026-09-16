@@ -15,7 +15,7 @@ pub(crate) fn gio_file_for_location(location: &Location) -> gio::File {
 /// the file is genuinely on a local filesystem. A mounted GVfs backend (SMB,
 /// SFTP, ...) can still return a `.path()` via its FUSE mirror even though the
 /// file isn't native; using that path would leak the mirror's opaque
-/// `/run/user/$UID/gvfs/...` location instead of the clean URI (lgse/strata#5).
+/// `/run/user/$UID/gvfs/...` location instead of the clean URI (melandur/yata#5).
 /// Returns `None` when GIO provides a malformed URI.
 pub(crate) fn location_for_file(file: &gio::File) -> Option<Location> {
     if file.is_native()

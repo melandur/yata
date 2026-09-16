@@ -49,7 +49,7 @@ fn options_share_a_compact_row_and_wrap_in_narrow_windows() {
             &options,
         );
         let window = gtk::Window::builder()
-            .title("Strata keyboard regression")
+            .title("yata keyboard regression")
             .default_width(width)
             .default_height(160)
             .child(&options)

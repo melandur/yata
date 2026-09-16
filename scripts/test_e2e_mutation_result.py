@@ -37,7 +37,7 @@ class MutationRunnerTests(unittest.TestCase):
             )
             runner.chmod(0o755)
             environment = {**os.environ, "PATH": f"{tools}:{os.environ.get('PATH', os.defpath)}"}
-            environment.pop("STRATA_BINARY", None)
+            environment.pop("YATA_BINARY", None)
             result = subprocess.run(["bash", str(scripts / "e2e-mutation-check.sh"), "click-modes"],
                                     env=environment, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

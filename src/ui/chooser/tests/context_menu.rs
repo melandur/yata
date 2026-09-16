@@ -66,14 +66,14 @@ fn right_click(state: &ChooserState, empty: bool) {
     } else {
         (bounds.center().x(), bounds.center().y())
     };
-    let tool = std::env::var_os("STRATA_TEST_XDOTOOL").unwrap_or_else(|| "xdotool".into());
+    let tool = std::env::var_os("YATA_TEST_XDOTOOL").unwrap_or_else(|| "xdotool".into());
     assert!(
         Command::new(tool)
             .args([
                 "search",
                 "--onlyvisible",
                 "--name",
-                "^Strata keyboard regression$",
+                "^yata keyboard regression$",
                 "mousemove",
                 "--window",
                 "%1",
@@ -233,7 +233,7 @@ fn chooser_context_menus_and_rename_work_in_every_view() {
             ThemeManager::shared().set_group_by_type(grouped);
             let request = ChooserRequest {
                 token: format!("context-{mode:?}-{grouped}"),
-                title: "Strata keyboard regression".into(),
+                title: "yata keyboard regression".into(),
                 accept_label: "Open".into(),
                 modal: false,
                 parent: None,

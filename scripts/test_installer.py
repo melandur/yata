@@ -15,7 +15,7 @@ BASH = shutil.which("bash")
 
 def bash(script: str, *, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
     test_env = os.environ.copy()
-    test_env["STRATA_INSTALLER_TESTING"] = "1"
+    test_env["YATA_INSTALLER_TESTING"] = "1"
     if env:
         test_env.update(env)
     with tempfile.TemporaryDirectory() as directory:
@@ -52,14 +52,14 @@ class InstallerTests(unittest.TestCase):
         result = bash("show_banner", env={"NO_COLOR": "1"})
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("S T R A T A", result.stdout)
-        self.assertIn("Navigate every layer.", result.stdout)
+        self.assertIn("Modal, keyboard-first file management.", result.stdout)
         self.assertIn("Interactive installer", result.stdout)
         self.assertNotIn("\033", result.stdout)
 
     def test_provenance_verification_is_optional_without_github_cli(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             result = bash(
-                'PATH="$EMPTY_PATH"; verify_provenance /tmp/strata.tar.gz',
+                'PATH="$EMPTY_PATH"; verify_provenance /tmp/yata.tar.gz',
                 env={"EMPTY_PATH": directory},
             )
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -74,7 +74,7 @@ class InstallerTests(unittest.TestCase):
             fake_gh.chmod(0o755)
             calls = pathlib.Path(directory) / "calls"
             result = bash(
-                'PATH="$FAKE_PATH"; verify_provenance /tmp/strata.tar.gz',
+                'PATH="$FAKE_PATH"; verify_provenance /tmp/yata.tar.gz',
                 env={"FAKE_PATH": directory, "CALLS": str(calls)},
             )
             recorded_calls = calls.read_text().splitlines()
@@ -93,7 +93,7 @@ class InstallerTests(unittest.TestCase):
             fake_gh.chmod(0o755)
             calls = pathlib.Path(directory) / "calls"
             result = bash(
-                'PATH="$FAKE_PATH"; verify_provenance /tmp/strata.tar.gz',
+                'PATH="$FAKE_PATH"; verify_provenance /tmp/yata.tar.gz',
                 env={"FAKE_PATH": directory, "CALLS": str(calls), "VERIFY_RESULT": "9"},
             )
             recorded_calls = calls.read_text().splitlines()
@@ -102,7 +102,7 @@ class InstallerTests(unittest.TestCase):
             recorded_calls,
             [
                 "auth status --hostname github.com",
-                "attestation verify /tmp/strata.tar.gz --repo lgse/strata",
+                "attestation verify /tmp/yata.tar.gz --repo melandur/yata",
             ],
         )
 
@@ -150,8 +150,8 @@ class InstallerTests(unittest.TestCase):
                 root = pathlib.Path(directory)
                 extracted = root / "archive"
                 (extracted / "portal").mkdir(parents=True)
-                (extracted / "portal/strata.portal").write_text("[portal]\\n", encoding="utf-8")
-                binary = root / "permanent bin/strata"
+                (extracted / "portal/yata.portal").write_text("[portal]\\n", encoding="utf-8")
+                binary = root / "permanent bin/yata"
                 binary.parent.mkdir()
                 binary.write_text('#!/bin/bash\nprintf "%s\\n" "$@" >> "$CALLS"\n', encoding="utf-8")
                 binary.chmod(0o755)
@@ -168,7 +168,7 @@ class InstallerTests(unittest.TestCase):
             for flags, succeeds in [("", True), ("--non-interactive", True), ("--with-file-chooser", False)]:
                 with self.subTest(flags=flags):
                     result = bash(
-                        f'parse_args {flags}; BIN_PATH=/nonexistent/strata; configure_file_chooser "$EXTRACTED" no',
+                        f'parse_args {flags}; BIN_PATH=/nonexistent/yata; configure_file_chooser "$EXTRACTED" no',
                         env={"EXTRACTED": directory},
                     )
                     self.assertEqual(result.returncode == 0, succeeds, result.stderr)
@@ -182,17 +182,17 @@ class InstallerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as home:
             result = bash(
                 'TEMP_DIR="$HOME/tmp"; mkdir -p "$TEMP_DIR"; '
-                'BIN_PATH="$HOME/.local/bin/strata"; '
+                'BIN_PATH="$HOME/.local/bin/yata"; '
                 'install_file_manager_service "$(dirname "$1")/data"',
                 env={"HOME": home, "XDG_DATA_HOME": f"{home}/data"},
             )
             service = (
                 pathlib.Path(home)
-                / "data/dbus-1/services/io.github.lgse.Strata.FileManager1.service"
+                / "data/dbus-1/services/io.github.melandur.yata.FileManager1.service"
             )
             contents = service.read_text()
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn(f"Exec={home}/.local/bin/strata --gapplication-service", contents)
+        self.assertIn(f"Exec={home}/.local/bin/yata --gapplication-service", contents)
 
     def test_file_manager_service_refuses_another_per_user_provider(self) -> None:
         with tempfile.TemporaryDirectory() as home:
@@ -206,11 +206,11 @@ class InstallerTests(unittest.TestCase):
             )
             result = bash(
                 'TEMP_DIR="$HOME/tmp"; mkdir -p "$TEMP_DIR"; '
-                'BIN_PATH="$HOME/.local/bin/strata"; '
+                'BIN_PATH="$HOME/.local/bin/yata"; '
                 'install_file_manager_service "$(dirname "$1")/data"',
                 env={"HOME": home, "XDG_DATA_HOME": f"{home}/data"},
             )
-            target = service_dir / "io.github.lgse.Strata.FileManager1.service"
+            target = service_dir / "io.github.melandur.yata.FileManager1.service"
             self.assertFalse(target.exists())
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Another per-user FileManager1 provider", result.stderr)
@@ -359,7 +359,7 @@ class InstallerTests(unittest.TestCase):
             version.parent.mkdir(parents=True)
             version.write_text("4.0.0.alpha\n", encoding="utf-8")
             result = bash(
-                'BIN_PATH="$HOME/.local/bin/strata"; '
+                'BIN_PATH="$HOME/.local/bin/yata"; '
                 "major=$(detect_omarchy_major); "
                 'configure_omarchy_bindings "$major"',
                 env={
@@ -374,7 +374,7 @@ class InstallerTests(unittest.TestCase):
             self.assertTrue(lua.is_file())
             self.assertFalse(conf.exists())
             self.assertIn("strata-installer: file-manager start", lua.read_text())
-            self.assertIn("Omarchy 4 file-manager shortcuts now open Strata.", result.stdout)
+            self.assertIn("Omarchy 4 file-manager shortcuts now open yata.", result.stdout)
 
     def test_omarchy_detection_without_command_is_not_an_error(self) -> None:
         with tempfile.TemporaryDirectory() as home:
@@ -389,7 +389,7 @@ class InstallerTests(unittest.TestCase):
         for major, suffix in (("3", "conf"), ("4", "lua")):
             with self.subTest(major=major), tempfile.TemporaryDirectory() as home:
                 result = bash(
-                    f'BIN_PATH="$HOME/.local/bin/strata"; '
+                    f'BIN_PATH="$HOME/.local/bin/yata"; '
                     f"configure_omarchy_bindings {major}; "
                     f"configure_omarchy_bindings {major}",
                     env={"HOME": home, "HYPRLAND_INSTANCE_SIGNATURE": ""},
@@ -398,10 +398,10 @@ class InstallerTests(unittest.TestCase):
                 bindings = pathlib.Path(home) / ".config" / "hypr" / f"bindings.{suffix}"
                 contents = bindings.read_text()
                 self.assertEqual(contents.count("strata-installer: file-manager start"), 1)
-                self.assertIn(f"{home}/.local/bin/strata", contents)
+                self.assertIn(f"{home}/.local/bin/yata", contents)
                 if major == "4":
                     self.assertIn(
-                        f'"uwsm-app -- {home}/.local/bin/strata '
+                        f'"uwsm-app -- {home}/.local/bin/yata '
                         '\\"$(omarchy-cmd-terminal-cwd)\\""',
                         contents,
                     )

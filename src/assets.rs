@@ -142,10 +142,10 @@ thread_local! {
 }
 
 pub fn prepare() -> Result<(), Box<dyn std::error::Error>> {
-    gio::resources_register_include!("strata.gresource")?;
+    gio::resources_register_include!("yata.gresource")?;
 
     let font_directory = glib::user_cache_dir()
-        .join("strata")
+        .join("yata")
         .join("fonts")
         .join(FONT_VERSION);
     fs::create_dir_all(&font_directory)?;
@@ -159,7 +159,7 @@ pub fn prepare() -> Result<(), Box<dyn std::error::Error>> {
 
 pub fn register_icon_theme() {
     if let Some(display) = gdk::Display::default() {
-        gtk::IconTheme::for_display(&display).add_resource_path("/io/github/lgse/Strata/icons");
+        gtk::IconTheme::for_display(&display).add_resource_path("/io/github/melandur/yata/icons");
     }
     // Desktop shells resolve the window icon by matching the application ID to a
     // desktop entry, but GTK also needs the name to expose the bundled icon on its
@@ -381,7 +381,7 @@ fn primary_icon_texture(name: &str, color: &str) -> Option<gdk::Texture> {
 }
 
 fn primary_icon_texture_at(name: &str, color: &str, texture_px: i32) -> Option<gdk::Texture> {
-    let path = format!("/io/github/lgse/Strata/icons/scalable/actions/{name}.svg");
+    let path = format!("/io/github/melandur/yata/icons/scalable/actions/{name}.svg");
     let data = gio::resources_lookup_data(&path, gio::ResourceLookupFlags::NONE).ok()?;
     let source = std::str::from_utf8(data.as_ref()).ok()?;
     let mut source = recolor_icon_source(source, color);
@@ -402,7 +402,7 @@ fn primary_icon_texture_at(name: &str, color: &str, texture_px: i32) -> Option<g
 
 fn folder_decoration_texture(decoration: &str, color: &str) -> Option<gdk::Texture> {
     let folder_data = gio::resources_lookup_data(
-        "/io/github/lgse/Strata/icons/scalable/actions/strata-folder.svg",
+        "/io/github/melandur/yata/icons/scalable/actions/strata-folder.svg",
         gio::ResourceLookupFlags::NONE,
     )
     .ok()?;
@@ -418,7 +418,7 @@ fn folder_decoration_texture(decoration: &str, color: &str) -> Option<gdk::Textu
     }
 
     let foreground = contrasting_foreground(color);
-    let path = format!("/io/github/lgse/Strata/icons/scalable/actions/{decoration}.svg");
+    let path = format!("/io/github/melandur/yata/icons/scalable/actions/{decoration}.svg");
     let data = gio::resources_lookup_data(&path, gio::ResourceLookupFlags::NONE).ok()?;
     let badge = std::str::from_utf8(data.as_ref()).ok()?;
     let body = svg_body(badge)?;

@@ -2,7 +2,7 @@
 
 Application-wide preferences live in `ui::theme::Preferences`. `ThemeManager`
 loads them once per application process and persists changes atomically to
-`$XDG_CONFIG_HOME/strata/settings.toml` (normally `~/.config/strata/settings.toml`).
+`$XDG_CONFIG_HOME/yata/settings.toml` (normally `~/.config/yata/settings.toml`).
 The manager's historical name does not make non-theme settings window-local.
 Fresh installations select Tokyo Night, unless an available Omarchy theme is
 followed automatically. Saved theme choices remain unchanged.
@@ -26,7 +26,7 @@ notification mechanism. Failed writes are logged, still apply in memory, and
 are retried on the next save attempt. If an existing settings file cannot be read
 or parsed as TOML, startup logs a warning and uses temporary defaults. Preference
 changes still apply in memory, but saving is disabled for that manager's lifetime
-to preserve the original file. Fix the file and restart Strata to resume saving.
+to preserve the original file. Fix the file and restart yata to resume saving.
 Missing files allow normal first-run saves; invalid values in otherwise valid
 TOML still use the existing per-entry recovery.
 
@@ -72,7 +72,7 @@ catalog filters, dialogs, and preview playback position remain window-local.
 Pinned places, portal integration and other externally managed state have their
 own stores and are not fields in the application preferences schema.
 Synchronization between independently running application processes, or manual
-external edits to `settings.toml` while Strata runs, is not supported by this
+external edits to `settings.toml` while yata runs, is not supported by this
 in-process binding mechanism. External edits are read on the next launch.
 
 ## Camera Photos ordering
@@ -107,7 +107,7 @@ The size is saved numerically, for example `text_size = 27`. Existing `"small"`,
 integers are clamped; unknown legacy names use 13 px.
 
 Desktop text scaling multiplies the chosen size once. GTK/compositor monitor
-scaling then converts logical coordinates to device pixels; Strata does not
+scaling then converts logical coordinates to device pixels; yata does not
 multiply widget geometry by a monitor's scale factor. Moving between monitors
 therefore does not overwrite the saved size. Toolbar/row icons and initial
 column widths follow typography. Grid captions reserve their measured space,

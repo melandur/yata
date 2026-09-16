@@ -50,18 +50,18 @@ def empty_application_data(test_environment, monkeypatch):
 
 
 def test_activation_without_default_opens_with_visible_application(
-    activation_fallback_app, strata
+    activation_fallback_app, yata
 ):
     output, associations, contents = activation_fallback_app
-    expected = strata.fixture.path("todo.txt")
-    strata.select_entry_with_keyboard("todo.txt")
-    strata.keyboard.press("Return")
+    expected = yata.fixture.path("todo.txt")
+    yata.select_entry_with_keyboard("todo.txt")
+    yata.keyboard.press("Return")
 
-    dialog = strata.wait_for_dialog()
+    dialog = yata.wait_for_dialog()
     assert "Review Text Viewer" in dialog.dump()
-    strata.keyboard.type_text("Review Text Viewer")
-    strata.keyboard.press("Return")
-    strata.wait(
+    yata.keyboard.type_text("Review Text Viewer")
+    yata.keyboard.press("Return")
+    yata.wait(
         lambda: output.exists() and output.read_text(),
         "the selected application to receive the activated file",
     )
@@ -72,18 +72,18 @@ def test_activation_without_default_opens_with_visible_application(
         Gio.File.new_for_path(str(expected))
     )
     assert associations.read_text() == contents
-    strata.wait(lambda: strata.dialog() is None, "the chooser to close")
-    strata.wait_for_focused_entry("todo.txt")
+    yata.wait(lambda: yata.dialog() is None, "the chooser to close")
+    yata.wait_for_focused_entry("todo.txt")
 
 
 def test_activation_without_selectable_application_shows_specific_empty_state(
-    empty_application_data, strata
+    empty_application_data, yata
 ):
-    strata.select_entry_with_keyboard("todo.txt")
-    strata.keyboard.press("Return")
+    yata.select_entry_with_keyboard("todo.txt")
+    yata.keyboard.press("Return")
 
-    dialog = strata.wait_for_dialog()
-    strata.wait(
+    dialog = yata.wait_for_dialog()
+    yata.wait(
         lambda: dialog.find(
             role="label", name="No application is registered for this file"
         )
@@ -91,29 +91,29 @@ def test_activation_without_selectable_application_shows_specific_empty_state(
         "the activation-specific empty feedback",
         timeout=3.0,
     )
-    assert "sensitive" not in strata.dialog_button("Open").states
+    assert "sensitive" not in yata.dialog_button("Open").states
 
-    strata.keyboard.press("Escape")
-    strata.wait(lambda: strata.dialog() is None, "the empty chooser to close")
-    strata.wait_for_focused_entry("todo.txt")
+    yata.keyboard.press("Escape")
+    yata.wait(lambda: yata.dialog() is None, "the empty chooser to close")
+    yata.wait_for_focused_entry("todo.txt")
 
 
 @pytest.mark.parametrize("target", ["todo.txt", "documents", "background"])
-def test_open_with_launches_without_changing_default(open_with_app, strata, target):
+def test_open_with_launches_without_changing_default(open_with_app, yata, target):
     output, associations, contents = open_with_app
     if target == "background":
-        expected = strata.fixture.root
-        strata.pointer.right_click(strata.pane(), at=strata.background_point())
-        strata.wait(lambda: "Open With…" in strata.menu_items(), "folder menu")
+        expected = yata.fixture.root
+        yata.pointer.right_click(yata.pane(), at=yata.background_point())
+        yata.wait(lambda: "Open With…" in yata.menu_items(), "folder menu")
     else:
-        expected = strata.fixture.path(target)
-        strata.open_context_menu(target)
-        strata.wait(lambda: "sensitive" in strata.menu_item("Open With…").states, "MIME lookup")
-    strata.choose_menu_item("Open With…")
-    dialog = strata.wait_for_dialog()
+        expected = yata.fixture.path(target)
+        yata.open_context_menu(target)
+        yata.wait(lambda: "sensitive" in yata.menu_item("Open With…").states, "MIME lookup")
+    yata.choose_menu_item("Open With…")
+    dialog = yata.wait_for_dialog()
     assert "Review Text Viewer" in dialog.dump()
-    strata.keyboard.press("Return")
-    strata.wait(
+    yata.keyboard.press("Return")
+    yata.wait(
         lambda: output.exists() and output.read_text(),
         "the selected application to receive the target",
     )
@@ -123,26 +123,26 @@ def test_open_with_launches_without_changing_default(open_with_app, strata, targ
         Gio.File.new_for_path(str(expected))
     )
     assert associations.read_text() == contents
-    strata.wait(lambda: strata.dialog() is None, "the chooser to close")
+    yata.wait(lambda: yata.dialog() is None, "the chooser to close")
 
 
-def test_open_with_launch_failure_shows_an_error(open_with_app, strata):
+def test_open_with_launch_failure_shows_an_error(open_with_app, yata):
     output, associations, contents = open_with_app
-    strata.open_context_menu("todo.txt")
-    strata.wait(lambda: "sensitive" in strata.menu_item("Open With…").states, "MIME lookup")
-    strata.choose_menu_item("Open With…")
-    strata.wait_for_dialog()
+    yata.open_context_menu("todo.txt")
+    yata.wait(lambda: "sensitive" in yata.menu_item("Open With…").states, "MIME lookup")
+    yata.choose_menu_item("Open With…")
+    yata.wait_for_dialog()
     (output.parent / "record-files").unlink()
-    strata.keyboard.press("Return")
-    strata.wait(
-        lambda: strata.dialog() is not None
-        and strata.dialog().name == "Unable to open file",
+    yata.keyboard.press("Return")
+    yata.wait(
+        lambda: yata.dialog() is not None
+        and yata.dialog().name == "Unable to open file",
         "the launch error dialog",
     )
     assert not output.exists()
     assert associations.read_text() == contents
-    strata.keyboard.press("Escape")
-    strata.wait(lambda: strata.dialog() is None, "the error dialog to close")
+    yata.keyboard.press("Escape")
+    yata.wait(lambda: yata.dialog() is None, "the error dialog to close")
 
 
 @pytest.fixture
@@ -170,11 +170,11 @@ def chooser_apps(open_with_app, test_environment):
     return output, associations, contents
 
 
-def test_open_with_names_rows_and_tabs_out_of_the_list(chooser_apps, strata):
-    strata.open_context_menu("todo.txt")
-    strata.wait(lambda: "sensitive" in strata.menu_item("Open With…").states, "MIME lookup")
-    strata.choose_menu_item("Open With…")
-    dialog = strata.wait_for_dialog()
+def test_open_with_names_rows_and_tabs_out_of_the_list(chooser_apps, yata):
+    yata.open_context_menu("todo.txt")
+    yata.wait(lambda: "sensitive" in yata.menu_item("Open With…").states, "MIME lookup")
+    yata.choose_menu_item("Open With…")
+    dialog = yata.wait_for_dialog()
     # Section headers are not selectable and carry their text in a child label.
     all_rows = dialog.find_all(role="list item")
     sections: dict[str, list[str]] = {}
@@ -191,80 +191,80 @@ def test_open_with_names_rows_and_tabs_out_of_the_list(chooser_apps, strata):
     assert recommended[1:] == sorted(recommended[1:], key=str.lower)
     assert all(recommended)
     assert "Other Desktop Viewer" not in [row.name for row in all_rows]
-    strata.wait(
-        lambda: strata.focused_node() is not None and "editable" in strata.focused_node().states,
+    yata.wait(
+        lambda: yata.focused_node() is not None and "editable" in yata.focused_node().states,
         "search entry focused on open",
     )
-    strata.keyboard.press("Down")
-    strata.wait(lambda: "editable" in strata.focused_node().states, "search retains focus")
-    strata.wait(
+    yata.keyboard.press("Down")
+    yata.wait(lambda: "editable" in yata.focused_node().states, "search retains focus")
+    yata.wait(
         lambda: any(row.name == "Alternative Viewer" and "selected" in row.states
-                    for row in strata.dialog().find_all(role="list item")),
+                    for row in yata.dialog().find_all(role="list item")),
         "arrow selection",
     )
-    assert "editable" in strata.focused_node().states
-    strata.keyboard.press("Tab")
-    strata.wait(lambda: strata.focused_node().name == "Alternative Viewer", "Tab into list")
-    strata.keyboard.press("Tab")
-    strata.wait(lambda: strata.focused_node().name == "Cancel", "Tab to leave the list")
-    strata.keyboard.press("shift+Tab")
-    strata.wait(lambda: strata.focused_node().name == "Alternative Viewer", "selected row focus")
-    strata.keyboard.press("Tab")
-    strata.keyboard.press("Tab")
-    strata.wait(lambda: strata.focused_node().name == "Open", "Tab to reach Open")
+    assert "editable" in yata.focused_node().states
+    yata.keyboard.press("Tab")
+    yata.wait(lambda: yata.focused_node().name == "Alternative Viewer", "Tab into list")
+    yata.keyboard.press("Tab")
+    yata.wait(lambda: yata.focused_node().name == "Cancel", "Tab to leave the list")
+    yata.keyboard.press("shift+Tab")
+    yata.wait(lambda: yata.focused_node().name == "Alternative Viewer", "selected row focus")
+    yata.keyboard.press("Tab")
+    yata.keyboard.press("Tab")
+    yata.wait(lambda: yata.focused_node().name == "Open", "Tab to reach Open")
 
 
-def test_open_with_search_filters_and_escape_clears(chooser_apps, strata, request):
+def test_open_with_search_filters_and_escape_clears(chooser_apps, yata, request):
     from harness.artifacts import ArtifactCollector
 
-    strata.open_context_menu("todo.txt")
-    strata.wait(lambda: "sensitive" in strata.menu_item("Open With…").states, "MIME lookup")
-    strata.choose_menu_item("Open With…")
-    strata.wait_for_dialog()
-    strata.keyboard.type_text("ALTERNATIVE")
-    strata.keyboard.press("Down")
-    strata.wait(lambda: "editable" in strata.focused_node().states, "search retains focus after Down")
-    strata.keyboard.press("Up")
-    assert "editable" in strata.focused_node().states
-    strata.keyboard.type_text("x")
-    strata.wait(
-        lambda: "No matching applications were found." in strata.dialog().dump(),
+    yata.open_context_menu("todo.txt")
+    yata.wait(lambda: "sensitive" in yata.menu_item("Open With…").states, "MIME lookup")
+    yata.choose_menu_item("Open With…")
+    yata.wait_for_dialog()
+    yata.keyboard.type_text("ALTERNATIVE")
+    yata.keyboard.press("Down")
+    yata.wait(lambda: "editable" in yata.focused_node().states, "search retains focus after Down")
+    yata.keyboard.press("Up")
+    assert "editable" in yata.focused_node().states
+    yata.keyboard.type_text("x")
+    yata.wait(
+        lambda: "No matching applications were found." in yata.dialog().dump(),
         "typing after arrow navigation appends at the caret",
     )
-    strata.keyboard.press("BackSpace")
-    strata.wait(lambda: "Alternative Viewer" in strata.dialog().dump(), "Backspace restores match")
+    yata.keyboard.press("BackSpace")
+    yata.wait(lambda: "Alternative Viewer" in yata.dialog().dump(), "Backspace restores match")
     collector = ArtifactCollector(test_name=request.node.name)
-    strata.screenshot(collector.directory / "filtered-chooser.png")
-    strata.keyboard.press("ctrl+a")
-    strata.keyboard.type_text("no-such-application-821")
-    strata.wait(
-        lambda: "No matching applications were found." in strata.dialog().dump(),
+    yata.screenshot(collector.directory / "filtered-chooser.png")
+    yata.keyboard.press("ctrl+a")
+    yata.keyboard.type_text("no-such-application-821")
+    yata.wait(
+        lambda: "No matching applications were found." in yata.dialog().dump(),
         "empty search feedback",
     )
-    strata.keyboard.press("Return")
-    assert strata.dialog() is not None
-    strata.keyboard.press("Escape")
-    strata.wait(lambda: "No matching applications were found." not in strata.dialog().dump(), "cleared search")
-    strata.keyboard.press("Escape")
-    strata.wait(lambda: strata.dialog() is None, "dismissed chooser")
+    yata.keyboard.press("Return")
+    assert yata.dialog() is not None
+    yata.keyboard.press("Escape")
+    yata.wait(lambda: "No matching applications were found." not in yata.dialog().dump(), "cleared search")
+    yata.keyboard.press("Escape")
+    yata.wait(lambda: yata.dialog() is None, "dismissed chooser")
 
 
 @pytest.mark.parametrize("action", ["Open", "Open With…"])
-def test_open_with_mixed_types_share_a_hidden_default(chooser_apps, strata, action):
+def test_open_with_mixed_types_share_a_hidden_default(chooser_apps, yata, action):
     output, associations, contents = chooser_apps
-    strata.select_entry("todo.txt")
-    strata.pointer.click(strata.entry("readme.md"), modifiers=["ctrl"])
-    strata.wait_for_selection(["readme.md", "todo.txt"])
-    strata.open_context_menu("todo.txt")
-    strata.wait(lambda: "Open" in strata.menu_items(), "shared default lookup")
-    strata.choose_menu_item(action)
+    yata.select_entry("todo.txt")
+    yata.pointer.click(yata.entry("readme.md"), modifiers=["ctrl"])
+    yata.wait_for_selection(["readme.md", "todo.txt"])
+    yata.open_context_menu("todo.txt")
+    yata.wait(lambda: "Open" in yata.menu_items(), "shared default lookup")
+    yata.choose_menu_item(action)
     if action == "Open With…":
-        strata.wait_for_dialog()
-        strata.keyboard.press("Return")
-    strata.wait(lambda: output.exists() and len(output.read_text().splitlines()) == 2, "both files to open")
+        yata.wait_for_dialog()
+        yata.keyboard.press("Return")
+    yata.wait(lambda: output.exists() and len(output.read_text().splitlines()) == 2, "both files to open")
     received = [Gio.File.new_for_commandline_arg(value) for value in output.read_text().splitlines()]
     for name in ["todo.txt", "readme.md"]:
-        assert any(file.equal(Gio.File.new_for_path(str(strata.fixture.path(name)))) for file in received)
+        assert any(file.equal(Gio.File.new_for_path(str(yata.fixture.path(name)))) for file in received)
     assert associations.read_text() == contents
 
 
@@ -278,15 +278,15 @@ def different_defaults(chooser_apps):
     ))
 
 
-def test_open_with_common_handlers_do_not_imply_a_shared_default(different_defaults, strata):
-    strata.select_entry("todo.txt")
-    strata.pointer.click(strata.entry("readme.md"), modifiers=["ctrl"])
-    strata.wait_for_selection(["readme.md", "todo.txt"])
-    strata.open_context_menu("todo.txt")
-    strata.wait(lambda: "sensitive" in strata.menu_item("Open With…").states, "common handlers")
-    assert "Open" not in strata.menu_items()
-    strata.choose_menu_item("Open With…")
-    assert "Alternative Viewer" in strata.wait_for_dialog().dump()
+def test_open_with_common_handlers_do_not_imply_a_shared_default(different_defaults, yata):
+    yata.select_entry("todo.txt")
+    yata.pointer.click(yata.entry("readme.md"), modifiers=["ctrl"])
+    yata.wait_for_selection(["readme.md", "todo.txt"])
+    yata.open_context_menu("todo.txt")
+    yata.wait(lambda: "sensitive" in yata.menu_item("Open With…").states, "common handlers")
+    assert "Open" not in yata.menu_items()
+    yata.choose_menu_item("Open With…")
+    assert "Alternative Viewer" in yata.wait_for_dialog().dump()
 
 
 @pytest.fixture
@@ -303,45 +303,45 @@ def incompatible_files(fixture_tree, open_with_app, test_environment):
     )
 
 
-def test_open_with_broken_link_is_disabled(incompatible_files, strata):
-    strata.open_context_menu("broken-link")
-    strata.wait(
+def test_open_with_broken_link_is_disabled(incompatible_files, yata):
+    yata.open_context_menu("broken-link")
+    yata.wait(
         lambda: "Broken symbolic links cannot be opened with an application"
-        in strata.menu_item("Open With…").description,
+        in yata.menu_item("Open With…").description,
         "MIME lookup result",
     )
-    option = strata.menu_item("Open With…")
+    option = yata.menu_item("Open With…")
     assert "sensitive" not in option.states
-    strata.keyboard.press("Escape")
-    assert strata.dialog() is None
+    yata.keyboard.press("Escape")
+    assert yata.dialog() is None
 
 
-def test_open_with_unknown_type_offers_other_apps(incompatible_files, strata):
-    strata.open_context_menu("unknown.bin")
-    strata.wait(lambda: "sensitive" in strata.menu_item("Open With…").states, "other apps available")
-    strata.choose_menu_item("Open With…")
-    dialog = strata.wait_for_dialog()
+def test_open_with_unknown_type_offers_other_apps(incompatible_files, yata):
+    yata.open_context_menu("unknown.bin")
+    yata.wait(lambda: "sensitive" in yata.menu_item("Open With…").states, "other apps available")
+    yata.choose_menu_item("Open With…")
+    dialog = yata.wait_for_dialog()
     dump = dialog.dump()
     assert "Other Applications" in dump
     assert "Recommended Applications" not in dump
     assert "Image Viewer" in dump
-    strata.keyboard.press("Escape")
-    strata.wait(lambda: strata.dialog() is None, "the chooser to close")
+    yata.keyboard.press("Escape")
+    yata.wait(lambda: yata.dialog() is None, "the chooser to close")
 
 
-def test_open_with_incompatible_types_offers_other_apps(incompatible_files, strata):
-    strata.select_entry("todo.txt")
-    strata.pointer.click(strata.entry("image.png"), modifiers=["ctrl"])
-    strata.wait_for_selection(["image.png", "todo.txt"])
-    strata.open_context_menu("todo.txt")
-    strata.wait(lambda: "sensitive" in strata.menu_item("Open With…").states, "other apps available")
-    assert "Open" not in strata.menu_items()
-    strata.choose_menu_item("Open With…")
-    dialog = strata.wait_for_dialog()
+def test_open_with_incompatible_types_offers_other_apps(incompatible_files, yata):
+    yata.select_entry("todo.txt")
+    yata.pointer.click(yata.entry("image.png"), modifiers=["ctrl"])
+    yata.wait_for_selection(["image.png", "todo.txt"])
+    yata.open_context_menu("todo.txt")
+    yata.wait(lambda: "sensitive" in yata.menu_item("Open With…").states, "other apps available")
+    assert "Open" not in yata.menu_items()
+    yata.choose_menu_item("Open With…")
+    dialog = yata.wait_for_dialog()
     dump = dialog.dump()
     assert "Other Applications" in dump
     assert "Recommended Applications" not in dump
     assert "Image Viewer" in dump
     assert "Review Text Viewer" in dump
-    strata.keyboard.press("Escape")
-    strata.wait(lambda: strata.dialog() is None, "the chooser to close")
+    yata.keyboard.press("Escape")
+    yata.wait(lambda: yata.dialog() is None, "the chooser to close")

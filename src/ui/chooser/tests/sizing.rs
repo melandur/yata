@@ -85,7 +85,7 @@ fn application_size_hint_survives_presentation() {
                         "monitor entry must not restore the fullscreen default"
                     );
                 }
-                if let Some(output) = std::env::var_os("STRATA_CHOOSER_SIZE_VISUALS") {
+                if let Some(output) = std::env::var_os("YATA_CHOOSER_SIZE_VISUALS") {
                     capture(&state.window, Path::new(&output), label);
                 }
                 state.window.set_default_size(720, 480);

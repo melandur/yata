@@ -210,7 +210,7 @@ fn append_custom_theme_editor(
     let add = add_theme_card_button();
     let footer = gtk::Box::new(gtk::Orientation::Horizontal, 12);
     footer.add_css_class("theme-library-footer");
-    let location = gtk::Label::new(Some("Custom themes live in ~/.config/strata/themes"));
+    let location = gtk::Label::new(Some("Custom themes live in ~/.config/yata/themes"));
     location.set_xalign(0.0);
     location.set_hexpand(true);
     location.set_wrap(true);

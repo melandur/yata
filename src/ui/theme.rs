@@ -349,7 +349,7 @@ impl ThemeManager {
         let persistence_enabled = loaded.is_ok();
         let mut preferences = loaded.unwrap_or_else(|error| {
             tracing::warn!(%error, path = %settings_path().display(),
-                "unable to load settings; using temporary defaults without saving; fix the file and restart Strata");
+                "unable to load settings; using temporary defaults without saving; fix the file and restart yata");
             Preferences::default()
         });
         preferences.preview_volume = normalized_volume(preferences.preview_volume);
@@ -1493,7 +1493,7 @@ fn ensure_source_style_scheme_installed() {
     let Some(tokens) = pending else {
         return;
     };
-    let directory = glib::user_cache_dir().join("strata").join("source-styles");
+    let directory = glib::user_cache_dir().join("yata").join("source-styles");
     if let Err(error) = fs::create_dir_all(&directory).and_then(|()| {
         let value = source_style_scheme_xml(&tokens);
         crate::storage::atomic_write(&directory.join("strata-current.xml"), value.as_bytes())
@@ -1528,7 +1528,7 @@ fn source_style_scheme_xml(tokens: &ThemeTokens) -> String {
     let type_color = blend(&tokens.accent, &tokens.text, 0.24);
     format!(
         r#"<?xml version="1.0" encoding="UTF-8"?>
-<style-scheme id="strata-current" _name="Strata Current Theme" version="1.0">
+<style-scheme id="strata-current" _name="yata Current Theme" version="1.0">
   <color name="background" value="{}"/>
   <color name="surface" value="{}"/>
   <color name="text" value="{}"/>
@@ -1628,7 +1628,7 @@ fn tokens_css(tokens: &ThemeTokens, root_font_px: f64) -> String {
 }
 
 /// Parses colours GTK accepts (`#rgb`, `#rrggbb`, `rgb(...)`, names) into 8-bit
-/// channels. Strata emits these channels as `#rrggbb` in GtkSourceView schemes.
+/// channels. yata emits these channels as `#rrggbb` in GtkSourceView schemes.
 pub(crate) fn parse_rgb_channels(value: &str) -> Option<[u8; 3]> {
     let color = gdk::RGBA::parse(value).ok()?;
     let channel = |component: f32| (f64::from(component).clamp(0.0, 1.0) * 255.0).round() as u8;
@@ -1643,7 +1643,7 @@ fn hex_from_channels(channels: [u8; 3]) -> String {
     format!("#{:02x}{:02x}{:02x}", channels[0], channels[1], channels[2])
 }
 
-/// Canonicalizes a colour token to Strata's `#rrggbb` scheme representation.
+/// Canonicalizes a colour token to yata's `#rrggbb` scheme representation.
 pub(crate) fn color_to_hex(value: &str) -> String {
     parse_rgb_channels(value)
         .map(hex_from_channels)
@@ -1693,7 +1693,7 @@ fn title_case_slug(slug: &str) -> String {
 }
 
 fn config_directory() -> PathBuf {
-    gtk::glib::user_config_dir().join("strata")
+    gtk::glib::user_config_dir().join("yata")
 }
 fn settings_path() -> PathBuf {
     config_directory().join("settings.toml")

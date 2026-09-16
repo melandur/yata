@@ -7,7 +7,7 @@ use crate::ui::{
 
 #[test]
 fn clearing_recursive_search_deactivates_before_rows_rebind() {
-    const CHILD: &str = "STRATA_RECURSIVE_SEARCH_TEST_CHILD";
+    const CHILD: &str = "YATA_RECURSIVE_SEARCH_TEST_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let status = std::process::Command::new(std::env::current_exe().expect("test executable"))
             .args([
