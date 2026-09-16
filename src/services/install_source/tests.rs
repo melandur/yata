@@ -231,9 +231,7 @@ fn the_marker_is_resolved_relative_to_the_install_prefix() {
     );
     assert_eq!(
         marker_path_for_executable(Path::new("/opt/yata/bin/yata")),
-        Some(PathBuf::from(
-            "/opt/yata/share/yata/install-source.toml"
-        ))
+        Some(PathBuf::from("/opt/yata/share/yata/install-source.toml"))
     );
     assert_eq!(marker_path_for_executable(Path::new("yata")), None);
 }
@@ -255,8 +253,6 @@ fn a_packaged_install_refuses_to_replace_its_own_binary() {
 
     assert_eq!(
         ensure_self_managed(&source),
-        Err(
-            "Installed by pacman as strata-bin. Update yata with: yay -Syu strata-bin".to_owned()
-        )
+        Err("Installed by pacman as strata-bin. Update yata with: yay -Syu strata-bin".to_owned())
     );
 }

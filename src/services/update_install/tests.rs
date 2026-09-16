@@ -275,10 +275,7 @@ fn find_binaries_returns_all_requested_names_when_several_are_present() {
         find_binaries(&dir, &["yata", "strata-helper"]).expect("both binaries should be found");
     assert_eq!(
         found,
-        vec![
-            package_dir.join("yata"),
-            package_dir.join("strata-helper"),
-        ]
+        vec![package_dir.join("yata"), package_dir.join("strata-helper"),]
     );
 
     fs::remove_dir_all(&dir).expect("cleanup");
@@ -382,10 +379,7 @@ fn desktop_entry_exec_launches_reserved_characters_and_preserves_uri_arguments()
 
 #[test]
 fn desktop_entry_without_field_codes_keeps_a_bare_exec() {
-    let entry = desktop_entry_with_exec(
-        "[Desktop Entry]\nExec=yata\n",
-        Path::new("/usr/bin/yata"),
-    );
+    let entry = desktop_entry_with_exec("[Desktop Entry]\nExec=yata\n", Path::new("/usr/bin/yata"));
 
     assert_eq!(entry, "[Desktop Entry]\nExec=/usr/bin/yata\n");
 }

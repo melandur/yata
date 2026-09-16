@@ -190,9 +190,7 @@ fn uninstall_keeps_later_configuration_edits() {
     install_at(&context, &executable(fixture.path())).expect("install portal");
     fs::write(
         &config,
-        format!(
-            "[preferred]\ndefault=gtk;\n{FILE_CHOOSER}=yata;gtk;\norg.example.Other=custom;\n"
-        ),
+        format!("[preferred]\ndefault=gtk;\n{FILE_CHOOSER}=yata;gtk;\norg.example.Other=custom;\n"),
     )
     .expect("edit portal config");
 

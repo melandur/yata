@@ -1198,8 +1198,10 @@ fn release_notes_card(title: &str, initial: &str) -> ReleaseNotesCard {
     badge.set_visible(false);
     let notes = gtk::Box::new(gtk::Orientation::Vertical, 6);
     set_release_notes_message(&notes, initial);
-    let fallback =
-        gtk::LinkButton::with_label("https://github.com/melandur/yata/releases", "View on GitHub");
+    let fallback = gtk::LinkButton::with_label(
+        "https://github.com/melandur/yata/releases",
+        "View on GitHub",
+    );
     fallback.add_css_class("release-notes-fallback");
     fallback.set_halign(gtk::Align::Start);
     fallback.set_visible(false);

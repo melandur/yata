@@ -15,28 +15,16 @@ use std::rc::Rc;
 /// Slots kept on screen: parent, current, and the current row's child.
 pub(in crate::ui) const VIEWPORT_SLOTS: usize = 3;
 
-const CONTEXT_RATIO: u32 = 1;
-const CURRENT_RATIO: u32 = 4;
-const CHILD_RATIO: u32 = 3;
+/// Yazi's `mgr.ratio`, over parent / current / child.
+const SLOT_RATIOS: [u32; VIEWPORT_SLOTS] = [1, 4, 3];
 
 /// Below this a slot cannot show a readable name, so the strip scrolls instead.
-pub(in crate::ui) const MIN_SLOT_WIDTH: i32 = 160;
-
-fn slot_ratios(visible: usize, has_child: bool) -> Vec<u32> {
-    let mut ratios = vec![CONTEXT_RATIO; visible];
-    let current = if has_child {
-        visible.checked_sub(2)
-    } else {
-        visible.checked_sub(1)
-    };
-    if let Some(current) = current {
-        ratios[current] = CURRENT_RATIO;
-    }
-    if has_child && let Some(child) = ratios.last_mut() {
-        *child = CHILD_RATIO;
-    }
-    ratios
-}
+///
+/// The parent slot only gets an eighth of the viewport, so a floor near a full
+/// column width vetoes the ratio on any ordinary window and drops the whole
+/// strip back to free-growing columns. Yazi truncates a narrow parent rather
+/// than abandoning the layout, so this only guards genuinely unusable widths.
+pub(in crate::ui) const MIN_SLOT_WIDTH: i32 = 72;
 
 /// Splits `viewport` across `ratios`, handing the rounding remainder to the
 /// widest slot so the strip covers the viewport exactly.
@@ -96,16 +84,18 @@ impl ViewState {
             .yazi_columns
             .get()
             .then(|| {
-                let first = columns.len().saturating_sub(VIEWPORT_SLOTS);
-                let visible = columns.len() - first;
-                let has_child = self.browser.active_depth().is_some_and(|active| {
-                    columns
-                        .len()
-                        .checked_sub(1)
-                        .is_some_and(|last| active < last)
-                });
-                slot_widths(self.viewport_width(), &slot_ratios(visible, has_child))
-                    .map(|widths| (first, widths))
+                // Anchor the strip on the focused column rather than on the
+                // deepest one. Hovering a folder appends a child column and
+                // hovering a file drops it again; keying off the depth kept the
+                // current folder sliding between slots and resized every column
+                // on each keystroke. Anchored, parent/current/child hold their
+                // widths and the third slot simply sits empty over a file.
+                let active = self
+                    .browser
+                    .active_depth()
+                    .unwrap_or_else(|| columns.len().saturating_sub(1));
+                let first = active.saturating_sub(1);
+                slot_widths(self.viewport_width(), &SLOT_RATIOS).map(|widths| (first, widths))
             })
             .flatten();
 
@@ -129,6 +119,10 @@ impl ViewState {
             };
             column.shell.set_visible(true);
             column.resize_handle.set_visible(false);
+            // The slot width is a request, not an allocation: left expanding,
+            // GTK hands each column an equal share of whatever the filled strip
+            // has spare and the ratio never shows up on screen.
+            column.shell.set_hexpand(false);
             column.shell.set_size_request(*width, -1);
         }
     }

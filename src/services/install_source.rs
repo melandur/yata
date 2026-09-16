@@ -120,9 +120,7 @@ impl ManagedInstall {
             return format!("Update yata with: {helper} -Syu {package}");
         }
         if let (Some(helper), Some(package)) = (self.aur_helpers.first(), self.package()) {
-            return format!(
-                "Update yata with an AUR helper, for example: {helper} -Syu {package}"
-            );
+            return format!("Update yata with an AUR helper, for example: {helper} -Syu {package}");
         }
         format!("Update yata through {}.", self.manager())
     }

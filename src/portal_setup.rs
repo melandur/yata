@@ -441,9 +441,8 @@ fn portal_backend_is_stale_at(
     {
         return Ok(false);
     }
-    let installed = fs::metadata(executable).map_err(|error| {
-        path_error("inspect the installed yata executable", executable, error)
-    })?;
+    let installed = fs::metadata(executable)
+        .map_err(|error| path_error("inspect the installed yata executable", executable, error))?;
     let entries = fs::read_dir(proc_root)
         .map_err(|error| path_error("inspect running processes", proc_root, error))?;
     for entry in entries.flatten() {
@@ -733,9 +732,7 @@ fn secure_executable_for_user(path: &Path, effective_user: u32) -> Result<PathBu
             );
         }
         if metadata.permissions().mode() & 0o022 != 0 {
-            return Err(
-                "The yata executable path must not be writable by other users".to_owned(),
-            );
+            return Err("The yata executable path must not be writable by other users".to_owned());
         }
     }
     Ok(path)

@@ -50,16 +50,13 @@ fn hyprland_socket() -> Option<PathBuf> {
 
 fn centering_commands() -> [String; 3] {
     let class = format!("^{}$", super::CHOOSER_APPLICATION_ID.replace('.', "[.]"));
-    let legacy_match =
-        format!("keyword windowrule[yata-file-chooser-center]:match:class {class}");
+    let legacy_match = format!("keyword windowrule[yata-file-chooser-center]:match:class {class}");
     [
         format!(
             "/eval hl.window_rule({{name='yata-file-chooser-center',match={{class='{class}'}},center=true}})"
         ),
         format!("/{legacy_match}"),
-        format!(
-            "[[BATCH]] {legacy_match};keyword windowrule[yata-file-chooser-center]:center on"
-        ),
+        format!("[[BATCH]] {legacy_match};keyword windowrule[yata-file-chooser-center]:center on"),
     ]
 }
 

@@ -322,9 +322,8 @@ fn theme_hint_and_channel_controls_follow_external_changes() {
                 );
             }
             manager.set_follow_omarchy(true);
-            let saved =
-                std::fs::read_to_string(glib::user_config_dir().join("yata/settings.toml"))
-                    .expect("saved preference fixture");
+            let saved = std::fs::read_to_string(glib::user_config_dir().join("yata/settings.toml"))
+                .expect("saved preference fixture");
             std::fs::write(
                 glib::home_dir().join(".local/state/omarchy/current/theme.name"),
                 "live-swatch",

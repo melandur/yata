@@ -17,8 +17,7 @@ use crate::{
 };
 
 use super::super::{
-    MIN_SIDEBAR_WIDTH, SidebarView, animate_sidebar, build_appearance_menu,
-    pin_status,
+    MIN_SIDEBAR_WIDTH, SidebarView, animate_sidebar, build_appearance_menu, pin_status,
 };
 
 pub(super) struct Header {

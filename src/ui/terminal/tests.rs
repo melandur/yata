@@ -179,9 +179,8 @@ fn other_launch_failures_name_the_terminal_and_keep_the_cause() {
 
 #[test]
 fn explicit_wezterm_preserves_subcommand_and_quoted_arguments() {
-    let terminal =
-        Terminal::resolve_with(None, Some(OsStr::new("wezterm --class 'yata update'")))
-            .expect("explicit terminal resolves");
+    let terminal = Terminal::resolve_with(None, Some(OsStr::new("wezterm --class 'yata update'")))
+        .expect("explicit terminal resolves");
     assert_eq!(
         terminal
             .exec_command(&["paru", "-Syu", "strata-bin"])
