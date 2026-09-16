@@ -18,12 +18,8 @@ pub(in crate::ui) const VIEWPORT_SLOTS: usize = 3;
 /// Yazi's `mgr.ratio`, over parent / current / child.
 const SLOT_RATIOS: [u32; VIEWPORT_SLOTS] = [1, 4, 3];
 
-/// Below this a slot cannot show a readable name, so the strip scrolls instead.
-///
-/// The parent slot only gets an eighth of the viewport, so a floor near a full
-/// column width vetoes the ratio on any ordinary window and drops the whole
-/// strip back to free-growing columns. Yazi truncates a narrow parent rather
-/// than abandoning the layout, so this only guards genuinely unusable widths.
+/// Below this the strip gives up and scrolls instead. The parent slot only gets
+/// an eighth, so a floor near a column width would veto the ratio outright.
 pub(in crate::ui) const MIN_SLOT_WIDTH: i32 = 72;
 
 /// Splits `viewport` across `ratios`, handing the rounding remainder to the
@@ -84,12 +80,9 @@ impl ViewState {
             .yazi_columns
             .get()
             .then(|| {
-                // Anchor the strip on the focused column rather than on the
-                // deepest one. Hovering a folder appends a child column and
-                // hovering a file drops it again; keying off the depth kept the
-                // current folder sliding between slots and resized every column
-                // on each keystroke. Anchored, parent/current/child hold their
-                // widths and the third slot simply sits empty over a file.
+                // Anchored on the focused column, not the deepest: a child
+                // column appears and disappears as the cursor crosses folders,
+                // which otherwise slides the current folder between slots.
                 let active = self
                     .browser
                     .active_depth()
@@ -119,9 +112,8 @@ impl ViewState {
             };
             column.shell.set_visible(true);
             column.resize_handle.set_visible(false);
-            // The slot width is a request, not an allocation: left expanding,
-            // GTK hands each column an equal share of whatever the filled strip
-            // has spare and the ratio never shows up on screen.
+            // The width is only a request; expanding columns would split the
+            // strip's spare space evenly and hide the ratio.
             column.shell.set_hexpand(false);
             column.shell.set_size_request(*width, -1);
         }

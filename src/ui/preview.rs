@@ -250,10 +250,8 @@ impl PreviewDrawer {
             print_request: Cell::new(None),
             current_request: Cell::new(None),
             next_request: Cell::new(1),
-            // Closed by default: an enabled-but-empty drawer still reserves its
-            // half of the split, which starves the column strip. The strip's
-            // third slot is the child listing, so Space opens the rich preview
-            // (files, images, PDFs) only when it is actually wanted.
+            // Closed by default: an empty drawer still claims its half of the
+            // split, starving the column strip. Space opens it on demand.
             enabled_action: gio::SimpleAction::new_stateful(
                 "preview-panel",
                 None,
