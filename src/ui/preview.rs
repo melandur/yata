@@ -250,12 +250,14 @@ impl PreviewDrawer {
             print_request: Cell::new(None),
             current_request: Cell::new(None),
             next_request: Cell::new(1),
-            // yazi always shows the preview pane, so yata opens with it on.
-            // Space still toggles it off for a wider file list.
+            // Closed by default: an enabled-but-empty drawer still reserves its
+            // half of the split, which starves the column strip. The strip's
+            // third slot is the child listing, so Space opens the rich preview
+            // (files, images, PDFs) only when it is actually wanted.
             enabled_action: gio::SimpleAction::new_stateful(
                 "preview-panel",
                 None,
-                &true.to_variant(),
+                &false.to_variant(),
             ),
             animating: Cell::new(false),
             animation_generation: Rc::new(Cell::new(0)),
