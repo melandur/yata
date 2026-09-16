@@ -122,6 +122,16 @@ pub(super) fn browser_layout(
     preview_split.set_position(i32::MAX);
     preview_split.set_vexpand(true);
     preview.attach_split(&preview_split, &content, browser);
+    // The strip drops its child slot while the drawer is open, so the drawer
+    // replaces that column in place rather than squeezing the whole strip.
+    let tracked = browser.clone();
+    preview
+        .action()
+        .connect_notify_local(Some("state"), move |action, _| {
+            let open = action.state().and_then(|state| state.get::<bool>());
+            tracked.set_preview_open(open.unwrap_or(false));
+        });
+    browser.set_preview_open(preview.is_enabled());
     root.append(&preview_split);
     root
 }

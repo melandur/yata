@@ -18,6 +18,12 @@ pub(in crate::ui) const VIEWPORT_SLOTS: usize = 3;
 /// Yazi's `mgr.ratio`, over parent / current / child.
 const SLOT_RATIOS: [u32; VIEWPORT_SLOTS] = [1, 4, 3];
 
+/// The same ratio with the preview drawer as the third pane, which is what
+/// yazi's third number actually is. Both arrangements put the parent on an
+/// eighth of the window and the current folder on half, so opening the drawer
+/// swaps the child column out in place instead of resizing the strip.
+const SLOT_RATIOS_WITH_PREVIEW: [u32; 2] = [1, 4];
+
 /// Below this the strip gives up and scrolls instead. The parent slot only gets
 /// an eighth, so a floor near a column width would veto the ratio outright.
 pub(in crate::ui) const MIN_SLOT_WIDTH: i32 = 72;
@@ -58,8 +64,19 @@ impl ViewState {
     /// Width the fixed slots cannot give up, so the preview pane can still open
     /// against a strip that already fills the viewport.
     pub(in crate::ui) fn minimum_viewport_width(&self) -> i32 {
-        let visible = self.columns.borrow().len().min(VIEWPORT_SLOTS) as i32;
+        let slots = if self.preview_open.get() {
+            SLOT_RATIOS_WITH_PREVIEW.len()
+        } else {
+            VIEWPORT_SLOTS
+        };
+        let visible = self.columns.borrow().len().min(slots) as i32;
         visible * MIN_SLOT_WIDTH
+    }
+
+    pub(in crate::ui) fn set_preview_open(self: &Rc<Self>, open: bool) {
+        if self.preview_open.replace(open) != open {
+            self.sync_column_viewport();
+        }
     }
 
     pub(in crate::ui) fn viewport_width(&self) -> i32 {

@@ -38,6 +38,10 @@ fn column_width(column: &ColumnView) -> i32 {
 }
 
 impl BrowserView {
+    pub(in crate::ui) fn set_preview_open(&self, open: bool) {
+        self.state.set_preview_open(open);
+    }
+
     pub(in crate::ui) fn preview_occupied_width(&self, available: i32) -> i32 {
         if self.view_mode() != BrowserMode::Columns {
             return single_pane_preview_reservation(available);

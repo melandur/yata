@@ -7,6 +7,8 @@ use crate::ui::{
 };
 
 const MIN_COLUMN_MULTIPLIER: i32 = 2;
+const PREVIEW_RATIO: i32 = 3;
+const TOTAL_RATIO: i32 = 8;
 
 #[derive(Default)]
 pub(super) struct SplitSizing {
@@ -84,7 +86,11 @@ impl Geometry {
         let free = (self.available - self.separator - self.occupied).max(0);
         let desired = manual.unwrap_or_else(|| {
             if self.columns {
-                free
+                // Yazi's ratio is [1, 4, 3]; the drawer is that last three.
+                self.available
+                    .saturating_mul(PREVIEW_RATIO)
+                    .saturating_div(TOTAL_RATIO)
+                    .min(free)
             } else {
                 free.saturating_mul(9).saturating_div(10).min(MAX_WIDTH)
             }
