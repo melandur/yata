@@ -250,10 +250,12 @@ impl PreviewDrawer {
             print_request: Cell::new(None),
             current_request: Cell::new(None),
             next_request: Cell::new(1),
+            // yazi always shows the preview pane, so yata opens with it on.
+            // Space still toggles it off for a wider file list.
             enabled_action: gio::SimpleAction::new_stateful(
                 "preview-panel",
                 None,
-                &false.to_variant(),
+                &true.to_variant(),
             ),
             animating: Cell::new(false),
             animation_generation: Rc::new(Cell::new(0)),

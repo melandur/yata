@@ -17,7 +17,7 @@ use crate::{
 };
 
 use super::super::{
-    MIN_SIDEBAR_WIDTH, SIDEBAR_WIDTH, SidebarView, animate_sidebar, build_appearance_menu,
+    MIN_SIDEBAR_WIDTH, SidebarView, animate_sidebar, build_appearance_menu,
     pin_status,
 };
 
@@ -38,8 +38,10 @@ impl Header {
     ) -> Self {
         let widget = gtk::HeaderBar::new();
         widget.set_show_title_buttons(false);
+        // yazi has no places sidebar, so yata starts without one. Ctrl+B still
+        // brings it back for the times a pinned location beats typing a path.
         let sidebar_toggle = gtk::ToggleButton::builder()
-            .active(true)
+            .active(false)
             .tooltip_text("Toggle sidebar (Ctrl+B)")
             .build();
         sidebar_toggle.set_child(Some(&assets::primary_icon(icons::PANEL_LEFT, 17)));
@@ -153,11 +155,15 @@ fn browser_split(
     content.add_css_class("sidebar-split");
     // Wide handles keep GTK's mouse hit area inside the divider allocation.
     content.set_wide_handle(true);
-    content.set_shrink_start_child(false);
+    // Start collapsed, mirroring the end state animate_sidebar leaves behind:
+    // the pane must be allowed to shrink past the sidebar's minimum width, and
+    // the sidebar itself hidden, or GTK clamps the position back open.
+    content.set_shrink_start_child(true);
     content.set_resize_start_child(false);
-    content.set_position(SIDEBAR_WIDTH);
+    content.set_position(0);
     content.set_vexpand(true);
     sidebar.widget.set_size_request(MIN_SIDEBAR_WIDTH, -1);
+    sidebar.widget.set_visible(false);
     browser.add_marquee_origin(&sidebar.widget);
     content.set_start_child(Some(&sidebar.widget));
     content.set_end_child(Some(&browser.widget()));
