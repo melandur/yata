@@ -70,3 +70,31 @@ fn opening_the_drawer_does_not_move_the_other_panes() {
     assert_eq!(&closed[..2], &open[..]);
     assert_eq!(closed[2], window - strip, "the drawer takes the child slot");
 }
+
+/// A column cannot render below the width of its header and rows. Forcing a
+/// smaller slot on it overflows the strip into a horizontal scroll, which
+/// clipped the leftmost column off the left edge.
+#[test]
+fn a_slot_under_its_column_minimum_borrows_from_the_widest() {
+    let mut widths = vec![112, 451];
+    assert!(fit_to_floors(&mut widths, &[193, 0]));
+    assert_eq!(widths, vec![193, 370]);
+    assert_eq!(
+        widths.iter().sum::<i32>(),
+        563,
+        "the strip still fits exactly"
+    );
+}
+
+#[test]
+fn floors_that_already_fit_change_nothing() {
+    let mut widths = vec![225, 900, 675];
+    assert!(fit_to_floors(&mut widths, &[193, 193, 193]));
+    assert_eq!(widths, vec![225, 900, 675]);
+}
+
+#[test]
+fn a_shortfall_the_widest_slot_cannot_cover_gives_up() {
+    let mut widths = vec![50, 100];
+    assert!(!fit_to_floors(&mut widths, &[193, 193]));
+}

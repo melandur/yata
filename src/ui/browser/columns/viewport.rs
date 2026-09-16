@@ -52,6 +52,38 @@ fn slot_widths(viewport: i32, ratios: &[u32]) -> Option<Vec<i32>> {
     Some(widths)
 }
 
+/// Raises any slot under its column's intrinsic minimum and takes the deficit
+/// from the widest slot. A column cannot render below the width of its header
+/// and rows, so forcing a smaller slot on it overflows the strip into a
+/// horizontal scroll that clips the leftmost column. Returns false only when
+/// even the widest slot cannot cover the shortfall.
+fn fit_to_floors(widths: &mut [i32], floors: &[i32]) -> bool {
+    let mut deficit = 0;
+    for (width, floor) in widths.iter_mut().zip(floors) {
+        if *width < *floor {
+            deficit += *floor - *width;
+            *width = *floor;
+        }
+    }
+    if deficit == 0 {
+        return true;
+    }
+    let Some(widest) = widths
+        .iter()
+        .enumerate()
+        .max_by_key(|(_, width)| **width)
+        .map(|(index, _)| index)
+    else {
+        return false;
+    };
+    let floor = floors.get(widest).copied().unwrap_or(0);
+    if widths[widest] - deficit < floor {
+        return false;
+    }
+    widths[widest] -= deficit;
+    true
+}
+
 fn restore_column(column: &ColumnView) {
     column.shell.set_visible(true);
     column.resize_handle.set_visible(true);
@@ -113,6 +145,21 @@ impl ViewState {
                 slot_widths(self.viewport_width(), ratios).map(|widths| (first, widths))
             })
             .flatten();
+
+        let widths = widths.and_then(|(first, mut widths)| {
+            let floors: Vec<i32> = (0..widths.len())
+                .map(|slot| {
+                    columns.get(first + slot).map_or(0, |column| {
+                        // Clear our own request first: measure() honours it, so
+                        // leaving it set makes the floor whatever the previous
+                        // pass asked for rather than the column's real minimum.
+                        column.shell.set_size_request(-1, -1);
+                        column.shell.measure(gtk::Orientation::Horizontal, -1).0
+                    })
+                })
+                .collect();
+            fit_to_floors(&mut widths, &floors).then_some((first, widths))
+        });
 
         let Some((first, widths)) = widths else {
             self.columns_widget.set_halign(gtk::Align::Start);
